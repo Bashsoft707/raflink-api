@@ -22,7 +22,10 @@ export class AuthService {
     @InjectModel(Auth.name) private readonly authModel: Model<AuthDocument>,
     @Inject(OtpService)
     private readonly otpService: OtpService,
+    @Inject(JwtService)
     private readonly jwtService: JwtService,
+    @Inject(EmailService)
+    private readonly emailService: EmailService,
     @InjectConnection() private readonly connection: Connection,
     private readonly configService: ConfigService,
   ) {}
@@ -36,9 +39,9 @@ export class AuthService {
           const { otp, email } = payload;
           const filterParams = JSON.parse(JSON.stringify({ email }));
 
-          if (otp !== OTPRELAX.RAFLINK_RELAX_OTP) {
-            await this.otpService.validate({ email, otp });
-          }
+          // if (otp !== OTPRELAX.RAFLINK_RELAX_OTP) {
+          //   await this.otpService.validate({ email, otp });
+          // }
 
           const isExistingUser = await this.authModel
             .findOne({ ...filterParams })
@@ -78,18 +81,18 @@ export class AuthService {
         },
       );
 
-      // await this.emailService.sendEmail({
-      //   receiver: payload.email,
-      //   subject: 'Welcome || Thanks for joining raflink',
-      //   body: ` ${capitalize(payload.username)}, Hello ${
-      //     payload.username
-      //   } You have successfully confirmed you account, welcome`,
-      //   templateKey: TEMPLATES.WELCOME,
-      //   data: {
-      //     name: payload.username,
-      //     companyEmail: this.configService.get(ENV.COMPANY_EMAIL),
-      //   },
-      // });
+      await this.emailService.sendEmail({
+        receiver: payload.email,
+        subject: 'Welcome || Thanks for joining raflink',
+        body: ` ${capitalize(payload.username)}, Hello ${
+          payload.username
+        } You have successfully confirmed your account, welcome buddy`,
+        templateKey: TEMPLATES.ONBOARDING,
+        data: {
+          name: payload.username,
+          companyEmail: this.configService.get(ENV.EMAIL_FROM),
+        },
+      });
 
       return {
         status: 'success',

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { verifyTemplate } from './templates/verify.html';
 import { welcomeTemplate } from './templates/welcome.html';
+import { onboardingTemplate } from './templates/onboarding.html';
 import { TEMPLATES } from 'src/constants';
 import { otpTemplate } from './templates/otp.html';
 
@@ -32,6 +33,14 @@ export class EmailTemplateLoader {
     return this.insertParmasIntoTemplate(otpTemplate, params);
   }
 
+  onboardingTemplate(data: any) {
+    const params = {
+      name: data.name,
+      raflink_email: data.companyEmail,
+    };
+    return this.insertParmasIntoTemplate(welcomeTemplate, params);
+  }
+
   unsupported() {
     return 'template not supported';
   }
@@ -48,6 +57,8 @@ export class EmailTemplateLoader {
         break;
       case TEMPLATES.OTP:
         template = this.otpTemplate(data);
+      case TEMPLATES.ONBOARDING:
+        template = this.onboardingTemplate(data);
         break;
       default:
         return this.unsupported();
