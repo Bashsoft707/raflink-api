@@ -4,7 +4,12 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Model, Connection, ClientSession } from 'mongoose';
 import { ENV, TEMPLATES } from 'src/constants';
 import { OtpService } from './otp.service';
-import { OnboardingDto, TokenData, ValidateOtpDto } from '../dtos';
+import {
+  OnboardingDto,
+  TokenData,
+  UpdateUserDto,
+  ValidateOtpDto,
+} from '../dtos';
 import { EmailService } from '../../email/email.service';
 import { errorHandler } from 'src/utils';
 import { JwtService } from '@nestjs/jwt';
@@ -69,8 +74,6 @@ export class AuthService {
       await this.otpService.validate({ otp, email });
 
       let user: any = await this.userModel.findOne({ email }).exec();
-
-      console.log("email", email)
 
       if (!user) {
         user = await this.userModel.create([
@@ -169,5 +172,52 @@ export class AuthService {
       }),
     ]);
     return { accessToken, refreshToken };
+  }
+
+  async updateUserInfo(userId: string, payload: UpdateUserDto) {
+    const session = await this.connection.startSession();
+
+    try {
+      const user = await this.userModel.findById(userId).exec();
+
+      if (!user) {
+        return {
+          status: 'error',
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'User not found.',
+          data: {},
+          error: null,
+        };
+      }
+
+      const updatedUser = await this.userModel.findByIdAndUpdate(
+        userId,
+        payload,
+        { new: true },
+      );
+
+      if (!updatedUser) {
+        return {
+          status: 'error',
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'Error in updating user info. Please try again later',
+          data: {},
+          error: null,
+        };
+      }
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.CREATED,
+        message: 'User information successfully updated.',
+        data: updatedUser,
+        error: null,
+      };
+    } catch (error) {
+      console.error('Error during updating user info:', error);
+      errorHandler(error);
+    } finally {
+      await session.endSession();
+    }
   }
 }

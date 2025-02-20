@@ -48,7 +48,7 @@ export class EmailService implements IEmailService {
 
         const mailOptions = {
           from: {
-            email: this.configService.get<string>(ENV.EMAIL_FROM),
+            address: String(this.configService.get<string>(ENV.EMAIL_FROM)),
             name: 'Raflink',
           },
           to: data.receiver,
@@ -62,7 +62,7 @@ export class EmailService implements IEmailService {
         return true;
       } catch (error) {
         this.logger.error('Error sending email');
-        // this.logger.error(error);
+        this.logger.error(error);
         return false;
       }
     } else {

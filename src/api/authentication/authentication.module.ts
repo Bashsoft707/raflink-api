@@ -9,6 +9,9 @@ import { JwtModule } from '@nestjs/jwt';
 import { CachesModule } from '../cache/cache.module';
 import { User, UserSchema } from './schema/user.schema';
 import EncryptService from 'src/helpers/encryption';
+import { AccessTokenGuard } from './auth/accessToken.guard';
+import { AccessTokenStrategy } from './auth/accessToken.strategy';
+import { RefreshTokenStrategy } from './auth/refreshToken.strategy';
 
 @Module({
   imports: [
@@ -27,6 +30,8 @@ import EncryptService from 'src/helpers/encryption';
     EncryptService,
     EmailService,
     EmailTemplateLoader,
+    AccessTokenStrategy,
+    RefreshTokenStrategy,
   ],
   controllers: [AuthController],
   exports: [AuthService],
