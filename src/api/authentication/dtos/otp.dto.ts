@@ -1,13 +1,11 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import {
   IsEmail,
-  IsMobilePhone,
   IsNotEmpty,
   IsOptional,
   IsString,
 } from 'class-validator';
-import { RegisterDto } from './auth.dto';
-
+import { OnboardingDto } from './user.dto';
 export class ValidateOtpDto {
   @IsString()
   @IsNotEmpty()
@@ -30,7 +28,7 @@ export class ValidateOtpDto {
   email: string;
 }
 
-export class OtpDto extends PickType(RegisterDto, ['email'] as const) {
+export class OtpDto extends PickType(OnboardingDto, ['email'] as const) {
   @IsEmail()
   @IsOptional()
   @ApiProperty({

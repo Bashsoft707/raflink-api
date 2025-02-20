@@ -1,23 +1,22 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from '../services/authentication.service';
-import {
-  ApiBadRequestResponse,
-  ApiCreatedResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
-import { AuthResponse, BadRequestResponse, RegisterDto } from '../dtos';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { OnboardingDto, ValidateOtpDto } from '../dtos';
 
 @ApiTags('auth')
 @Controller('authentication')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('register')
+  @Post('onboarding')
   @ApiOperation({ summary: 'Endpoint to join raflink onboarding list' })
-  @ApiCreatedResponse({ type: AuthResponse })
-  @ApiBadRequestResponse({ type: BadRequestResponse })
-  async register(@Body() body: RegisterDto) {
-    return await this.authService.register(body);
+  async onboarding(@Body() body: OnboardingDto) {
+    return await this.authService.onboarding(body);
+  }
+
+  @Post('verify-otp')
+  @ApiOperation({ summary: 'Endpoint to verify otp and save user' })
+  async validateOtp(@Body() body: ValidateOtpDto) {
+    return await this.authService.verifyOtpAndSaveUser(body);
   }
 }

@@ -37,8 +37,9 @@ export class EmailTemplateLoader {
     const params = {
       name: data.name,
       raflink_email: data.companyEmail,
+      otp: data.otp,
     };
-    return this.insertParmasIntoTemplate(welcomeTemplate, params);
+    return this.insertParmasIntoTemplate(onboardingTemplate, params);
   }
 
   unsupported() {

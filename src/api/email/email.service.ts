@@ -24,7 +24,6 @@ export class EmailService implements IEmailService {
         pass: this.configService.get<string>(ENV.SMTP_PASS),
       },
       tls: {
-        // minVersion: "TLSv1.2"
         rejectUnauthorized: false,
       },
     });
@@ -63,7 +62,7 @@ export class EmailService implements IEmailService {
         return true;
       } catch (error) {
         this.logger.error('Error sending email');
-        this.logger.error(error);
+        // this.logger.error(error);
         return false;
       }
     } else {

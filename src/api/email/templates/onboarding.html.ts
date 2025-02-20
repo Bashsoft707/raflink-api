@@ -32,6 +32,7 @@ export const onboardingTemplate = `<!DOCTYPE html>
                                                 <td>
                                                     <div class="" style="padding: 1.3rem; padding: 15px 15px 15px 15px; line-height: 2rem; font-family: 'Lato Regular', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; background-color: #fff;">
                                                         <p><b>Hi {name},</b></p>
+                                                        <p>Your OTP for email verification is: {otp} Please enter this OTP to confirm your email address.</p>
                                                         <p class="mail">
                                                             Thank you for joining the raflink community! We're excited to have you on board. At raflink, we are dedicated to simplifying payments for individuals and businesses alike, making it easier for you to pay and get paid – anytime, anywhere.
                                                         </p>
@@ -47,29 +48,8 @@ export const onboardingTemplate = `<!DOCTYPE html>
                                                     </div>
                                                     <div style="width: 100%; background: #9747ff; padding: 2rem 0;">
                                                         <p style="font-family: 'Lato Bold', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; color: white; font-size: 2rem; text-align: center;">
-                                                            We're here to make payments easier for you.
+                                                            We're here to make affiliate marketing easier for you.
                                                         </p>
-                                                        <img src="https://raflink.vercel.app/_static/images/banner.png" alt="" style="width: 80%; background-position: center; background-size: cover; margin: 2rem;" />
-                                                        <div style="width: fit-content; margin: 0 auto">
-                                                            <button style="margin-bottom: 0.7rem; background: #000; border-radius: 14px; padding: 0.9rem 1.8rem; display: flex; justify-content: space-between; gap: 1rem; align-items: center; text-align: center; width: auto; color: #fff; border: none; font-family: 'Lato Regular', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
-                                                                <img src="https://raflink.vercel.app/_static/icons/apple.png" alt="App Store" style="width: 1.3rem" />
-                                                                <div class="btn-details">
-                                                                    <p class="btn-download">Download on</p>
-                                                                    <p style="font-family: 'Lato Bold', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; font-size: 1.3rem;">
-                                                                        Appstore
-                                                                    </p>
-                                                                </div>
-                                                            </button>
-                                                            <button style="background: #000; border-radius: 14px; padding: 0.9rem 1.8rem; display: flex; justify-content: space-between; gap: 1rem; align-items: center; text-align: center; width: auto; color: #fff; border: none; font-family: 'Lato Regular', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
-                                                                <img src="https://raflink.vercel.app/_static/icons/playstore.png" alt="Play Store" style="width: 1.3rem" />
-                                                                <div class="btn-details">
-                                                                    <p class="btn-download">Download on</p>
-                                                                    <p style="font-family: 'Lato Bold', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; font-size: 1.3rem;">
-                                                                        Playstore
-                                                                    </p>
-                                                                </div>
-                                                            </button>
-                                                        </div>
                                                     </div>
                                                     <footer style="background-color: #fff; padding-bottom: 2rem; padding-top: 1rem; margin-bottom: 1rem;">
                                                         <p style="width: 85%; margin: 1rem auto; font-family: 'Lato Regular', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; color: #666666; line-height: 1.7rem; text-align: center;">

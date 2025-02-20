@@ -24,18 +24,16 @@ export class OtpService implements IOtp {
     return data;
   }
 
-  async create(phoneNumber: string): Promise<string> {
-    await this.cacheService.delete(
-      `${CACHE_METADATA.OTP_SERVICE}_${phoneNumber}`,
-    );
+  async create(email: string): Promise<string> {
+    await this.cacheService.delete(`${CACHE_METADATA.OTP_SERVICE}_${email}`);
     let otp = randomNumberGen(4);
     if (process.env.NODE_ENV !== 'production') {
       otp = '1235';
     }
-    await this.cacheService.save({
+    const savedOtp = await this.cacheService.save({
       data: { otp },
       ttl: 60 * 60 * 10,
-      key: `${CACHE_METADATA.OTP_SERVICE}_${phoneNumber}`,
+      key: `${CACHE_METADATA.OTP_SERVICE}_${email}`,
     });
     return otp;
   }
