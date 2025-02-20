@@ -1,6 +1,7 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude } from 'class-transformer';
 import { Document, Types } from 'mongoose';
+import { SOCIALS } from 'src/constants';
 
 @Schema({
   timestamps: true,
@@ -21,23 +22,20 @@ export class User {
   @Prop({ lowecase: true })
   image: string;
 
-  @Prop({
-    type: Object,
-    default: {
-      instagram: '',
-      youtube: '',
-      whatsapp: '',
-      tiktok: '',
-      website: '',
-    },
-  })
-  socialLinks: {
-    instagram: string;
-    youtube: string;
-    whatsapp: string;
-    tiktok: string;
-    website: string;
-  };
+  @Prop(
+    raw([
+      {
+        name: { enum: SOCIALS, type: String },
+        linkUrl: { type: String },
+        thumbnail: { type: String },
+      },
+    ]),
+  )
+  socialLinks: Array<{
+    name: string;
+    linkUrl: string;
+    thumbnail: string;
+  }>;
 
   @Prop({ lowercase: true })
   goals: string;

@@ -10,6 +10,7 @@ import { AuthModule } from './api/authentication/authentication.module';
 import { CachesModule } from './api/cache/cache.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
+import { TemplateModule } from './api/tp/template.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
     }),
     AuthModule,
     CachesModule,
+    TemplateModule,
   ],
   controllers: [AppController],
   providers: [

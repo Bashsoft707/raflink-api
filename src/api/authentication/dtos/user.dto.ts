@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import {
+  IsArray,
   IsEmail,
-  IsObject,
   IsOptional,
   IsString,
   ValidateNested,
@@ -25,52 +25,32 @@ class SocialLink {
   @IsString()
   @IsOptional()
   @ApiProperty({
-    description: 'Website',
-    example: 'www.raflink.com',
-    required: false,
-    title: 'website',
+    description: 'Social media platform name',
+    example: 'Website',
+    required: true,
+    title: 'name',
   })
-  website: string;
+  name: string;
 
   @IsString()
   @IsOptional()
   @ApiProperty({
-    description: 'Instagram',
+    description: 'Link url',
     example: 'www.instagram.com/raff',
-    required: false,
-    title: 'instagram',
+    required: true,
+    title: 'linkUrl',
   })
-  instagram: string;
+  linkUrl: string;
 
   @IsString()
   @IsOptional()
   @ApiProperty({
-    description: 'Youtube',
-    example: 'www.youtube.com/raff',
+    description: 'Thumbnail url',
+    example: 'www.youtube.com/raff/images',
     required: false,
-    title: 'youtube',
+    title: 'thumbnail',
   })
-  youtube: string;
-
-  @IsString()
-  @IsOptional()
-  @ApiProperty({
-    description: 'Tiktok',
-    example: 'www.tiktok.com/raff',
-    required: false,
-    title: 'tiktok',
-  })
-  tiktok: string;
-
-  @IsString()
-  @IsOptional()
-  @ApiProperty({
-    description: 'Whatsapp',
-    example: 'https://wa.me/0700000000',
-    required: false,
-    title: 'whatsapp',
-  })
-  whatsapp: string;
+  thumbnail: string;
 }
 
 export class UpdateUserDto {
@@ -126,23 +106,23 @@ export class UpdateUserDto {
   })
   goals: string;
 
-  @IsObject()
+  @IsArray()
   @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => SocialLink)
   @ApiProperty({
-    description: 'Object of social links',
-    example: {
-      instagram: 'www.instagram.com/raff',
-      website: 'www.raflink.com',
-      tiktok: 'www.tiktok.com/raff',
-      whatsapp: 'www.wa.me/0700000000000',
-      youtube: 'www.youtube.com/raff',
-    },
+    description: 'Array of objects of social links',
+    example: [
+      {
+        name: 'website',
+        linkUrl: 'www.raflink.com',
+        thumbnail: 'www.raflink.com/images',
+      },
+    ],
     required: false,
-    title: 'socialLinks',
+    title: 'affiliateLinks',
   })
-  socialLinks: SocialLink;
+  socialLinks: SocialLink[];
 }
 
 export type TokenData = {

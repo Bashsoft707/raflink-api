@@ -40,3 +40,23 @@ export enum OTPRELAX {
 export enum CACHE_METADATA {
   OTP_SERVICE = 'OTP_SERVICE',
 }
+
+export enum TEMPLATE_LINK_LAYOUT {
+  CLASSIC = 'CLASSIC',
+  FEATURED = 'FEATURED',
+}
+
+export enum SOCIAL_LINKS_POSITON {
+  TOP = 'TOP',
+  LEFT = 'LEFT',
+  RIGHT = 'RIGHT',
+  DOWN = 'DOWN',
+}
+
+export enum SOCIALS {
+  WEBSITE = 'WEBSITE',
+  INSTAGRAM = 'INSTAGRAM',
+  TIKTOK = 'TIKTOK',
+  YOUTUBE = 'YOUTUBE',
+  WHATSAPP = 'WHATSAPP',
+}
