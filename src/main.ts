@@ -16,7 +16,7 @@ async function bootstrap() {
 
   // if (SWAGGER_ENVS.includes(ENV.NODE_DEV)) {
     app.use(
-      ['/docs'],
+      ['/api'],
       basicAuth({
         challenge: true,
         users: {
