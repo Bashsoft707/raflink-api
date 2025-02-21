@@ -1,5 +1,5 @@
 import { IsNumber, IsObject, IsString } from 'class-validator';
-import { GenericMatch } from 'src/interfaces/generic.interface';
+import { GenericMatch } from '../../../interfaces/generic.interface';
 
 export class RegisterCacheDto {
   @IsObject()

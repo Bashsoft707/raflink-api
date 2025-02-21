@@ -2,7 +2,7 @@ import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Model, Connection, ClientSession } from 'mongoose';
-import { ENV, TEMPLATES } from 'src/constants';
+import { ENV, TEMPLATES } from '../../../constants';
 import { OtpService } from './otp.service';
 import {
   OnboardingDto,
@@ -11,10 +11,10 @@ import {
   ValidateOtpDto,
 } from '../dtos';
 import { EmailService } from '../../email/email.service';
-import { errorHandler } from 'src/utils';
+import { errorHandler } from '../../../utils';
 import { JwtService } from '@nestjs/jwt';
 import { User, UserDocument } from '../schema/user.schema';
-import EncryptService from 'src/helpers/encryption';
+import EncryptService from '../../../helpers/encryption';
 
 @Injectable()
 export class AuthService {

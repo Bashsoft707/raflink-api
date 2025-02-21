@@ -4,7 +4,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateTemplateDto, CreateUserTemplateDto } from '../dtos';
 import { AccessTokenGuard } from '../../authentication/auth';
 import { Request } from 'express';
-import { TokenData } from 'src/api/authentication/dtos';
+import { TokenData } from '../../../api/authentication/dtos';
 
 @ApiTags('templates')
 @Controller('templates')

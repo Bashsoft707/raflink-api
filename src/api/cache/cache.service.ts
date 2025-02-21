@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { RegisterCacheDto } from './dto/cache.dto';
-import { GenericMatch } from 'src/interfaces';
+import { GenericMatch } from '../../interfaces';
 import { ICache } from './interface/cache.interface';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 

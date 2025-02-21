@@ -1,9 +1,9 @@
 import { ValidateOtpDto } from '../dtos';
 import { BadRequestException, HttpStatus, Inject } from '@nestjs/common';
-import { randomNumberGen } from 'src/utils';
+import { randomNumberGen } from '../../../utils';
 import { IOtp } from '../interface';
-import { CacheService } from 'src/api/cache/cache.service';
-import { CACHE_METADATA } from 'src/constants';
+import { CacheService } from '../../../api/cache/cache.service';
+import { CACHE_METADATA } from '../../../constants';
 
 export class OtpService implements IOtp {
   constructor(

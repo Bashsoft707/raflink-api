@@ -1,7 +1,7 @@
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude } from 'class-transformer';
 import { Document, Types } from 'mongoose';
-import { SOCIALS } from 'src/constants';
+import { SOCIALS } from '../../../constants';
 
 @Schema({
   timestamps: true,

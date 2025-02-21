@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from 'src/helpers';
+import { HttpExceptionFilter } from './helpers';
 import helmet from 'helmet';
-import { ENV } from 'src/constants';
+import { ENV } from './constants';
 import basicAuth from 'express-basic-auth';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';

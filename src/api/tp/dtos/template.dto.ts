@@ -10,7 +10,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { SOCIAL_LINKS_POSITON, TEMPLATE_LINK_LAYOUT } from 'src/constants';
+import { SOCIAL_LINKS_POSITON, TEMPLATE_LINK_LAYOUT } from '../../../constants';
 
 class AffiliateLink {
   @IsString()

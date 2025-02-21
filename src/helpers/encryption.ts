@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
-import { ENV } from 'src/constants';
+import { ENV } from '../constants';
 
 const IV_LENGTH = 16;
 @Injectable()

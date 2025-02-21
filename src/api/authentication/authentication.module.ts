@@ -8,8 +8,7 @@ import { EmailTemplateLoader } from '../email/email-template-loader';
 import { JwtModule } from '@nestjs/jwt';
 import { CachesModule } from '../cache/cache.module';
 import { User, UserSchema } from './schema/user.schema';
-import EncryptService from 'src/helpers/encryption';
-import { AccessTokenGuard } from './auth/accessToken.guard';
+import EncryptService from '../../helpers/encryption';
 import { AccessTokenStrategy } from './auth/accessToken.strategy';
 import { RefreshTokenStrategy } from './auth/refreshToken.strategy';
 

@@ -2,7 +2,7 @@ import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { CreateTemplateDto, CreateUserTemplateDto } from '../dtos';
-import { errorHandler } from 'src/utils';
+import { errorHandler } from '../../../utils';
 import {
   UserTemplate,
   UserTemplateDocument,

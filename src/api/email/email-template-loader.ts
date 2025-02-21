@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { verifyTemplate } from './templates/verify.html';
 import { welcomeTemplate } from './templates/welcome.html';
 import { onboardingTemplate } from './templates/onboarding.html';
-import { TEMPLATES } from 'src/constants';
+import { TEMPLATES } from '../../constants';
 import { otpTemplate } from './templates/otp.html';
 
 @Injectable()

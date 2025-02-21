@@ -1,4 +1,4 @@
-import { GenericMatch } from 'src/interfaces';
+import { GenericMatch } from '../../../interfaces';
 import { RegisterCacheDto } from '../dto/cache.dto';
 
 export interface ICache {

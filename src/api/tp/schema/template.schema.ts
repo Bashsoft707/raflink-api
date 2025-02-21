@@ -1,6 +1,6 @@
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { SOCIAL_LINKS_POSITON, TEMPLATE_LINK_LAYOUT } from 'src/constants';
+import { SOCIAL_LINKS_POSITON, TEMPLATE_LINK_LAYOUT } from '../../../constants';
 
 @Schema({
   timestamps: true,

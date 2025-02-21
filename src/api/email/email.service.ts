@@ -3,7 +3,7 @@ import * as nodemailer from 'nodemailer';
 import { IEmailService, ISendEmailBody } from './email.interface';
 import { EmailTemplateLoader } from './email-template-loader';
 import { ConfigService } from '@nestjs/config';
-import { ENV, NODE_ENV } from 'src/constants';
+import { ENV, NODE_ENV } from '../../constants';
 
 @Injectable()
 export class EmailService implements IEmailService {
