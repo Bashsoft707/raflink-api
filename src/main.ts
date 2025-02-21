@@ -14,7 +14,7 @@ async function bootstrap() {
   });
   const SWAGGER_ENVS = ['development', 'local'];
 
-  if (SWAGGER_ENVS.includes(ENV.NODE_DEV)) {
+  // if (SWAGGER_ENVS.includes(ENV.NODE_DEV)) {
     app.use(
       ['/api'],
       basicAuth({
@@ -33,7 +33,7 @@ async function bootstrap() {
       .build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, document);
-  }
+  // }
 
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new HttpExceptionFilter());
