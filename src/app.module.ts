@@ -21,12 +21,7 @@ import { TemplateModule } from './api/tp/template.module';
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath:
-        process.env.NODE_ENV === NODE_ENV.PROD
-          ? '.prod.env'
-          : process.env.NODE_ENV === NODE_ENV.STAGING
-            ? '.staging.env'
-            : '.dev.env',
+      envFilePath: '.env',
     }),
     AuthModule,
     CachesModule,
