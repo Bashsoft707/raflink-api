@@ -11,10 +11,11 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
+    cors: true,
   });
 
   app.enableCors({
-    origin: true,
+    origin: ['https://raflink.vercel.app', 'http://localhost:5173'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
     allowedHeaders: [
@@ -23,8 +24,6 @@ async function bootstrap() {
       'X-Requested-With',
       'Accept',
     ],
-    exposedHeaders: ['Content-Range', 'X-Content-Range'],
-    maxAge: 86400,
   });
 
   app.use(
