@@ -1,4 +1,10 @@
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Model, Connection, ClientSession } from 'mongoose';
@@ -66,32 +72,43 @@ export class AuthService {
   }
 
   async verifyOtpAndSaveUser(payload: ValidateOtpDto) {
-    const session = await this.connection.startSession();
-
+    let session;
     try {
+      session = await this.connection.startSession();
+      session.startTransaction();
+
       const { email, otp } = payload;
 
-      await this.otpService.validate({ otp, email });
+      try {
+        await this.otpService.validate({ otp, email });
+      } catch (error) {
+        throw new BadRequestException({
+          status: 'error',
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: error.message || 'Invalid OTP',
+          data: {},
+          error: null,
+        });
+      }
 
-      let user: any = await this.userModel.findOne({ email }).exec();
+      let user = await this.userModel
+        .findOne({ email })
+        .session(session)
+        .exec();
 
       if (!user) {
-        user = await this.userModel.create([
-          {
-            email,
-          },
-          { session },
-        ]);
+        const [newUser] = await this.userModel.create([{ email }], { session });
+        user = newUser;
       }
 
       if (!user) {
-        return {
+        throw new InternalServerErrorException({
           status: 'error',
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
           message: 'User could not be created. Please try again later.',
-          data: {},
+          data: null,
           error: null,
-        };
+        });
       }
 
       const tokenData: TokenData = {
@@ -107,6 +124,8 @@ export class AuthService {
         session,
       );
 
+      await session.commitTransaction();
+
       return {
         status: 'success',
         statusCode: HttpStatus.CREATED,
@@ -119,17 +138,26 @@ export class AuthService {
         error: null,
       };
     } catch (error) {
-      console.error('Error during OTP verification and user creation:', error);
+      if (session) {
+        await session.abortTransaction();
+      }
 
-      return {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+
+      console.error('Error during OTP verification and user creation:', error);
+      throw new InternalServerErrorException({
         status: 'error',
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Something went wrong while verifying OTP and saving user.',
-        data: {},
+        data: null,
         error: error.message || 'Internal server error',
-      };
+      });
     } finally {
-      await session.endSession();
+      if (session) {
+        await session.endSession();
+      }
     }
   }
 
