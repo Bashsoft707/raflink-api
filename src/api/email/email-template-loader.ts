@@ -4,13 +4,14 @@ import { welcomeTemplate } from './templates/welcome.html';
 import { onboardingTemplate } from './templates/onboarding.html';
 import { TEMPLATES } from '../../constants';
 import { otpTemplate } from './templates/otp.html';
+import { waitingListTemplate } from './templates/waitinglist.html';
 
 @Injectable()
 export class EmailTemplateLoader {
   verifyTemplate(data: any) {
     const params = {
       code: data.code || 1234,
-      auferaMail: 'contact@raflink.com',
+      raflinkMail: 'contact@raflink.com',
     };
 
     return this.insertParmasIntoTemplate(verifyTemplate, params);
@@ -31,6 +32,14 @@ export class EmailTemplateLoader {
       name: data.name,
     };
     return this.insertParmasIntoTemplate(otpTemplate, params);
+  }
+
+  waitingListTemplate(data: any) {
+    const params = {
+      name: data.name,
+      raflink_email: data.companyEmail,
+    };
+    return this.insertParmasIntoTemplate(waitingListTemplate, params);
   }
 
   onboardingTemplate(data: any) {
@@ -60,6 +69,9 @@ export class EmailTemplateLoader {
         template = this.otpTemplate(data);
       case TEMPLATES.ONBOARDING:
         template = this.onboardingTemplate(data);
+        break;
+      case TEMPLATES.WAITLIST:
+        template = this.waitingListTemplate(data);
         break;
       default:
         return this.unsupported();

@@ -37,7 +37,7 @@ export class EmailService implements IEmailService {
   }
 
   async sendEmail(data: ISendEmailBody): Promise<boolean> {
-    if (process.env.NODE_ENV === NODE_ENV.PROD) {
+    // if (process.env.NODE_ENV === NODE_ENV.PROD) {
       try {
         let template = this._emailTemplate
           .getTemplate((<any>data).templateKey, data.data)
@@ -65,9 +65,9 @@ export class EmailService implements IEmailService {
         this.logger.error(error);
         return false;
       }
-    } else {
-      this.logger.log('Email sending disabled in DEV ENVIRONMENT');
-      return false;
-    }
+    // } else {
+    //   this.logger.log('Email sending disabled in DEV ENVIRONMENT');
+    //   return false;
+    // }
   }
 }

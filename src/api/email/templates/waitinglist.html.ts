@@ -1,4 +1,4 @@
-export const onboardingTemplate = `<!DOCTYPE html>
+export const waitingListTemplate = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,9 +7,9 @@ export const onboardingTemplate = `<!DOCTYPE html>
     <link rel="stylesheet" href="https://raflink.vercel.app/_static/styles/index.css" />
 </head>
 <body style="background-color: #fff">
-    <table align="center" style="border-color: transparent; background-color: #f9f5ff; width: 366px; margin: auto;">
-        <tbody align="center" style="border-color: transparent; background-color: #f9f5ff; width: 366px;">
-            <tr align="center" style="border-color: transparent; background-color: #f9f5ff; width: 366px;">
+    <table align="center" style="border-color: transparent; background-color: #F1FAEC; width: 366px; margin: auto;">
+        <tbody align="center" style="border-color: transparent; background-color: #F1FAEC; width: 366px;">
+            <tr align="center" style="border-color: transparent; background-color: #F1FAEC; width: 366px;">
                 <td align="center" style="font-family: 'Lato', sans-serif; width: 342px; height: 100%; margin: 0 auto; padding: 0; padding-top: 2em; padding-left: 0.5em; padding-right: 0.5em;">
                     <table style="width: 100%; height: 172px; background-repeat: no-repeat">
                         <tbody>
@@ -32,10 +32,6 @@ export const onboardingTemplate = `<!DOCTYPE html>
                                                 <td>
                                                     <div class="" style="padding: 1.3rem; padding: 15px 15px 15px 15px; line-height: 2rem; font-family: 'Lato Regular', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; background-color: #fff;">
                                                         <p><b>Hi {name},</b></p>
-                                                        <p>Your OTP for email verification is: {otp} Please enter this OTP to confirm your email address.</p>
-                                                        <p class="mail">
-                                                            Thank you for joining the raflink community! We're excited to have you on board. At raflink, we are dedicated to simplifying payments for individuals and businesses alike, making it easier for you to pay and get paid – anytime, anywhere.
-                                                        </p>
                                                         <p class="mail">
                                                             You’re now on our waiting list, and we’re working hard to bring raflink to everyone as quickly as possible. We’ll notify you as soon as you’re able to start using our service.
                                                         </p>
@@ -46,8 +42,8 @@ export const onboardingTemplate = `<!DOCTYPE html>
                                                         <p>Kind Regards, <br />The raflink Team</p>
                                                         <hr style="margin: 1rem 0; border: none; height: 2px; width: 100%; background: #e6e6e6;" />
                                                     </div>
-                                                    <div style="width: 100%; background: #9747ff; padding: 2rem 0;">
-                                                        <p style="font-family: 'Lato Bold', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; color: white; font-size: 2rem; text-align: center;">
+                                                    <div style="width: 100%; background: #F1FAEC; padding: 2rem 0;">
+                                                        <p style="font-family: 'Lato Bold', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; color: black; font-size: 2rem; text-align: center;">
                                                             We're here to make affiliate marketing easier for you.
                                                         </p>
                                                     </div>

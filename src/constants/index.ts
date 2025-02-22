@@ -31,6 +31,7 @@ export enum TEMPLATES {
   VERIFY = 'VERIFY',
   OTP = 'OTP',
   ONBOARDING = 'ONBOARDING',
+  WAITLIST = 'WAITLIST',
 }
 
 export enum OTPRELAX {

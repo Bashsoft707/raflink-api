@@ -15,8 +15,14 @@ import { Request } from 'express';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Post('waiting-list')
+  @ApiOperation({ summary: 'Endpoint to join raflink waiting list' })
+  async waitinglist(@Body() body: OnboardingDto) {
+    return await this.authService.waitingList(body);
+  }
+
   @Post('onboarding')
-  @ApiOperation({ summary: 'Endpoint to join raflink onboarding list' })
+  @ApiOperation({ summary: 'Endpoint to onboard a user' })
   async onboarding(@Body() body: OnboardingDto) {
     return await this.authService.onboarding(body);
   }

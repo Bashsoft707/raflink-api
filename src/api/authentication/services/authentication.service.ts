@@ -38,6 +38,33 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
+  async waitingList(payload: OnboardingDto) {
+    try {
+      const { email } = payload;
+
+      await this.emailService.sendEmail({
+        receiver: payload.email,
+        subject: 'Welcome to raflink',
+        body: `Hello user, You've joined the waitlist successfully`,
+        templateKey: TEMPLATES.WAITLIST,
+        data: {
+          name: 'User',
+          companyEmail: this.configService.get(ENV.EMAIL_FROM),
+        },
+      });
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.CREATED,
+        message: 'User added to waitlist successfully',
+        data: email,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
   async onboarding(payload: OnboardingDto) {
     const session = await this.connection.startSession();
 
