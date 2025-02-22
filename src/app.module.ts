@@ -21,6 +21,7 @@ import { TemplateModule } from './api/tp/template.module';
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
+      cache: true,
       envFilePath: '.env',
     }),
     AuthModule,
