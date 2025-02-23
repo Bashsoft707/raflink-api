@@ -126,6 +126,17 @@ export class AuthService {
       if (!user) {
         const [newUser] = await this.userModel.create([{ email }], { session });
         user = newUser;
+
+        await this.emailService.sendEmail({
+          receiver: payload.email,
+          subject: 'Welcome to raflink',
+          body: `Hello user, Welcome to Raflink`,
+          templateKey: TEMPLATES.WELCOME,
+          data: {
+            name: 'User',
+            companyEmail: this.configService.get(ENV.EMAIL_FROM),
+          },
+        });
       }
 
       if (!user) {

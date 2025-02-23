@@ -1,323 +1,224 @@
-export const welcomeTemplate = `<!DOCTYPE html>
+export const welcomeTemplate = `
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to raflink</title>
-    <link rel="stylesheet" href="https://raflink.vercel.app/_static/styles/index.css" />
-  </head>
-  <body style="background-color: #fff">
-    <table
-      align="center"
-      style="
-        border-color: transparent;
-        background-color: #f9f5ff;
-        width: 366px;
-        margin: auto;
-      "
-    >
-      <tbody
-        align="center"
-        style="
-          border-color: transparent;
-          background-color: #f9f5ff;
-          width: 366px;
-        "
-      >
-        <tr
-          align="center"
-          style="
-            border-color: transparent;
-            background-color: #f9f5ff;
-            width: 366px;
-          "
-        >
-          <td
-            align="center"
-            style="
-              font-family: 'Lato', sans-serif;
-              width: 342px;
-              height: 100%;
-              margin: 0 auto;
-              padding: 0;
-              padding-top: 2em;
-              padding-left: 0.5em;
-              padding-right: 0.5em;
-            "
-          >
-            <table
-              style="width: 100%; height: 172px; background-repeat: no-repeat"
-            >
-              <tbody>
-                <tr>
-                  <td>
-                    <div width="100%" height="143" align="center">
-                      <img
-                        align="center"
-                        alt=""
-                        src="https://raflink.vercel.app/_static/images/hero-bg.png"
-                        style="border: 0; text-decoration: none; display: block"
-                      />
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <table
-              style="
-                border-collapse: collapse;
-                font-size: 14px;
-                line-height: 1.5;
-                width: 100%;
-              "
-              width="100%"
-            >
-              <tbody>
-                <tr style="border-color: transparent">
-                  <th
-                    width="650"
-                    style="
-                      border-color: transparent;
-                      font-weight: normal;
-                      text-align: left;
-                      vertical-align: top;
-                    "
-                    lign="left"
-                    valign="top"
-                  >
-                    <table
-                      width="100%"
-                      style="
-                        border-collapse: collapse;
-                        font-size: 14px;
-                        line-height: 1.5;
-                        font-weight: normal;
-                        margin: 0;
-                      "
-                    >
-                      <tbody>
-                        <tr style="border-color: transparent; color: #1e1e1e">
-                          <td>
-                            <div
-                              class=""
-                              style="
-                                padding: 1.3rem;
-                                padding: 15px 15px 15px 15px;
-                                line-height: 2rem;
-                                font-family: 'Lato Regular', system-ui,
-                                  -apple-system, BlinkMacSystemFont, 'Segoe UI',
-                                  Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans',
-                                  'Helvetica Neue', sans-serif;
-                                background-color: #fff;
-                              "
-                            >
-                              <p><b>Hi {name},</b></p>
-                                <p class="mail">
-                                    Welcome to raflink, the payment service that works just for you. We understand how difficult and frustrating it is to make payments especially when you need to pay your fruit vendors, shoemakers, and pepper sellers and have put this as our primary objective to help you with.
-                                </p>
-                                <p class="mail">
-                                    We started raflink with two simple goals, to help people make payments easily and help the SMBs collect payment easily without a smartphone with immediate payment confirmation.
-                                </p>
-                                <p class="mail">We genuinely care about how payment is made and processed in Nigeria, especially in-person payment, so if there’s anything at all we can do to help, please reach out to our amazing customer success team via email <a href="{raflink_email}">{raflink_email}</a>.</p>
-                                <p class="mail">Thank you and welcome again to raflink.</p>
-                                <p>Kind Regards, <br />The raflink team</p>
-                              <hr
-                                style="
-                                  margin: 1rem 0;
-                                  border: none;
-                                  height: 2px;
-                                  width: 100%;
-                                  background: #e6e6e6;
-                                "
-                              />
+    <title>Welcome to Raflinks</title>
+    <style>
+        /* Base styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+        }
+
+        /* Container styles */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+
+        /* Header styles */
+        .header {
+            background-image: url('https://raflink.vercel.app/images/email_template_header.jpeg');
+            background-size: cover;
+            background-position: center;
+            padding: 20px;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .headerContent {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        /* Content styles */
+        .content {
+            padding: 20px;
+        }
+
+        /* Feature box styles */
+        .feature-box {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1B3B36;
+            margin-bottom: 8px;
+        }
+
+        .feature-description {
+            color: #666666;
+            margin-top: 0;
+        }
+
+        .feature-image {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        /* Button styles */
+        .cta-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #1B3B36;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 24px;
+            margin: 20px 0;
+        }
+
+        /* Footer styles */
+        .footer {
+            background-color: #f8f8f8;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .social-icons {
+            margin: 20px 0;
+        }
+
+        .social-icons img {
+            width: 24px;
+            height: 24px;
+            margin: 0 10px;
+        }
+
+        .footer-links {
+            margin: 20px 0;
+        }
+
+        .footer-links a {
+            color: #333333;
+            text-decoration: underline;
+            margin: 0 10px;
+        }
+
+        .footer-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        /* Responsive styles */
+        @media screen and (max-width: 600px) {
+            .container {
+                width: 100% !important;
+            }
+            
+            .content {
+                padding: 15px !important;
+            }
+
+            .footer {
+                padding: 20px 15px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <table class="container" cellpadding="0" cellspacing="0" border="0" align="center">
+        <tr>
+            <td>
+                <!-- Header Section -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                        <td class="header">
+                            <div class="headerContent">
+                                <img src="https://raflink.vercel.app/images/logo.png" alt="Raflinks Logo" style="width: 80px;">
+                                <h1 style="color: #1B3B36; margin-top: 20px;">Let's Start Tracking Your Links 🚀</h1>
+                                <p style="color: #666666;">Ease in tracking links, earning commissions, and growing your influence starts today! 🎉</p>
                             </div>
-                            <div
-                              style="
-                                width: 100%;
-                                background: #9747ff;
-                                padding: 2rem 0;
-                              "
-                            >
-                              <p
-                                style="
-                                  font-family: 'Lato Bold', system-ui,
-                                    -apple-system, BlinkMacSystemFont,
-                                    'Segoe UI', Roboto, Oxygen, Ubuntu,
-                                    Cantarell, 'Open Sans', 'Helvetica Neue',
-                                    sans-serif;
-                                  color: white;
-                                  font-size: 2rem;
-                                  text-align: center;
-                                "
-                              >
-                                Bank reliably with raflink
-                              </p>
-                              <img
-                                src="https://raflink.vercel.app/_static/images/banner.png"
-                                alt=""
-                                style="
-                                  width: 80%;
-                                  background-position: center;
-                                  background-size: cover;
-                                  margin: 2rem;
-                                "
-                              />
-                              <div style="width: fit-content; margin: 0 auto">
-                                <button
-                                  style="
-                                    margin-bottom: 0.7rem;
-                                    background: #000;
-                                    border-radius: 14px;
-                                    padding: 0.9rem 1.8rem;
-                                    display: flex;
-                                    justify-content: space-between;
-                                    gap: 1rem;
-                                    align-items: center;
-                                    text-align: center;
-                                    width: auto;
-                                    color: #fff;
-                                    border: none;
-                                    font-family: 'Lato Regular', system-ui,
-                                      -apple-system, BlinkMacSystemFont,
-                                      'Segoe UI', Roboto, Oxygen, Ubuntu,
-                                      Cantarell, 'Open Sans', 'Helvetica Neue',
-                                      sans-serif;
-                                  "
-                                >
-                                  <img
-                                    src="https://raflink.vercel.app/_static/icons/apple.png"
-                                    alt="App Store"
-                                    style="width: 1.3rem"
-                                  />
-                                  <div class="btn-details">
-                                    <p class="btn-download">Download on</p>
-                                    <p
-                                      style="
-                                        font-family: 'Lato Bold', system-ui,
-                                          -apple-system, BlinkMacSystemFont,
-                                          'Segoe UI', Roboto, Oxygen, Ubuntu,
-                                          Cantarell, 'Open Sans',
-                                          'Helvetica Neue', sans-serif;
-                                        font-size: 1.3rem;
-                                      "
-                                    >
-                                      Appstore
-                                    </p>
-                                  </div>
-                                </button>
-                                <button
-                                  style="
-                                    background: #000;
-                                    border-radius: 14px;
-                                    padding: 0.9rem 1.8rem;
-                                    display: flex;
-                                    justify-content: space-between;
-                                    gap: 1rem;
-                                    align-items: center;
-                                    text-align: center;
-                                    width: auto;
-                                    color: #fff;
-                                    border: none;
-                                    font-family: 'Lato Regular', system-ui,
-                                      -apple-system, BlinkMacSystemFont,
-                                      'Segoe UI', Roboto, Oxygen, Ubuntu,
-                                      Cantarell, 'Open Sans', 'Helvetica Neue',
-                                      sans-serif;
-                                  "
-                                >
-                                  <img
-                                    src="https://raflink.vercel.app/_static/icons/playstore.png"
-                                    alt="Play Store"
-                                    style="width: 1.3rem"
-                                  />
-                                  <div class="btn-details">
-                                    <p class="btn-download">Download on</p>
-                                    <p
-                                      style="
-                                        font-family: 'Lato Bold', system-ui,
-                                          -apple-system, BlinkMacSystemFont,
-                                          'Segoe UI', Roboto, Oxygen, Ubuntu,
-                                          Cantarell, 'Open Sans',
-                                          'Helvetica Neue', sans-serif;
-                                        font-size: 1.3rem;
-                                      "
-                                    >
-                                      Playstore
-                                    </p>
-                                  </div>
-                                </button>
-                              </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Main Content Section -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                        <td class="content">
+                            <p>Hello User,</p>
+                            <p>We're so excited to have you on board! With Raflink, you have everything you need to organize, share, and track your links—all in one place. Whether you're growing your influence, promoting affiliate products, or just keeping things together, we've got you covered.</p>
+                            
+                            <p>Here's what you can look forward to:</p>
+
+                            <div class="feature-box">
+                                <div class="feature-title">Add Your Links</div>
+                                <p class="feature-description">Organize all your affiliate and personal links in one place.</p>
+                                <img src="https://raflink.vercel.app/images/add_your_link.png" alt="Add Your Links Interface" class="feature-image">
                             </div>
-                            <footer
-                              style="
-                                background-color: #fff;
-                                padding-bottom: 2rem;
-                                padding-top: 1rem;
-                                margin-bottom: 1rem;
-                              "
-                            >
-                              <p
-                                style="
-                                  width: 85%;
-                                  margin: 1rem auto;
-                                  font-family: 'Lato Regular', system-ui,
-                                    -apple-system, BlinkMacSystemFont,
-                                    'Segoe UI', Roboto, Oxygen, Ubuntu,
-                                    Cantarell, 'Open Sans', 'Helvetica Neue',
-                                    sans-serif;
-                                  color: #666666;
-                                  line-height: 1.7rem;
-                                  text-align: center;
-                                "
-                              >
-                                If you experience any problems using raflink,
-                                kindly contact us at
-                                <a href="{raflink_email}">{raflink_email}</a> or
-                                send us a DM on our social media channels.
-                              </p>
-                              <div
-                                style="
-                                  display: flex;
-                                  width: fit-content;
-                                  gap: 2rem;
-                                  margin: 0 auto;
-                                  justify-content: space-between;
-                                "
-                              >
-                                <a
-                                  href="https://www.twitter.com/raflinkhq"
-                                  target="_blank"
-                                  ><img
-                                    src="https://raflink.vercel.app/_static/icons/twitter.png"
-                                    alt="Twitter"
-                                /></a>
-                                <a
-                                  href="https://www.instagram.com/raflinkhq"
-                                  target="_blank"
-                                  ><img
-                                    src="https://raflink.vercel.app/_static/icons/instagram.png"
-                                    alt="Instagram"
-                                /></a>
-                                <a
-                                  href="https://www.linkedin.com/company/raflinkhq"
-                                  target="_blank"
-                                  ><img
-                                    src="https://raflink.vercel.app/_static/icons/linkedin.png"
-                                    alt="Linkedin"
-                                /></a>
-                              </div>
-                            </footer>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </th>
-                </tr>
-              </tbody>
-            </table>
-          </td>
+
+                            <div class="feature-box">
+                                <div class="feature-title">Share & Earn</div>
+                                <p class="feature-description">Post your links anywhere and track your performance in real-time.</p>
+                                <img src="https://raflink.vercel.app/images/share_earn.png" alt="Share and Earn Interface" class="feature-image">
+                            </div>
+
+                            <div class="feature-box">
+                                <div class="feature-title">Discover Brands</div>
+                                <p class="feature-description">Explore affiliate opportunities that match your audience.</p>
+                                <img src="https://raflink.vercel.app/images/discover_brand.png" alt="Discover Brands Interface" class="feature-image">
+                            </div>
+
+                            <p>You're just a few clicks away from making the most of your links!</p>
+
+                            <a href="#" class="cta-button">
+                                Get Started <img src="https://raflink.vercel.app/svgs/arrow_forward.svg" alt="→" style="vertical-align: middle; margin-left: 8px;">
+                            </a>
+
+                            <p>If you have any questions, we're here to help. Just hit reply!</p>
+
+                            <p>Excited to have you on board! 🙌</p>
+
+                            <p>Best regards,<br>The Reallink Team</p>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Footer Section -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                        <td class="footer">
+                            <div class="social-icons">
+                                <a href="#"><img src="https://raflink.vercel.app/svgs/facebook_et.svg" alt="Facebook"></a>
+                                <a href="#"><img src="https://raflink.vercel.app/svgs/linkdn_et.svg" alt="LinkedIn"></a>
+                                <a href="#"><img src="https://raflink.vercel.app/svgs/instagram_et.svg" alt="Instagram"></a>
+                                <a href="#"><img src="https://raflink.vercel.app/svgs/twitter_et.svg" alt="Twitter"></a>
+                            </div>
+
+                            <p style="color: #666666;">Copyright (c) 2025 Raflinks. All rights reserved.</p>
+                            <p style="color: #666666;">You are receiving this mail because you opted in via our website.</p>
+
+                            <h2>Visit the Website</h2>
+                            <img src="https://raflink.vercel.app/images/footer_image.png" alt="Raflinks Dashboard" class="footer-image">
+
+                            <div class="footer-links">
+                                <a href="#">Privacy Policy</a>
+                                <a href="#">Terms of Use</a>
+                                <a href="#">Unsubscribe</a>
+                            </div>
+
+                            <img src="https://raflink.vercel.app/images/logo.png" alt="Raflinks Logo" style="width: 80px; margin-top: 20px;">
+                        </td>
+                    </tr>
+                </table>
+            </td>
         </tr>
-      </tbody>
     </table>
-  </body>
+</body>
 </html>`;
