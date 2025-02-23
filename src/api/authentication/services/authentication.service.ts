@@ -149,18 +149,18 @@ export class AuthService {
         });
       }
 
-      const tokenData: TokenData = {
-        user: user._id,
-        verified: user.verified,
-        email,
-        username: user.username,
-      };
+      // const tokenData: TokenData = {
+      //   user: user._id,
+      //   verified: user.verified,
+      //   email,
+      //   username: user.username,
+      // };
 
-      const { accessToken, refreshToken } = await this.getAndUpdateToken(
-        tokenData,
-        user,
-        session,
-      );
+      // const { accessToken, refreshToken } = await this.getAndUpdateToken(
+      //   tokenData,
+      //   user,
+      //   session,
+      // );
 
       await session.commitTransaction();
 
@@ -170,8 +170,8 @@ export class AuthService {
         message: 'Account successfully created and verified.',
         data: {
           user,
-          accessToken,
-          refreshToken,
+          // accessToken,
+          // refreshToken,
         },
         error: null,
       };
