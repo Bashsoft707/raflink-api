@@ -99,33 +99,25 @@ export class AuthService {
   }
 
   async verifyOtpAndSaveUser(payload: ValidateOtpDto) {
-    let session;
     try {
-      session = await this.connection.startSession();
-      session.startTransaction();
-
       const { email, otp } = payload;
 
-      // try {
-      //   await this.otpService.validate({ otp, email });
-      // } catch (error) {
-      //   throw new BadRequestException({
-      //     status: 'error',
-      //     statusCode: HttpStatus.BAD_REQUEST,
-      //     message: error.message || 'Invalid OTP',
-      //     data: {},
-      //     error: null,
-      //   });
-      // }
+      try {
+        await this.otpService.validate({ otp, email });
+      } catch (error) {
+        throw new BadRequestException({
+          status: 'error',
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: error.message || 'Invalid OTP',
+          data: {},
+          error: null,
+        });
+      }
 
-      let user = await this.userModel
-        .findOne({ email })
-        .session(session)
-        .exec();
+      let user = await this.userModel.findOne({ email }).exec();
 
       if (!user) {
-        const [newUser] = await this.userModel.create([{ email }], { session });
-        user = newUser;
+        user = await this.userModel.create({ email });
 
         await this.emailService.sendEmail({
           receiver: payload.email,
@@ -159,10 +151,7 @@ export class AuthService {
       const { accessToken, refreshToken } = await this.getAndUpdateToken(
         tokenData,
         user,
-        session,
       );
-
-      await session.commitTransaction();
 
       return {
         status: 'success',
@@ -176,10 +165,6 @@ export class AuthService {
         error: null,
       };
     } catch (error) {
-      if (session) {
-        await session.abortTransaction();
-      }
-
       if (error instanceof BadRequestException) {
         throw error;
       }
@@ -192,10 +177,6 @@ export class AuthService {
         data: null,
         error: error.message || 'Internal server error',
       });
-    } finally {
-      if (session) {
-        await session.endSession();
-      }
     }
   }
 
