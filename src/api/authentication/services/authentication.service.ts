@@ -106,17 +106,17 @@ export class AuthService {
 
       const { email, otp } = payload;
 
-      try {
-        await this.otpService.validate({ otp, email });
-      } catch (error) {
-        throw new BadRequestException({
-          status: 'error',
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: error.message || 'Invalid OTP',
-          data: {},
-          error: null,
-        });
-      }
+      // try {
+      //   await this.otpService.validate({ otp, email });
+      // } catch (error) {
+      //   throw new BadRequestException({
+      //     status: 'error',
+      //     statusCode: HttpStatus.BAD_REQUEST,
+      //     message: error.message || 'Invalid OTP',
+      //     data: {},
+      //     error: null,
+      //   });
+      // }
 
       let user = await this.userModel
         .findOne({ email })
@@ -149,18 +149,18 @@ export class AuthService {
         });
       }
 
-      // const tokenData: TokenData = {
-      //   user: user._id,
-      //   verified: user.verified,
-      //   email,
-      //   username: user.username,
-      // };
+      const tokenData: TokenData = {
+        user: user._id,
+        verified: user.verified,
+        email,
+        username: user.username,
+      };
 
-      // const { accessToken, refreshToken } = await this.getAndUpdateToken(
-      //   tokenData,
-      //   user,
-      //   session,
-      // );
+      const { accessToken, refreshToken } = await this.getAndUpdateToken(
+        tokenData,
+        user,
+        session,
+      );
 
       await session.commitTransaction();
 
@@ -170,8 +170,8 @@ export class AuthService {
         message: 'Account successfully created and verified.',
         data: {
           user,
-          // accessToken,
-          // refreshToken,
+          accessToken,
+          refreshToken,
         },
         error: null,
       };
