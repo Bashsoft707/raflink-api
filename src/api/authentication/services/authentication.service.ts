@@ -103,8 +103,10 @@ export class AuthService {
       const { email, otp } = payload;
 
       try {
-        await this.otpService.validate({ otp, email });
+        const optCheck = await this.otpService.validate({ otp, email });
+        console.log("otp check", optCheck)
       } catch (error) {
+        console.log("---ERRORR----", error)
         throw new BadRequestException({
           status: 'error',
           statusCode: HttpStatus.BAD_REQUEST,
