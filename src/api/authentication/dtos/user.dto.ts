@@ -3,6 +3,7 @@ import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsEmail,
+  IsNotEmpty,
   IsOptional,
   IsString,
   ValidateNested,
@@ -131,3 +132,16 @@ export type TokenData = {
   verified: boolean;
   username?: string;
 };
+
+export class VerifyUsernameDto {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Username',
+    example: 'raff',
+    required: true,
+    title: 'username',
+  })
+  @Transform(({ value }) => String(value).toLowerCase().trim())
+  username: string;
+}

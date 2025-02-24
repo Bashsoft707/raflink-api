@@ -15,6 +15,7 @@ import {
   TokenData,
   UpdateUserDto,
   ValidateOtpDto,
+  VerifyUsernameDto,
 } from '../dtos';
 import { AccessTokenGuard } from '../auth';
 import { Request, Response } from 'express';
@@ -72,5 +73,11 @@ export class AuthController {
     redirectUrl.searchParams.append('refreshToken', user.refreshToken);
 
     return res.redirect(redirectUrl.toString());
+  }
+
+  @Post('verify-username')
+  @ApiOperation({ summary: 'Endpoint to username' })
+  async verifyUsername(@Body() body: VerifyUsernameDto) {
+    return await this.authService.verifyUsername(body);
   }
 }

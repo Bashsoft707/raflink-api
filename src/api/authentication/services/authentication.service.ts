@@ -15,6 +15,7 @@ import {
   TokenData,
   UpdateUserDto,
   ValidateOtpDto,
+  VerifyUsernameDto,
 } from '../dtos';
 import { EmailService } from '../../email/email.service';
 import { errorHandler } from '../../../utils';
@@ -309,6 +310,64 @@ export class AuthService {
       throw new InternalServerErrorException(
         'Failed to authenticate with Google',
       );
+    }
+  }
+
+  generateUsernameSuggestions(username: string) {
+    const suggestions: string[] = [];
+    for (let i = 1; i <= 5; i++) {
+      suggestions.push(`${username}${i}`);
+    }
+    return suggestions;
+  }
+
+  async isUsernameTaken(username: string) {
+    const user = await this.userModel.findOne({ username }).lean().exec();
+    return !!user;
+  }
+
+  async verifyUsername(payload: VerifyUsernameDto) {
+    try {
+      const { username } = payload;
+
+      const user = await this.userModel.findOne({ username }).lean().exec();
+
+      if (user) {
+        const initialSuggestions = this.generateUsernameSuggestions(username);
+
+        const availableSuggestions: string[] = [];
+        for (const suggestion of initialSuggestions) {
+          const isTaken = await this.isUsernameTaken(suggestion);
+          if (!isTaken) {
+            availableSuggestions.push(suggestion);
+          }
+
+          if (availableSuggestions.length >= 3) {
+            break;
+          }
+        }
+
+        return {
+          status: 'fail',
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Username taken, see suggestions',
+          data:
+            availableSuggestions.length > 0
+              ? availableSuggestions
+              : initialSuggestions,
+          error: null,
+        };
+      }
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.CREATED,
+        message: 'User added to waitlist successfully',
+        data: username,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
     }
   }
 }
