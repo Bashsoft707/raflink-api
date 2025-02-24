@@ -11,6 +11,7 @@ import { User, UserSchema } from './schema/user.schema';
 import EncryptService from '../../helpers/encryption';
 import { AccessTokenStrategy } from './auth/accessToken.strategy';
 import { RefreshTokenStrategy } from './auth/refreshToken.strategy';
+import { Otp, OtpSchema } from './schema/otp.schema';
 
 @Module({
   imports: [
@@ -19,6 +20,10 @@ import { RefreshTokenStrategy } from './auth/refreshToken.strategy';
       {
         name: User.name,
         schema: UserSchema,
+      },
+      {
+        name: Otp.name,
+        schema: OtpSchema,
       },
     ]),
     CachesModule,

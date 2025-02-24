@@ -103,15 +103,13 @@ export class AuthService {
       const { email, otp } = payload;
 
       try {
-        const optCheck = await this.otpService.validate({ otp, email });
-        console.log("otp check", optCheck)
+        await this.otpService.validate({ otp, email });
       } catch (error) {
-        console.log("---ERRORR----", error)
         throw new BadRequestException({
           status: 'error',
           statusCode: HttpStatus.BAD_REQUEST,
           message: error.message || 'Invalid OTP',
-          data: {},
+          data: null,
           error: null,
         });
       }
@@ -119,7 +117,11 @@ export class AuthService {
       let user = await this.userModel.findOne({ email }).exec();
 
       if (!user) {
-        user = await this.userModel.create({ email });
+        user = await this.userModel.create({
+          email,
+          displayName: null,
+          username: null,
+        });
 
         await this.emailService.sendEmail({
           receiver: payload.email,

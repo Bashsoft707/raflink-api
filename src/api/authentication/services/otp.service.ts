@@ -1,40 +1,57 @@
 import { ValidateOtpDto } from '../dtos';
-import { BadRequestException, HttpStatus, Inject } from '@nestjs/common';
+import { BadRequestException, HttpStatus } from '@nestjs/common';
 import { randomNumberGen } from '../../../utils';
 import { IOtp } from '../interface';
-import { CacheService } from '../../../api/cache/cache.service';
-import { CACHE_METADATA } from '../../../constants';
+import { InjectModel } from '@nestjs/mongoose';
+import { Otp, OtpDocument } from '../schema/otp.schema';
+import { Model } from 'mongoose';
 
 export class OtpService implements IOtp {
   constructor(
-    @Inject(CacheService)
-    private readonly cacheService: CacheService,
+    @InjectModel(Otp.name) private readonly otpModel: Model<OtpDocument>,
   ) {}
-  async validate(payload: ValidateOtpDto): Promise<any> {
+
+  async validate(payload: ValidateOtpDto): Promise<boolean> {
     const { otp, email } = payload;
-    const data = await this.cacheService.get(
-      `${CACHE_METADATA.OTP_SERVICE}_${email}`,
-    );
-    if (data?.otp !== otp) {
+    const data = await this.otpModel.findOne({ email, otp }).exec();
+
+    if (!data) {
       throw new BadRequestException({
+        status: 'error',
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Invalid Otp',
+        message: 'Invalid OTP',
       });
     }
-    return data;
+
+    if (data.otpExpiration && new Date() > data.otpExpiration) {
+      await data.deleteOne();
+      throw new BadRequestException({
+        status: 'error',
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'OTP has expired',
+      });
+    }
+
+    await data.deleteOne();
+    return true;
   }
 
   async create(email: string): Promise<string> {
-    await this.cacheService.delete(`${CACHE_METADATA.OTP_SERVICE}_${email}`);
-    let otp = randomNumberGen(4);
+    await this.otpModel.deleteMany({ email });
+
+    let otp = randomNumberGen(6);
     if (process.env.NODE_ENV !== 'production') {
       otp = '1235';
     }
-    const savedOtp = await this.cacheService.save({
-      data: { otp },
-      ttl: 60 * 60 * 10,
-      key: `${CACHE_METADATA.OTP_SERVICE}_${email}`,
+
+    const otpExpiration = new Date(Date.now() + 10 * 60 * 1000);
+
+    await this.otpModel.create({
+      email,
+      otp,
+      otpExpiration,
     });
+
     return otp;
   }
 }

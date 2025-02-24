@@ -15,7 +15,7 @@ export const onboardingTemplate = `<!DOCTYPE html>
                         <tbody>
                             <tr>
                                 <td>
-                                    <div width="100%" height="143" align="center">
+                                    <div width="100%" height="80" align="center">
                                         <img align="center" alt="" src="https://raflink.vercel.app/images/logo.png" style="border: 0; text-decoration: none; display: block" />
                                     </div>
                                 </td>
@@ -47,7 +47,7 @@ export const onboardingTemplate = `<!DOCTYPE html>
                                                         <hr style="margin: 1rem 0; border: none; height: 2px; width: 100%; background: #e6e6e6;" />
                                                     </div>
                                                     <div style="width: 100%; background: #E8F6CD; padding: 2rem 0;">
-                                                        <p style="font-family: 'Lato Bold', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; color: white; font-size: 2rem; text-align: center;">
+                                                        <p style="font-family: 'Lato Bold', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; color: #033930; font-size: 2rem; text-align: center;">
                                                             We're here to make affiliate marketing easier for you.
                                                         </p>
                                                     </div>
