@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { Model, Connection, ClientSession } from 'mongoose';
+import { Model, Connection, ClientSession, Types } from 'mongoose';
 import { ENV, TEMPLATES } from '../../../constants';
 import { OtpService } from './otp.service';
 import {
@@ -21,6 +21,7 @@ import { errorHandler } from '../../../utils';
 import { JwtService } from '@nestjs/jwt';
 import { User, UserDocument } from '../schema/user.schema';
 import EncryptService from '../../../helpers/encryption';
+import { GoogleUser } from '../interface';
 
 @Injectable()
 export class AuthService {
@@ -66,8 +67,6 @@ export class AuthService {
   }
 
   async onboarding(payload: OnboardingDto) {
-    const session = await this.connection.startSession();
-
     try {
       const { email } = payload;
       const otp = await this.otpService.create(email);
@@ -93,8 +92,6 @@ export class AuthService {
       };
     } catch (error) {
       errorHandler(error);
-    } finally {
-      await session.endSession();
     }
   }
 
@@ -119,8 +116,6 @@ export class AuthService {
       if (!user) {
         user = await this.userModel.create({
           email,
-          displayName: null,
-          username: null,
         });
 
         await this.emailService.sendEmail({
@@ -225,7 +220,7 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async updateUserInfo(userId: string, payload: UpdateUserDto) {
+  async updateUserInfo(userId: Types.ObjectId, payload: UpdateUserDto) {
     const session = await this.connection.startSession();
 
     try {
@@ -269,6 +264,51 @@ export class AuthService {
       errorHandler(error);
     } finally {
       await session.endSession();
+    }
+  }
+
+  async validateOAuthLogin(googleUser: GoogleUser): Promise<any> {
+    try {
+      let user = await this.userModel
+        .findOne({ email: googleUser.email })
+        .exec();
+
+      if (!user) {
+        user = await this.userModel.create({
+          email: googleUser.email,
+          displayName: `${googleUser.firstName} ${googleUser.lastName}`,
+          image: googleUser.picture,
+          verified: true,
+        });
+      }
+
+      const tokenData: TokenData = {
+        user: user._id,
+        verified: user.verified,
+        email: user.email,
+        username: user.username,
+      };
+
+      const { accessToken, refreshToken } = await this.getAndUpdateToken(
+        tokenData,
+        user,
+      );
+
+      await this.userModel.updateOne(
+        { _id: user._id },
+        { refreshToken: refreshToken },
+      );
+
+      return {
+        user,
+        accessToken,
+        refreshToken,
+      };
+    } catch (error) {
+      console.error('Error during OAuth authentication:', error);
+      throw new InternalServerErrorException(
+        'Failed to authenticate with Google',
+      );
     }
   }
 }

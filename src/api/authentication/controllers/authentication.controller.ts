@@ -1,4 +1,13 @@
-import { Body, Controller, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+  Get,
+  Res,
+} from '@nestjs/common';
 import { AuthService } from '../services/authentication.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
@@ -8,12 +17,17 @@ import {
   ValidateOtpDto,
 } from '../dtos';
 import { AccessTokenGuard } from '../auth';
-import { Request } from 'express';
+import { Request, Response } from 'express';
+import { AuthGuard } from '@nestjs/passport';
+import { ConfigService } from '@nestjs/config';
 
 @ApiTags('auth')
 @Controller('authentication')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Post('waiting-list')
   @ApiOperation({ summary: 'Endpoint to join raflink waiting list' })
@@ -40,6 +54,23 @@ export class AuthController {
   async updateUser(@Req() req: Request, @Body() body: UpdateUserDto) {
     const { user: tokenData } = req;
     const { user } = tokenData as unknown as TokenData;
-    return await this.authService.updateUserInfo(user as any, body);
+    return await this.authService.updateUserInfo(user, body);
+  }
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  googleAuth() {}
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  googleAuthCallback(@Req() req, @Res() res: Response) {
+    const { user } = req;
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
+
+    const redirectUrl = new URL('/authentication/google/callback', frontendUrl);
+    redirectUrl.searchParams.append('accessToken', user.accessToken);
+    redirectUrl.searchParams.append('refreshToken', user.refreshToken);
+
+    return res.redirect(redirectUrl.toString());
   }
 }

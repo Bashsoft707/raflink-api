@@ -10,10 +10,10 @@ export class User {
   @Prop({ lowercase: true, unique: true, index: true, required: true })
   email: string;
 
-  @Prop({ lowercase: true, unique: true, sparse: true })
+  @Prop({ lowercase: true, unique: true, sparse: true, default: undefined })
   displayName: string;
 
-  @Prop({ lowercase: true, unique: true, sparse: true })
+  @Prop({ lowercase: true, unique: true, sparse: true, default: undefined })
   username: string;
 
   @Prop({ lowercase: true })

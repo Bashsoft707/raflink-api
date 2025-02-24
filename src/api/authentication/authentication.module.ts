@@ -12,9 +12,12 @@ import EncryptService from '../../helpers/encryption';
 import { AccessTokenStrategy } from './auth/accessToken.strategy';
 import { RefreshTokenStrategy } from './auth/refreshToken.strategy';
 import { Otp, OtpSchema } from './schema/otp.schema';
+import { PassportModule } from '@nestjs/passport';
+import { GoogleStrategy } from './auth/google.strategy';
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'google' }),
     JwtModule.register({}),
     MongooseModule.forFeature([
       {
@@ -36,6 +39,7 @@ import { Otp, OtpSchema } from './schema/otp.schema';
     EmailTemplateLoader,
     AccessTokenStrategy,
     RefreshTokenStrategy,
+    GoogleStrategy,
   ],
   controllers: [AuthController],
   exports: [AuthService],
