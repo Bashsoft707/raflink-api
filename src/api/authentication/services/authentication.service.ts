@@ -364,7 +364,7 @@ export class AuthService {
       return {
         status: 'success',
         statusCode: HttpStatus.CREATED,
-        message: 'User added to waitlist successfully',
+        message: 'Useranme verified successfully',
         data: username,
         error: null,
       };

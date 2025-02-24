@@ -124,6 +124,17 @@ export class UpdateUserDto {
     title: 'affiliateLinks',
   })
   socialLinks: SocialLink[];
+
+  @IsArray()
+  @IsOptional()
+  @IsString({ each: true })
+  @ApiProperty({
+    description: 'User promoted content',
+    example: ['Travel', 'Gaming'],
+    required: false,
+    title: 'promotedContent',
+  })
+  promotedContent: string[];
 }
 
 export type TokenData = {

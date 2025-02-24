@@ -37,6 +37,9 @@ export class User {
     thumbnail: string;
   }>;
 
+  @Prop({ type: [String] })
+  promotedContent: string[];
+
   @Prop({ lowercase: true })
   goals: string;
 
