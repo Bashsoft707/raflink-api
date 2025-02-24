@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   HttpStatus,
   Inject,
   Injectable,
@@ -23,6 +24,7 @@ import { JwtService } from '@nestjs/jwt';
 import { User, UserDocument } from '../schema/user.schema';
 import EncryptService from '../../../helpers/encryption';
 import { GoogleUser } from '../interface';
+import { IResponse } from 'src/interfaces';
 
 @Injectable()
 export class AuthService {
@@ -364,6 +366,53 @@ export class AuthService {
         statusCode: HttpStatus.CREATED,
         message: 'User added to waitlist successfully',
         data: username,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async refreshTokens(payload: TokenData & { refreshToken: string }) {
+    try {
+      const { refreshToken: token, user: userId } = payload;
+      const user = await this.userModel.findById(userId);
+
+      if (!user || !user.refreshToken)
+        throw new ForbiddenException({
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Access Denied',
+        });
+
+      const decryptToken = await await this.encryptionService.decrypt(
+        user.refreshToken,
+      );
+
+      if (decryptToken !== token)
+        throw new ForbiddenException({
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Access Denied',
+        });
+
+      const { _id, email, verified, username } = user;
+
+      const tokenData: TokenData = {
+        user: _id,
+        email,
+        username,
+        verified,
+      };
+
+      const { accessToken, refreshToken } = await this.getAndUpdateToken(
+        tokenData,
+        user,
+      );
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'Token successfully generated',
+        data: { accessToken, refreshToken },
         error: null,
       };
     } catch (error) {

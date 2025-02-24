@@ -17,7 +17,7 @@ import {
   ValidateOtpDto,
   VerifyUsernameDto,
 } from '../dtos';
-import { AccessTokenGuard } from '../auth';
+import { AccessTokenGuard, RefreshTokenGuard } from '../auth';
 import { Request, Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
@@ -79,5 +79,16 @@ export class AuthController {
   @ApiOperation({ summary: 'Endpoint to username' })
   async verifyUsername(@Body() body: VerifyUsernameDto) {
     return await this.authService.verifyUsername(body);
+  }
+
+  @UseGuards(RefreshTokenGuard)
+  @Get('refresh')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Endpoint to generate access token using a refresh token',
+  })
+  async refreshToken(@Req() req: Request) {
+    const payload = req.user as TokenData & { refreshToken: string };
+    return await this.authService.refreshTokens(payload);
   }
 }
