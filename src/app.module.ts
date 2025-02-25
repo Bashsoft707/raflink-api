@@ -11,6 +11,7 @@ import { CachesModule } from './api/cache/cache.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
 import { TemplateModule } from './api/tp/template.module';
+import { CloudinaryModule } from './api/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { TemplateModule } from './api/tp/template.module';
     AuthModule,
     CachesModule,
     TemplateModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [
