@@ -20,7 +20,6 @@ export class TemplateController {
   }
 
   @Get('/')
-  @UseGuards(AccessTokenGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Endpoint to get templates' })
   async getTemplate() {
