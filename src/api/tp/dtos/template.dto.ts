@@ -171,11 +171,11 @@ export class CreateUserTemplateDto {
   name: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @ApiProperty({
     description: 'Template background color',
     example: '#fff',
-    required: true,
+    required: false,
     title: 'backgroundColor',
   })
   backgroundColor: string;

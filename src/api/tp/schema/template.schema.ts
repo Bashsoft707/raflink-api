@@ -6,7 +6,7 @@ import { SOCIAL_LINKS_POSITON, TEMPLATE_LINK_LAYOUT } from '../../../constants';
   timestamps: true,
 })
 export class Template {
-  @Prop({ lowercase: true, required: true })
+  @Prop({ lowercase: true, type: String })
   backgroundColor: string;
 
   @Prop({ enum: SOCIAL_LINKS_POSITON, required: true })

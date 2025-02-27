@@ -16,7 +16,7 @@ export class UserTemplate {
   })
   templateId: MongooseSchema.Types.ObjectId;
 
-  @Prop({ lowercase: true, required: true })
+  @Prop({ lowercase: true, type: String })
   backgroundColor: string;
 
   @Prop({ required: true, enum: SOCIAL_LINKS_POSITON })
