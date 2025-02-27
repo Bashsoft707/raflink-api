@@ -15,6 +15,18 @@ export class Template {
   @Prop({ lowercase: true, required: true, unique: true, index: true })
   name: string;
 
+  @Prop({ lowercase: true, type: String })
+  backgroundUrl: string;
+
+  @Prop({ lowercase: true, type: String })
+  backgroundImage: string;
+
+  @Prop({ type: Object })
+  templateCss: Object;
+
+  @Prop({ type: Object })
+  linkCss: Object;
+
   @Prop(
     raw([
       {

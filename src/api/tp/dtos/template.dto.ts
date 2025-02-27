@@ -6,6 +6,7 @@ import {
   IsEnum,
   IsMongoId,
   IsNotEmpty,
+  IsObject,
   IsOptional,
   IsString,
   ValidateNested,
@@ -87,6 +88,46 @@ export class CreateTemplateDto {
   backgroundColor: string;
 
   @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Template background image',
+    example: '/image/src/blue.png',
+    required: false,
+    title: 'backgroundImage',
+  })
+  backgroundImage: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Template background url',
+    example: 'https://imagg.com',
+    required: false,
+    title: 'backgroundUrl',
+  })
+  backgroundUrl: string;
+
+  @IsObject()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Template css',
+    example: '{}',
+    required: false,
+    title: 'templateCss',
+  })
+  templateCss: Object;
+
+  @IsObject()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Link css',
+    example: '{}',
+    required: false,
+    title: 'linkCss',
+  })
+  linkCss: Object;
+
+  @IsString()
   @IsNotEmpty()
   @IsEnum(SOCIAL_LINKS_POSITON)
   @ApiProperty({
@@ -148,6 +189,46 @@ export class CreateUserTemplateDto {
     title: 'backgroundColor',
   })
   backgroundColor: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Template background image',
+    example: '/image/src/blue.png',
+    required: false,
+    title: 'backgroundImage',
+  })
+  backgroundImage: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Template background url',
+    example: 'https://imagg.com',
+    required: false,
+    title: 'backgroundUrl',
+  })
+  backgroundUrl: string;
+
+  @IsObject()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Template css',
+    example: '{}',
+    required: false,
+    title: 'templateCss',
+  })
+  templateCss: Object;
+
+  @IsObject()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Link css',
+    example: '{}',
+    required: false,
+    title: 'linkCss',
+  })
+  linkCss: Object;
 
   @IsString()
   @IsNotEmpty()
