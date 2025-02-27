@@ -97,16 +97,6 @@ export class CreateTemplateDto {
   })
   backgroundImage: string;
 
-  @IsString()
-  @IsOptional()
-  @ApiProperty({
-    description: 'Template background url',
-    example: 'https://imagg.com',
-    required: false,
-    title: 'backgroundUrl',
-  })
-  backgroundUrl: string;
-
   @IsObject()
   @IsOptional()
   @ApiProperty({
@@ -199,16 +189,6 @@ export class CreateUserTemplateDto {
     title: 'backgroundImage',
   })
   backgroundImage: string;
-
-  @IsString()
-  @IsOptional()
-  @ApiProperty({
-    description: 'Template background url',
-    example: 'https://imagg.com',
-    required: false,
-    title: 'backgroundUrl',
-  })
-  backgroundUrl: string;
 
   @IsObject()
   @IsOptional()

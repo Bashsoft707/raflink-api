@@ -71,8 +71,6 @@ export class TemplateService {
           createUserTemplateDto.backgroundColor || baseTemplate.backgroundColor,
         backgroundImage:
           createUserTemplateDto.backgroundImage || baseTemplate.backgroundImage,
-        backgroundUrl:
-          createUserTemplateDto.backgroundUrl || baseTemplate.backgroundUrl,
         templateCss:
           createUserTemplateDto.templateCss || baseTemplate.templateCss,
         linkCss: createUserTemplateDto.linkCss || baseTemplate.linkCss,

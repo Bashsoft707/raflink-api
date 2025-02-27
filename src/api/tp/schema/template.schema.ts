@@ -16,9 +16,6 @@ export class Template {
   name: string;
 
   @Prop({ lowercase: true, type: String })
-  backgroundUrl: string;
-
-  @Prop({ lowercase: true, type: String })
   backgroundImage: string;
 
   @Prop({ type: Object })

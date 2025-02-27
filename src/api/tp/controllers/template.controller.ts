@@ -12,7 +12,6 @@ export class TemplateController {
   constructor(private readonly templateService: TemplateService) {}
 
   @Post('')
-  @UseGuards(AccessTokenGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Endpoint to create general templates' })
   async createTemplate(@Body() body: CreateTemplateDto) {
