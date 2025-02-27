@@ -73,16 +73,16 @@ export class CreateTemplateDto {
     description: 'Template name',
     example: 'popstar',
     required: true,
-    title: 'username',
+    title: 'name',
   })
   name: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @ApiProperty({
     description: 'Template background color',
     example: '#fff',
-    required: true,
+    required: false,
     title: 'backgroundColor',
   })
   backgroundColor: string;
@@ -161,11 +161,11 @@ export class CreateUserTemplateDto {
   templateId: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @ApiProperty({
     description: 'Template name',
     example: 'popstar',
-    required: true,
+    required: false,
     title: 'name',
   })
   name: string;
@@ -240,4 +240,100 @@ export class CreateUserTemplateDto {
     title: 'affiliateLinks',
   })
   affiliateLinks: AffiliateLink[];
+}
+
+export class UpdateTemplateDto {
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Template name',
+    example: 'popstar',
+    required: false,
+    title: 'name',
+  })
+  name: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Template background color',
+    example: '#fff',
+    required: false,
+    title: 'backgroundColor',
+  })
+  backgroundColor: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Template background image',
+    example: '/image/src/blue.png',
+    required: false,
+    title: 'backgroundImage',
+  })
+  backgroundImage: string;
+
+  @IsObject()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Template css',
+    example: '{}',
+    required: false,
+    title: 'templateCss',
+  })
+  templateCss: Object;
+
+  @IsObject()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Link css',
+    example: '{}',
+    required: false,
+    title: 'linkCss',
+  })
+  linkCss: Object;
+
+  @IsString()
+  @IsOptional()
+  @IsEnum(SOCIAL_LINKS_POSITON)
+  @ApiProperty({
+    description: 'Links position',
+    example: SOCIAL_LINKS_POSITON.TOP,
+    required: false,
+    title: 'socialLinksPosition',
+  })
+  socialLinksPosition: string;
+
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => AffiliateLink)
+  @ApiProperty({
+    description: 'Array of objects of social links',
+    example: [
+      {
+        name: 'website',
+        linkUrl: 'www.raflink.com',
+        thumbnail: 'www.raflink.com/images',
+        layout: TEMPLATE_LINK_LAYOUT.CLASSIC,
+        lockLink: false,
+      },
+    ],
+    required: false,
+    title: 'affiliateLinks',
+  })
+  affiliateLinks: AffiliateLink[];
+}
+
+export class UpdateUserTemplateDto extends UpdateTemplateDto {
+  @IsString()
+  @IsOptional()
+  @IsEnum(SOCIAL_LINKS_POSITON)
+  @ApiProperty({
+    description: 'Links position',
+    example: SOCIAL_LINKS_POSITON.TOP,
+    required: false,
+    title: 'socialLinksPosition',
+  })
+  socialLinksPosition: string;
 }

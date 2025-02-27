@@ -1,7 +1,17 @@
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { CreateTemplateDto, CreateUserTemplateDto } from '../dtos';
+import {
+  CreateTemplateDto,
+  CreateUserTemplateDto,
+  UpdateTemplateDto,
+  UpdateUserTemplateDto,
+} from '../dtos';
 import { errorHandler } from '../../../utils';
 import {
   UserTemplate,
@@ -50,6 +60,54 @@ export class TemplateService {
     }
   }
 
+  async updateTemplate(id: string, updateTemplateDto: UpdateTemplateDto) {
+    try {
+      const template = await this.templateModel.findById(id);
+
+      if (!template) {
+        throw new NotFoundException('Template not found');
+      }
+
+      const updatedTemplate = await this.templateModel.findByIdAndUpdate(
+        id,
+        updateTemplateDto,
+        { new: true },
+      );
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'Template updated successfully.',
+        data: updatedTemplate,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async deleteTemplate(id: string) {
+    try {
+      const template = await this.templateModel.findById(id);
+
+      if (!template) {
+        throw new NotFoundException('Template not found');
+      }
+
+      await template.deleteOne();
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'Template deleted successfully.',
+        data: null,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
   async createUserTemplate(
     userId: string,
     createUserTemplateDto: CreateUserTemplateDto,
@@ -77,7 +135,8 @@ export class TemplateService {
         socialLinksPosition:
           createUserTemplateDto.socialLinksPosition ||
           baseTemplate.socialLinksPosition,
-        affiliateLinks: createUserTemplateDto.affiliateLinks,
+        affiliateLinks:
+          createUserTemplateDto.affiliateLinks || baseTemplate.affiliateLinks,
       });
 
       return {
@@ -104,6 +163,65 @@ export class TemplateService {
         statusCode: HttpStatus.CREATED,
         message: 'User templates retrieved successfully.',
         data: userTemplates,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async updateUserTemplate(
+    id: string,
+    user: Types.ObjectId,
+    updateTemplateDto: UpdateUserTemplateDto,
+  ) {
+    try {
+      const userTemplate = await this.userTemplateModel.findById(id);
+
+      if (!userTemplate) {
+        throw new NotFoundException('User template not found');
+      }
+
+      if (userTemplate.userId?.toString() !== user.toString()) {
+        throw new BadRequestException("Template doesn't belong to user");
+      }
+
+      const updatedUserTemplate =
+        await this.userTemplateModel.findByIdAndUpdate(id, updateTemplateDto, {
+          new: true,
+        });
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'User template updated successfully.',
+        data: updatedUserTemplate,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async deleteUserTemplate(id: string, user: Types.ObjectId) {
+    try {
+      const userTemplate = await this.userTemplateModel.findById(id);
+
+      if (!userTemplate) {
+        throw new NotFoundException('User template not found');
+      }
+
+      if (userTemplate.userId?.toString() !== user.toString()) {
+        throw new BadRequestException("Template doesn't belong to user");
+      }
+
+      await userTemplate.deleteOne();
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'User template deleted successfully.',
+        data: null,
         error: null,
       };
     } catch (error) {
