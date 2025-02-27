@@ -48,6 +48,16 @@ export class AuthController {
     return await this.authService.verifyOtpAndSaveUser(body);
   }
 
+  @Get('/user')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to get user info' })
+  async getUser(@Req() req: Request) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return await this.authService.getUserInfo(user);
+  }
+
   @Patch('/update')
   @UseGuards(AccessTokenGuard)
   @ApiBearerAuth()

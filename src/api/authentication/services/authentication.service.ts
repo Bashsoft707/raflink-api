@@ -223,6 +223,35 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
+  async getUserInfo(userId: Types.ObjectId) {
+    try {
+      const user = await this.userModel
+        .findById(userId, '-__v -refreshToken -createdAt -updatedAt')
+        .exec();
+
+      if (!user) {
+        return {
+          status: 'error',
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'User not found.',
+          data: {},
+          error: null,
+        };
+      }
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.CREATED,
+        message: 'User information retrieved successfully',
+        data: user,
+        error: null,
+      };
+    } catch (error) {
+      console.error('Error during updating user info:', error);
+      errorHandler(error);
+    }
+  }
+
   async updateUserInfo(userId: Types.ObjectId, payload: UpdateUserDto) {
     const session = await this.connection.startSession();
 
