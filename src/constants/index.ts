@@ -64,3 +64,18 @@ export enum SOCIALS {
   YOUTUBE = 'YOUTUBE',
   WHATSAPP = 'WHATSAPP',
 }
+
+export enum SubscriptionStatus {
+  ACTIVE = 'active',
+  CANCELED = 'canceled',
+  PAST_DUE = 'past_due',
+  TRIALING = 'trialing',
+  UNPAID = 'unpaid',
+  INCOMPLETE = 'incomplete',
+  INCOMPLETE_EXPIRED = 'incomplete_expired',
+}
+
+export enum SubscriptionPlan {
+  FREE = 'free',
+  PRO = 'pro',
+}
