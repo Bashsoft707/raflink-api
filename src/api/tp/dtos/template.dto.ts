@@ -6,7 +6,6 @@ import {
   IsEnum,
   IsMongoId,
   IsNotEmpty,
-  IsObject,
   IsOptional,
   IsString,
   ValidateNested,
@@ -97,25 +96,25 @@ export class CreateTemplateDto {
   })
   backgroundImage: string;
 
-  @IsObject()
+  @IsString()
   @IsOptional()
   @ApiProperty({
     description: 'Template css',
-    example: '{}',
+    example: 'margin: 0px',
     required: false,
     title: 'templateCss',
   })
-  templateCss: Object;
+  templateCss: String;
 
-  @IsObject()
+  @IsString()
   @IsOptional()
   @ApiProperty({
     description: 'Link css',
-    example: '{}',
+    example: 'margin: 0px',
     required: false,
     title: 'linkCss',
   })
-  linkCss: Object;
+  linkCss: String;
 
   @IsString()
   @IsNotEmpty()
@@ -190,25 +189,25 @@ export class CreateUserTemplateDto {
   })
   backgroundImage: string;
 
-  @IsObject()
+  @IsString()
   @IsOptional()
   @ApiProperty({
     description: 'Template css',
-    example: '{}',
+    example: 'margin: 0px',
     required: false,
     title: 'templateCss',
   })
-  templateCss: Object;
+  templateCss: String;
 
-  @IsObject()
+  @IsString()
   @IsOptional()
   @ApiProperty({
     description: 'Link css',
-    example: '{}',
+    example: 'margin: 0px',
     required: false,
     title: 'linkCss',
   })
-  linkCss: Object;
+  linkCss: String;
 
   @IsString()
   @IsNotEmpty()
@@ -273,25 +272,25 @@ export class UpdateTemplateDto {
   })
   backgroundImage: string;
 
-  @IsObject()
+  @IsString()
   @IsOptional()
   @ApiProperty({
     description: 'Template css',
-    example: '{}',
+    example: 'margin: 0px',
     required: false,
     title: 'templateCss',
   })
-  templateCss: Object;
+  templateCss: String;
 
-  @IsObject()
+  @IsString()
   @IsOptional()
   @ApiProperty({
     description: 'Link css',
-    example: '{}',
+    example: 'margin: 0px',
     required: false,
     title: 'linkCss',
   })
-  linkCss: Object;
+  linkCss: String;
 
   @IsString()
   @IsOptional()

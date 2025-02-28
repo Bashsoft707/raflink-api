@@ -28,11 +28,11 @@ export class UserTemplate {
   @Prop({ lowercase: true, type: String })
   backgroundImage: string;
 
-  @Prop({ type: Object })
-  templateCss: Object;
+  @Prop({ type: String })
+  templateCss: string;
 
-  @Prop({ type: Object })
-  linkCss: Object;
+  @Prop({ type: String })
+  linkCss: string;
 
   @Prop(
     raw([
