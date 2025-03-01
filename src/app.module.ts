@@ -4,7 +4,6 @@ import { AppService } from './app.service';
 import { CommonModule } from './common/common.module';
 import { ConfigModule } from '@nestjs/config';
 import { MulterModule } from '@nestjs/platform-express';
-import { NODE_ENV } from './constants';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './api/authentication/authentication.module';
 import { CachesModule } from './api/cache/cache.module';
@@ -12,6 +11,8 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
 import { TemplateModule } from './api/tp/template.module';
 import { CloudinaryModule } from './api/cloudinary/cloudinary.module';
+import { StripeModule } from './api/stripe/stripe.module';
+import { SubscriptionModule } from './api/subscription/subscription.module';
 
 @Module({
   imports: [
@@ -29,6 +30,8 @@ import { CloudinaryModule } from './api/cloudinary/cloudinary.module';
     CachesModule,
     TemplateModule,
     CloudinaryModule,
+    StripeModule.forRootAsync(),
+    SubscriptionModule,
   ],
   controllers: [AppController],
   providers: [

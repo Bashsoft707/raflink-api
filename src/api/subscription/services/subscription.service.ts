@@ -1,52 +1,49 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import Stripe from 'stripe';
-import { ConfigService } from '@nestjs/config';
 import { SubscriptionPlan, SubscriptionStatus } from '../../../constants';
 import { User } from '../../authentication/schema';
 import { CreateSubscriptionDto, UpdateSubscriptionDto } from '../dto';
 import { Subscription } from '../schema';
+import { StripeService } from 'src/api/stripe/service/stripe.service';
 
 @Injectable()
 export class SubscriptionService {
-  private stripe: Stripe;
-
   constructor(
     @InjectModel(Subscription.name)
     private subscriptionModel: Model<Subscription>,
     @InjectModel(User.name) private userModel: Model<User>,
-    private configService: ConfigService,
-  ) {
-    this.stripe = new Stripe(
-      this.configService.get<string>('STRIPE_SECRET_KEY'),
-      {
-        apiVersion: '2023-10-16',
-      },
-    );
-  }
+    @Inject(StripeService) private readonly stripeService: StripeService,
+  ) {}
 
-  async createCustomer(
-    userId: string,
-    email: string,
-    name: string,
-  ): Promise<string> {
-    const customer = await this.stripe.customers.create({
-      email,
-      name,
-      metadata: { userId },
-    });
+  async createCustomer(userId: Types.ObjectId): Promise<string> {
+    try {
+      const user = await this.userModel.findById(userId);
 
-    // Update user with stripe customer ID
-    await this.userModel.findByIdAndUpdate(userId, {
-      stripeCustomerId: customer.id,
-    });
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
 
-    return customer.id;
+      const customer = await this.stripeService.createCustomer(
+        user.email,
+        user.username || user.email,
+        user.id,
+      );
+
+      await this.userModel.findByIdAndUpdate(userId, {
+        stripeCustomerId: customer.id,
+      });
+
+      return customer.id;
+    } catch (error) {
+      throw new Error(`Failed to create Stripe customer: ${error.message}`);
+    }
   }
 
   async getOrCreateCustomer(userId: string): Promise<string> {
     const user = await this.userModel.findById(userId);
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -55,7 +52,7 @@ export class SubscriptionService {
       return user.stripeCustomerId;
     }
 
-    return this.createCustomer(userId, user.email, user.name || user.email);
+    return this.createCustomer(new Types.ObjectId(userId));
   }
 
   async createSubscription(
@@ -64,57 +61,60 @@ export class SubscriptionService {
   ): Promise<Subscription> {
     const { paymentMethodId, planId, coupon } = dto;
 
-    // Get or create stripe customer
     const stripeCustomerId = await this.getOrCreateCustomer(userId);
 
-    // Attach payment method to customer
-    await this.stripe.paymentMethods.attach(paymentMethodId, {
-      customer: stripeCustomerId,
-    });
+    try {
+      // Attach payment method to customer
+      await this.stripeService.attachPaymentMethod(
+        paymentMethodId,
+        stripeCustomerId,
+      );
 
-    // Set as default payment method
-    await this.stripe.customers.update(stripeCustomerId, {
-      invoice_settings: {
-        default_payment_method: paymentMethodId,
-      },
-    });
+      // Set as default payment method
+      await this.stripeService.setDefaultPaymentMethod(
+        stripeCustomerId,
+        paymentMethodId,
+      );
 
-    const subscriptionData: Stripe.SubscriptionCreateParams = {
-      customer: stripeCustomerId,
-      items: [{ price: planId }],
-      expand: ['latest_invoice.payment_intent'],
-    };
+      const subscriptionData: Stripe.SubscriptionCreateParams = {
+        customer: stripeCustomerId,
+        items: [{ price: planId }],
+        expand: ['latest_invoice.payment_intent'],
+      };
 
-    if (coupon) {
-      subscriptionData.coupon = coupon;
+      if (coupon) {
+        subscriptionData.coupon = coupon;
+      }
+
+      const subscription =
+        await this.stripeService.createSubscription(subscriptionData);
+
+      // Store subscription in database
+      const newSubscription = new this.subscriptionModel({
+        userId,
+        stripeCustomerId,
+        stripeSubscriptionId: subscription.id,
+        plan: SubscriptionPlan.PRO,
+        status: subscription.status,
+        currentPeriodStart: new Date(subscription.current_period_start * 1000),
+        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+        cancelAtPeriodEnd: subscription.cancel_at_period_end,
+        canceledAt: subscription.canceled_at,
+        trialStart: subscription.trial_start
+          ? new Date(subscription.trial_start * 1000)
+          : null,
+        trialEnd: subscription.trial_end
+          ? new Date(subscription.trial_end * 1000)
+          : null,
+        metadata: {
+          priceId: planId,
+        },
+      });
+
+      return newSubscription.save();
+    } catch (error) {
+      throw new Error(`Failed to create subscription: ${error.message}`);
     }
-
-    // Create subscription
-    const subscription =
-      await this.stripe.subscriptions.create(subscriptionData);
-
-    // Store subscription in database
-    const newSubscription = new this.subscriptionModel({
-      userId,
-      stripeCustomerId,
-      stripeSubscriptionId: subscription.id,
-      plan: SubscriptionPlan.PRO, // Based on price ID logic
-      status: subscription.status,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-      cancelAtPeriodEnd: subscription.cancel_at_period_end,
-      trialStart: subscription.trial_start
-        ? new Date(subscription.trial_start * 1000)
-        : null,
-      trialEnd: subscription.trial_end
-        ? new Date(subscription.trial_end * 1000)
-        : null,
-      metadata: {
-        priceId: planId,
-      },
-    });
-
-    return newSubscription.save();
   }
 
   async cancelSubscription(
@@ -130,21 +130,28 @@ export class SubscriptionService {
       throw new NotFoundException('Active subscription not found');
     }
 
-    const cancelParams: Stripe.SubscriptionCancelParams = {};
-    if (!cancelImmediately) {
-      cancelParams.prorate = false;
+    try {
+      const cancelParams: Stripe.SubscriptionCancelParams = {};
+      if (!cancelImmediately) {
+        cancelParams.prorate = false;
+      }
+
+      const canceledSubscription = await this.stripeService.cancelSubscription(
+        subscription.stripeSubscriptionId,
+        cancelParams,
+      );
+
+      subscription.status = canceledSubscription.status as SubscriptionStatus;
+      subscription.cancelAtPeriodEnd =
+        canceledSubscription.cancel_at_period_end;
+      subscription.canceledAt = new Date(
+        Number(canceledSubscription?.canceled_at) * 1000,
+      );
+
+      return subscription.save();
+    } catch (error) {
+      throw new Error(`Failed to cancel subscription: ${error.message}`);
     }
-
-    const canceledSubscription = await this.stripe.subscriptions.cancel(
-      subscription.stripeSubscriptionId,
-      cancelParams,
-    );
-
-    subscription.status = canceledSubscription.status as SubscriptionStatus;
-    subscription.cancelAtPeriodEnd = canceledSubscription.cancel_at_period_end;
-    subscription.canceledAt = new Date(canceledSubscription.canceled_at * 1000);
-
-    return subscription.save();
   }
 
   async updateSubscription(
@@ -161,33 +168,25 @@ export class SubscriptionService {
       throw new NotFoundException('Active subscription not found');
     }
 
-    const updatedSubscription = await this.stripe.subscriptions.update(
-      subscription.stripeSubscriptionId,
-      {
-        items: [
-          {
-            id: (
-              await this.stripe.subscriptions.retrieve(
-                subscription.stripeSubscriptionId,
-              )
-            ).items.data[0].id,
-            price: newPlanId,
-          },
-        ],
-        proration_behavior: 'create_prorations',
-      },
-    );
+    try {
+      const updatedSubscription = await this.stripeService.updateSubscription(
+        subscription.stripeSubscriptionId,
+        newPlanId,
+      );
 
-    subscription.plan = SubscriptionPlan.PRO; // Based on price ID logic
-    subscription.currentPeriodEnd = new Date(
-      updatedSubscription.current_period_end * 1000,
-    );
-    subscription.metadata = {
-      ...subscription.metadata,
-      priceId: newPlanId,
-    };
+      subscription.plan = SubscriptionPlan.PRO;
+      subscription.currentPeriodEnd = new Date(
+        updatedSubscription.current_period_end * 1000,
+      );
+      subscription.metadata = {
+        ...subscription.metadata,
+        priceId: newPlanId,
+      };
 
-    return subscription.save();
+      return subscription.save();
+    } catch (error) {
+      throw new Error(`Failed to update subscription: ${error.message}`);
+    }
   }
 
   async handleWebhookEvent(event: Stripe.Event): Promise<void> {
@@ -213,6 +212,8 @@ export class SubscriptionService {
           event.data.object as Stripe.Invoice,
         );
         break;
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
     }
   }
 
@@ -225,6 +226,9 @@ export class SubscriptionService {
 
     if (!subscription) {
       // Log that webhook was received for non-existent subscription
+      console.log(
+        `Webhook received for non-existent subscription: ${stripeSubscription.id}`,
+      );
       return;
     }
 
@@ -251,7 +255,9 @@ export class SubscriptionService {
       { stripeSubscriptionId: stripeSubscription.id },
       {
         status: SubscriptionStatus.CANCELED,
-        canceledAt: new Date(stripeSubscription.canceled_at * 1000),
+        canceledAt: stripeSubscription.canceled_at
+          ? new Date(stripeSubscription.canceled_at * 1000)
+          : null,
       },
     );
   }
@@ -278,8 +284,8 @@ export class SubscriptionService {
     );
   }
 
-  async getUserSubscription(userId: string): Promise<Subscription> {
-    return this.subscriptionModel.findOne({ userId }).exec();
+  async getUserSubscription(userId: string): Promise<Subscription | null> {
+    return this.subscriptionModel.findOne({ userId }).lean().exec();
   }
 
   async listAllSubscriptions(

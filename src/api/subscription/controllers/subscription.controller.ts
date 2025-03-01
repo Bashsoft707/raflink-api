@@ -14,26 +14,32 @@ import {
 import { SubscriptionService } from '../services/subscription.service';
 import { CreateSubscriptionDto, UpdateSubscriptionDto } from '../dto';
 import { Request } from 'express';
-import Stripe from 'stripe';
 import { ConfigService } from '@nestjs/config';
 import { AccessTokenGuard } from '../../authentication/auth';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiExcludeEndpoint,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { TokenData } from 'src/api/authentication/dtos';
 
 @ApiTags('subscriptions')
 @Controller('subscriptions')
 export class SubscriptionController {
-  private stripe: Stripe;
-
   constructor(
     private readonly subscriptionService: SubscriptionService,
-    private configService: ConfigService,
-  ) {
-    this.stripe = new Stripe(
-      this.configService.get<string>('STRIPE_SECRET_KEY'),
-      {
-        apiVersion: '2023-10-16',
-      },
-    );
+    private readonly configService: ConfigService,
+  ) {}
+
+  @Post('/customer')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to create stripe customer account' })
+  async createCustomer(@Req() req: Request) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return await this.subscriptionService.createCustomer(user);
   }
 
   @UseGuards(AccessTokenGuard)
@@ -72,17 +78,19 @@ export class SubscriptionController {
     );
   }
 
+  @ApiExcludeEndpoint()
   @Post('webhook')
   @HttpCode(HttpStatus.OK)
   async handleWebhook(@Req() req: RawBodyRequest<Request>) {
-    const signature = req.headers['stripe-signature'];
-    const endpointSecret = this.configService.get<string>(
-      'STRIPE_WEBHOOK_SECRET',
-    );
+    const signature = req.headers['stripe-signature'] as string | string[];
+    const endpointSecret =
+      this.configService.get<string>('STRIPE_WEBHOOK_SECRET') || '';
 
     try {
-      const event = this.stripe.webhooks.constructEvent(
-        req.rawBody,
+      const event = this.subscriptionService[
+        'stripeService'
+      ].stripeInstance.webhooks.constructEvent(
+        req.rawBody as string | Buffer,
         signature,
         endpointSecret,
       );

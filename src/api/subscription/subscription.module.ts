@@ -5,6 +5,7 @@ import { SubscriptionService } from './services/subscription.service';
 import { SubscriptionController } from './controllers/subscription.controller';
 import { Subscription, SubscriptionSchema } from './schema';
 import { User, UserSchema } from '../authentication/schema';
+import { StripeService } from '../stripe/service/stripe.service';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { User, UserSchema } from '../authentication/schema';
     ]),
   ],
   controllers: [SubscriptionController],
-  providers: [SubscriptionService],
+  providers: [SubscriptionService, StripeService],
   exports: [SubscriptionService],
 })
 export class SubscriptionModule {}
