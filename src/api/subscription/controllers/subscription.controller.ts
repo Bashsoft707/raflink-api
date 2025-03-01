@@ -10,9 +10,16 @@ import {
   HttpStatus,
   RawBodyRequest,
   Query,
+  Param,
+  Delete,
 } from '@nestjs/common';
 import { SubscriptionService } from '../services/subscription.service';
-import { CreateSubscriptionDto, UpdateSubscriptionDto } from '../dto';
+import {
+  CreateSubscriptionDto,
+  CreateSubscriptionPlanDto,
+  UpdateSubscriptionDto,
+  UpdateSubscriptionPlanDto,
+} from '../dto';
 import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { AccessTokenGuard } from '../../authentication/auth';
@@ -21,8 +28,10 @@ import {
   ApiExcludeEndpoint,
   ApiOperation,
   ApiTags,
+  ApiParam,
 } from '@nestjs/swagger';
 import { TokenData } from 'src/api/authentication/dtos';
+import { Pagination } from 'src/common/dto/pagination.dto';
 
 @ApiTags('subscriptions')
 @Controller('subscriptions')
@@ -42,31 +51,90 @@ export class SubscriptionController {
     return await this.subscriptionService.createCustomer(user);
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to create subscription plan' })
+  @Post('plan')
+  async createSubPlan(@Body() body: CreateSubscriptionPlanDto) {
+    return this.subscriptionService.createSubscriptionPlan(body);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to get subscription plans' })
+  @Get('plan')
+  async getSubPlans() {
+    return this.subscriptionService.getSubscriptionPlans();
+  }
+
+  @Patch('plan/:id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to update subscription plan' })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the subscription plan to update',
+    required: true,
+    type: String,
+  })
+  async updateSubPlan(
+    @Param() param: { id: string },
+    @Body() body: UpdateSubscriptionPlanDto,
+  ) {
+    return await this.subscriptionService.updateSubscriptionPlan(
+      param.id,
+      body,
+    );
+  }
+
+  @Delete('plan/:id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to deactivate subscription plan' })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the subscription plan to update',
+    required: true,
+    type: String,
+  })
+  async deletePlan(@Param() param: { id: string }) {
+    return await this.subscriptionService.deleteSubscriptionPlan(param.id);
+  }
+
   @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to create subscription' })
   @Post()
   async create(
     @Req() req,
     @Body() createSubscriptionDto: CreateSubscriptionDto,
   ) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+
     return this.subscriptionService.createSubscription(
-      req.user.id,
+      user,
       createSubscriptionDto,
     );
   }
 
   @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to get current user subscription' })
   @Get('me')
   async getCurrentUserSubscription(@Req() req) {
-    return this.subscriptionService.getUserSubscription(req.user.id);
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return this.subscriptionService.getUserSubscription(user);
   }
 
   @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to cancel subscription' })
   @Patch('cancel')
   async cancelSubscription(@Req() req, @Body('immediate') immediate: boolean) {
     return this.subscriptionService.cancelSubscription(req.user.id, immediate);
   }
 
   @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to update subscription' })
   @Patch('update')
   async updateSubscription(
     @Req() req,
@@ -102,9 +170,11 @@ export class SubscriptionController {
     }
   }
 
-  @UseGuards(AccessTokenGuard)
-  @Get()
-  async findAll(@Query('limit') limit: number, @Query('page') page: number) {
-    return this.subscriptionService.listAllSubscriptions(limit, page);
+  // @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to get all subscriptions' })
+  @Get('all')
+  async findAll(@Query() query: Pagination) {
+    return this.subscriptionService.listAllSubscriptions(query);
   }
 }

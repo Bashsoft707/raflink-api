@@ -6,6 +6,10 @@ import { SubscriptionController } from './controllers/subscription.controller';
 import { Subscription, SubscriptionSchema } from './schema';
 import { User, UserSchema } from '../authentication/schema';
 import { StripeService } from '../stripe/service/stripe.service';
+import {
+  SubscriptionPlan,
+  SubscriptionPlanSchema,
+} from './schema/subscriptionPlan.schema';
 
 @Module({
   imports: [
@@ -13,6 +17,7 @@ import { StripeService } from '../stripe/service/stripe.service';
     MongooseModule.forFeature([
       { name: Subscription.name, schema: SubscriptionSchema },
       { name: User.name, schema: UserSchema },
+      { name: SubscriptionPlan.name, schema: SubscriptionPlanSchema },
     ]),
   ],
   controllers: [SubscriptionController],

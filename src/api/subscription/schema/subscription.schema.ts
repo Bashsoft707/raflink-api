@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { User } from '../../authentication/schema/';
-import { SubscriptionPlan, SubscriptionStatus } from 'src/constants';
+import { SubscriptionPlan } from './subscriptionPlan.schema';
+import { SubscriptionStatus } from 'src/constants';
 
 @Schema({ timestamps: true })
 export class Subscription extends Document {
@@ -15,11 +16,11 @@ export class Subscription extends Document {
   stripeSubscriptionId: string;
 
   @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'SubscriptionPlan',
     required: true,
-    enum: SubscriptionPlan,
-    default: SubscriptionPlan.FREE,
   })
-  plan: string;
+  plan: SubscriptionPlan;
 
   @Prop({
     required: true,

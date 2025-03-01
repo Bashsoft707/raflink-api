@@ -1,5 +1,118 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsNotEmpty } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsString,
+  IsOptional,
+  IsNotEmpty,
+  IsNumber,
+  IsPositive,
+  IsEnum,
+  IsArray,
+  ValidateNested,
+  IsBoolean,
+} from 'class-validator';
+
+class Benefit {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Benefit name',
+    example: 'benefit1',
+    required: true,
+    title: 'name',
+  })
+  name: string;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Is benefit available',
+    example: true,
+    required: true,
+    title: 'isAvailable',
+  })
+  isAvailable: boolean;
+}
+
+export class CreateSubscriptionPlanDto {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Plan name',
+    example: 'Basic',
+    required: true,
+    title: 'name',
+  })
+  name: string;
+
+  @IsNumber()
+  @IsPositive()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Plan price',
+    example: 100,
+    required: true,
+    title: 'price',
+  })
+  price: number;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEnum(['month', 'year', 'week', 'day'])
+  @ApiProperty({
+    description: 'Plan duration',
+    example: 'monthly',
+    required: true,
+    title: 'duration',
+  })
+  duration: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Currency',
+    example: 'usd',
+    required: false,
+    title: 'currency',
+  })
+  currency: string;
+
+  @IsArray()
+  @IsNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => Benefit)
+  @ApiProperty({
+    description: 'Plan benefits',
+    example: [{ name: 'benefit1', isAvailable: true }],
+    required: true,
+    title: 'benefits',
+  })
+  benefits: Benefit[];
+}
+
+export class UpdateSubscriptionPlanDto {
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Plan name',
+    example: 'Basic',
+    required: false,
+    title: 'name',
+  })
+  name: string;
+
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => Benefit)
+  @ApiProperty({
+    description: 'Plan benefits',
+    example: [{ name: 'benefit1', isAvailable: true }],
+    required: false,
+    title: 'benefits',
+  })
+  benefits: Benefit[];
+}
 
 export class CreateSubscriptionDto {
   @IsString()

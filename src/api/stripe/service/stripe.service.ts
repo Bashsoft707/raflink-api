@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
-import { ENV } from '../../../constants';
 
 @Injectable()
 export class StripeService {
   private stripe: Stripe;
 
   constructor() {
-    this.stripe = new Stripe(ENV.STRIPE_PUBLIC_KEY, {
+    this.stripe = new Stripe(String(process.env.STRIPE_SECRET_KEY), {
       apiVersion: '2025-02-24.acacia',
     });
   }
@@ -20,6 +19,75 @@ export class StripeService {
   async getProducts(): Promise<Stripe.Product[]> {
     const products = await this.stripe.products.list();
     return products.data;
+  }
+
+  async getProductsWithPrice(): Promise<
+    { product: Stripe.Product; prices: Stripe.Price[] }[]
+  > {
+    try {
+      const products = await this.stripe.products.list();
+
+      const productsWithPrices = await Promise.all(
+        products.data.map(async (product) => {
+          const prices = await this.stripe.prices.list({
+            product: product.id,
+          });
+
+          return { product, prices: prices.data };
+        }),
+      );
+
+      return productsWithPrices;
+    } catch (error) {
+      throw new Error(`Error fetching products with prices: ${error.message}`);
+    }
+  }
+
+  async createSubPrice({
+    name,
+    currency,
+    price,
+    duration,
+  }): Promise<Stripe.Price> {
+    const products = await this.getProducts();
+    let selectedProduct = products.find(
+      (product) => product.name === 'Raflink Sub',
+    );
+
+    if (!selectedProduct) {
+      selectedProduct = await this.stripe.products.create({
+        name: 'Raflink Sub',
+        description: 'Subscription for Raflink',
+      });
+    }
+
+    const plan = await this.stripe.prices.create({
+      product: selectedProduct.id,
+      nickname: name,
+      currency: currency || 'usd',
+      recurring: { interval: duration },
+      unit_amount: price * 100,
+    });
+
+    return plan;
+  }
+
+  async editSubPrice(
+    id: string,
+    { name }: { name: string },
+  ): Promise<Stripe.Price> {
+    const pricing = await this.stripe.prices.retrieve(id);
+    if (!pricing) {
+      throw new Error('Product pricing not found');
+    }
+    const updatedPlan = await this.stripe.prices.update(id, {
+      nickname: name,
+    });
+    return updatedPlan;
+  }
+
+  async deletePrice(id: string): Promise<void> {
+    await this.stripe.prices.update(id, { active: false });
   }
 
   async createCustomer(

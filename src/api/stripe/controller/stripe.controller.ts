@@ -2,7 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 import { StripeService } from '../service/stripe.service';
 import { ApiExcludeController } from '@nestjs/swagger';
 
-@ApiExcludeController()
+// @ApiExcludeController()
 @Controller('stripe')
 export class StripeController {
   constructor(private stripeService: StripeService) {}
