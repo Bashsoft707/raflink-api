@@ -16,23 +16,20 @@ export class UserTemplate {
   })
   templateId: MongooseSchema.Types.ObjectId;
 
-  @Prop({ lowercase: true, type: String })
-  backgroundColor: string;
-
   @Prop({ required: true, enum: SOCIAL_LINKS_POSITON })
   socialLinksPosition: string;
 
   @Prop({ lowercase: true, required: true })
   name: string;
 
-  @Prop({ lowercase: true, type: String })
-  backgroundImage: string;
+  @Prop({ type: Object })
+  templateStyle: Object;
 
-  @Prop({ type: String })
-  templateCss: string;
+  @Prop({ type: Object })
+  socialLinksStyle: Object;
 
-  @Prop({ type: String })
-  linkCss: string;
+  @Prop({ type: Object })
+  linkStyle: Object;
 
   @Prop(
     raw([

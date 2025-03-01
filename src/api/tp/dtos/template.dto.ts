@@ -6,6 +6,7 @@ import {
   IsEnum,
   IsMongoId,
   IsNotEmpty,
+  IsObject,
   IsOptional,
   IsString,
   ValidateNested,
@@ -76,45 +77,35 @@ export class CreateTemplateDto {
   })
   name: string;
 
-  @IsString()
+  @IsObject()
   @IsOptional()
   @ApiProperty({
-    description: 'Template background color',
-    example: '#fff',
+    description: 'Template styles',
+    example: '{}',
     required: false,
-    title: 'backgroundColor',
+    title: 'templateStyle',
   })
-  backgroundColor: string;
+  templateStyle: Object;
 
-  @IsString()
+  @IsObject()
   @IsOptional()
   @ApiProperty({
-    description: 'Template background image',
-    example: '/image/src/blue.png',
+    description: 'Socual Links styles',
+    example: '{}',
     required: false,
-    title: 'backgroundImage',
+    title: 'socialLinksStyle',
   })
-  backgroundImage: string;
+  socialLinksStyle: Object;
 
-  @IsString()
+  @IsObject()
   @IsOptional()
   @ApiProperty({
-    description: 'Template css',
-    example: 'margin: 0px',
+    description: 'Link Styles',
+    example: '{}',
     required: false,
-    title: 'templateCss',
+    title: 'linkStyle',
   })
-  templateCss: String;
-
-  @IsString()
-  @IsOptional()
-  @ApiProperty({
-    description: 'Link css',
-    example: 'margin: 0px',
-    required: false,
-    title: 'linkCss',
-  })
-  linkCss: String;
+  linkStyle: Object;
 
   @IsString()
   @IsNotEmpty()
@@ -169,45 +160,35 @@ export class CreateUserTemplateDto {
   })
   name: string;
 
-  @IsString()
+  @IsObject()
   @IsOptional()
   @ApiProperty({
-    description: 'Template background color',
-    example: '#fff',
+    description: 'Template styles',
+    example: '{}',
     required: false,
-    title: 'backgroundColor',
+    title: 'templateStyle',
   })
-  backgroundColor: string;
+  templateStyle: Object;
 
-  @IsString()
+  @IsObject()
   @IsOptional()
   @ApiProperty({
-    description: 'Template background image',
-    example: '/image/src/blue.png',
+    description: 'Socual Links styles',
+    example: '{}',
     required: false,
-    title: 'backgroundImage',
+    title: 'socialLinksStyle',
   })
-  backgroundImage: string;
+  socialLinksStyle: Object;
 
-  @IsString()
+  @IsObject()
   @IsOptional()
   @ApiProperty({
-    description: 'Template css',
-    example: 'margin: 0px',
+    description: 'Link Styles',
+    example: '{}',
     required: false,
-    title: 'templateCss',
+    title: 'linkStyle',
   })
-  templateCss: String;
-
-  @IsString()
-  @IsOptional()
-  @ApiProperty({
-    description: 'Link css',
-    example: 'margin: 0px',
-    required: false,
-    title: 'linkCss',
-  })
-  linkCss: String;
+  linkStyle: Object;
 
   @IsString()
   @IsNotEmpty()
@@ -252,45 +233,35 @@ export class UpdateTemplateDto {
   })
   name: string;
 
-  @IsString()
+  @IsObject()
   @IsOptional()
   @ApiProperty({
-    description: 'Template background color',
-    example: '#fff',
+    description: 'Template styles',
+    example: '{}',
     required: false,
-    title: 'backgroundColor',
+    title: 'templateStyle',
   })
-  backgroundColor: string;
+  templateStyle: Object;
 
-  @IsString()
+  @IsObject()
   @IsOptional()
   @ApiProperty({
-    description: 'Template background image',
-    example: '/image/src/blue.png',
+    description: 'Socual Links styles',
+    example: '{}',
     required: false,
-    title: 'backgroundImage',
+    title: 'socialLinksStyle',
   })
-  backgroundImage: string;
+  socialLinksStyle: Object;
 
-  @IsString()
+  @IsObject()
   @IsOptional()
   @ApiProperty({
-    description: 'Template css',
-    example: 'margin: 0px',
+    description: 'Link Styles',
+    example: '{}',
     required: false,
-    title: 'templateCss',
+    title: 'linkStyle',
   })
-  templateCss: String;
-
-  @IsString()
-  @IsOptional()
-  @ApiProperty({
-    description: 'Link css',
-    example: 'margin: 0px',
-    required: false,
-    title: 'linkCss',
-  })
-  linkCss: String;
+  linkStyle: Object;
 
   @IsString()
   @IsOptional()
