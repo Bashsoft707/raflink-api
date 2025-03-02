@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { User } from '../../authentication/schema/';
 import { SubscriptionPlan } from './subscriptionPlan.schema';
-import { SubscriptionStatus } from 'src/constants';
+import { SubscriptionStatus } from '../../../constants';
 
 @Schema({ timestamps: true })
 export class Subscription extends Document {

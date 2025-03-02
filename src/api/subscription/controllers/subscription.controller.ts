@@ -30,8 +30,8 @@ import {
   ApiTags,
   ApiParam,
 } from '@nestjs/swagger';
-import { TokenData } from 'src/api/authentication/dtos';
-import { Pagination } from 'src/common/dto/pagination.dto';
+import { TokenData } from '../../authentication/dtos';
+import { Pagination } from '../../../common/dto/pagination.dto';
 
 @ApiTags('subscriptions')
 @Controller('subscriptions')

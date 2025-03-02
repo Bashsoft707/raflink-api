@@ -17,10 +17,10 @@ import {
   UpdateSubscriptionPlanDto,
 } from '../dto';
 import { Subscription } from '../schema';
-import { StripeService } from 'src/api/stripe/service/stripe.service';
+import { StripeService } from '../../stripe/service/stripe.service';
 import { SubscriptionPlan as SubscriptionPlanModel } from '../schema/subscriptionPlan.schema';
-import { errorHandler } from 'src/utils';
-import { Pagination } from 'src/common/dto/pagination.dto';
+import { Pagination } from '../../../common/dto/pagination.dto';
+import { errorHandler } from '../../../utils';
 
 @Injectable()
 export class SubscriptionService {
