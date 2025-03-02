@@ -49,6 +49,9 @@ export class User {
   @Prop({ default: null })
   @Exclude()
   refreshToken: string;
+
+  @Prop({ default: null })
+  stripeCustomerId: string;
 }
 
 export type UserDocument = User & Document<Types.ObjectId>;

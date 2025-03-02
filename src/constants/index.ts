@@ -27,6 +27,8 @@ export enum ENV {
   GOOGLE_CALLBACK_URL = 'GOOGLE_CALLBACK_URL',
   GOOGLE_CLIENT_ID = 'GOOGLE_CLIENT_ID',
   GOOGLE_CLIENT_SECRET = 'GOOGLE_CLIENT_SECRET',
+  STRIPE_PUBLIC_KEY = 'STRIPE_PUBLIC_KEY',
+  STRIPE_SECRET_KEY = 'STRIPE_SECRET_KEY',
 }
 
 export enum TEMPLATES {
@@ -63,4 +65,19 @@ export enum SOCIALS {
   TIKTOK = 'TIKTOK',
   YOUTUBE = 'YOUTUBE',
   WHATSAPP = 'WHATSAPP',
+}
+
+export enum SubscriptionStatus {
+  ACTIVE = 'active',
+  CANCELED = 'canceled',
+  PAST_DUE = 'past_due',
+  TRIALING = 'trialing',
+  UNPAID = 'unpaid',
+  INCOMPLETE = 'incomplete',
+  INCOMPLETE_EXPIRED = 'incomplete_expired',
+}
+
+export enum SubscriptionPlan {
+  FREE = 'free',
+  PRO = 'pro',
 }

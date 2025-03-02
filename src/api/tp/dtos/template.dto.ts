@@ -200,26 +200,6 @@ export class CreateUserTemplateDto {
     title: 'socialLinksPosition',
   })
   socialLinksPosition: string;
-
-  @IsArray()
-  @IsOptional()
-  @ValidateNested({ each: true })
-  @Type(() => AffiliateLink)
-  @ApiProperty({
-    description: 'Array of objects of social links',
-    example: [
-      {
-        name: 'website',
-        linkUrl: 'www.raflink.com',
-        thumbnail: 'www.raflink.com/images',
-        layout: TEMPLATE_LINK_LAYOUT.CLASSIC,
-        lockLink: false,
-      },
-    ],
-    required: false,
-    title: 'affiliateLinks',
-  })
-  affiliateLinks: AffiliateLink[];
 }
 
 export class UpdateTemplateDto {

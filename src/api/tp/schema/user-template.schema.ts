@@ -1,6 +1,6 @@
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema, Types } from 'mongoose';
-import { SOCIAL_LINKS_POSITON, TEMPLATE_LINK_LAYOUT } from '../../../constants';
+import { SOCIAL_LINKS_POSITON } from '../../../constants';
 
 @Schema({
   timestamps: true,
@@ -30,31 +30,6 @@ export class UserTemplate {
 
   @Prop({ type: Object })
   linkStyle: Object;
-
-  @Prop(
-    raw([
-      {
-        name: { type: String },
-        linkUrl: { type: String },
-        thumbnail: { type: String },
-        layout: {
-          enum: TEMPLATE_LINK_LAYOUT,
-          type: String,
-          default: TEMPLATE_LINK_LAYOUT.CLASSIC,
-        },
-        clickCount: { type: Number, default: 0 },
-        lockLink: { type: Boolean, default: false },
-      },
-    ]),
-  )
-  affiliateLinks: Array<{
-    name: string;
-    linkUrl: string;
-    thumbnail: string;
-    layout: string;
-    clickCount: boolean;
-    lockLink: boolean;
-  }>;
 }
 
 export type UserTemplateDocument = UserTemplate & Document<Types.ObjectId>;

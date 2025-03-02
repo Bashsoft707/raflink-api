@@ -24,7 +24,6 @@ import { JwtService } from '@nestjs/jwt';
 import { User, UserDocument } from '../schema/user.schema';
 import EncryptService from '../../../helpers/encryption';
 import { GoogleUser } from '../interface';
-import { IResponse } from 'src/interfaces';
 
 @Injectable()
 export class AuthService {
