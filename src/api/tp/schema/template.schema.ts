@@ -6,23 +6,20 @@ import { SOCIAL_LINKS_POSITON, TEMPLATE_LINK_LAYOUT } from '../../../constants';
   timestamps: true,
 })
 export class Template {
-  @Prop({ lowercase: true, type: String })
-  backgroundColor: string;
-
   @Prop({ enum: SOCIAL_LINKS_POSITON, required: true })
   socialLinksPosition: string;
 
   @Prop({ lowercase: true, required: true, unique: true, index: true })
   name: string;
 
-  @Prop({ lowercase: true, type: String })
-  backgroundImage: string;
+  @Prop({ type: Object })
+  templateStyle: Object;
 
   @Prop({ type: Object })
-  templateCss: Object;
+  socialLinksStyle: Object;
 
   @Prop({ type: Object })
-  linkCss: Object;
+  linkStyle: Object;
 
   @Prop(
     raw([
