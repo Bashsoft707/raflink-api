@@ -134,8 +134,6 @@ export class TemplateService {
         socialLinksPosition:
           createUserTemplateDto.socialLinksPosition ||
           baseTemplate.socialLinksPosition,
-        affiliateLinks:
-          createUserTemplateDto.affiliateLinks || baseTemplate.affiliateLinks,
       });
 
       return {

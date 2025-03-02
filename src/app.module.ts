@@ -13,6 +13,7 @@ import { TemplateModule } from './api/tp/template.module';
 import { CloudinaryModule } from './api/cloudinary/cloudinary.module';
 import { StripeModule } from './api/stripe/stripe.module';
 import { SubscriptionModule } from './api/subscription/subscription.module';
+import { LinkModule } from './api/links/link.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { SubscriptionModule } from './api/subscription/subscription.module';
     AuthModule,
     CachesModule,
     TemplateModule,
+    LinkModule,
     CloudinaryModule,
     StripeModule.forRootAsync(),
     SubscriptionModule,
