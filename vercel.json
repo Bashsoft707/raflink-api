@@ -7,12 +7,28 @@
       "config": {
         "maxDuration": 30
       }
+    },
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*\\.(css|js|png))",
-      "dest": "src/main.ts"
+      "src": "/swagger-ui.css",
+      "dest": "/public/swagger-ui.css"
+    },
+    {
+      "src": "/swagger-ui-bundle.js",
+      "dest": "/public/swagger-ui-bundle.js"
+    },
+    {
+      "src": "/swagger-ui-standalone-preset.js",
+      "dest": "/public/swagger-ui-standalone-preset.js"
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "/public/favicon.ico"
     },
     {
       "src": "/(.*)",

@@ -7,12 +7,15 @@ import basicAuth from 'express-basic-auth';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
     cors: true,
   });
+
+  app.useStaticAssets(join(__dirname, '..', 'public'));
 
   app.enableCors({
     origin: ['https://raflink.vercel.app', 'http://localhost:5173'],
@@ -65,8 +68,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
 
   SwaggerModule.setup('api', app, document, {
-    customSiteTitle: 'Your API Documentation',
+    customSiteTitle: 'Raflink API Documentation',
     customfavIcon: '/favicon.ico',
+    customJs: ['/swagger-ui-bundle.js', '/swagger-ui-standalone-preset.js'],
+    customCssUrl: ['/swagger-ui.css'],
   });
 
   app.useGlobalPipes(new ValidationPipe());
