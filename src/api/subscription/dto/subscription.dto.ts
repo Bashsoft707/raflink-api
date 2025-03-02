@@ -129,7 +129,7 @@ export class CreateSubscriptionDto {
   @IsNotEmpty()
   @ApiProperty({
     description: 'Stripe plan id',
-    example: 'price_1J4C2z2eZvKYlo2C3LsZc8rF',
+    example: '67c38ebc900455d361074a2c',
     required: true,
     title: 'planId',
   })
@@ -151,7 +151,7 @@ export class UpdateSubscriptionDto {
   @IsNotEmpty()
   @ApiProperty({
     description: 'Stripe subscription id',
-    example: 'sub_1J4C2z2eZvKYlo2C3LsZc8rF',
+    example: '67c38ebc900455d361074a2c',
     required: true,
     title: 'newPlanId',
   })

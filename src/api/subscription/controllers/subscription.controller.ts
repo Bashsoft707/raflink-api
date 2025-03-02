@@ -129,7 +129,9 @@ export class SubscriptionController {
   @ApiOperation({ summary: 'Endpoint to cancel subscription' })
   @Patch('cancel')
   async cancelSubscription(@Req() req, @Body('immediate') immediate: boolean) {
-    return this.subscriptionService.cancelSubscription(req.user.id, immediate);
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return this.subscriptionService.cancelSubscription(user, immediate);
   }
 
   @UseGuards(AccessTokenGuard)
@@ -140,8 +142,10 @@ export class SubscriptionController {
     @Req() req,
     @Body() updateSubscriptionDto: UpdateSubscriptionDto,
   ) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
     return this.subscriptionService.updateSubscription(
-      req.user.id,
+      user,
       updateSubscriptionDto,
     );
   }

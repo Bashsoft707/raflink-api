@@ -228,23 +228,40 @@ export class SubscriptionService {
     const { paymentMethodId, planId, coupon } = dto;
 
     const plan = await this.getSubscriptionPlan(planId);
-
     const stripeCustomerId = await this.getOrCreateCustomer(userId);
 
     try {
+      const existingSubscription = await this.subscriptionModel.findOne({
+        userId,
+        status: SubscriptionStatus.ACTIVE,
+      });
+
+      if (existingSubscription) {
+        throw new Error('User already has an active subscription');
+      }
+
+      let validPaymentMethodId = paymentMethodId;
+
+      if (process.env.NODE_ENV === 'development') {
+        validPaymentMethodId =
+          await this.stripeService.createTestPaymentMethod();
+        console.log(`Test payment method created: ${validPaymentMethodId}`);
+      }
+
       await this.stripeService.attachPaymentMethod(
-        paymentMethodId,
+        validPaymentMethodId,
         stripeCustomerId,
       );
 
       await this.stripeService.setDefaultPaymentMethod(
         stripeCustomerId,
-        paymentMethodId,
+        validPaymentMethodId,
       );
 
       const subscriptionData: Stripe.SubscriptionCreateParams = {
         customer: stripeCustomerId,
         items: [{ price: plan.priceId }],
+        default_payment_method: validPaymentMethodId,
         expand: ['latest_invoice.payment_intent'],
       };
 
@@ -260,6 +277,7 @@ export class SubscriptionService {
         stripeCustomerId,
         stripeSubscriptionId: subscription.id,
         plan: plan._id,
+        paymentMethodId: validPaymentMethodId,
         status: subscription.status,
         currentPeriodStart: new Date(subscription.current_period_start * 1000),
         currentPeriodEnd: new Date(subscription.current_period_end * 1000),
@@ -285,7 +303,7 @@ export class SubscriptionService {
   }
 
   async cancelSubscription(
-    userId: string,
+    userId: Types.ObjectId,
     cancelImmediately = false,
   ): Promise<Subscription> {
     const subscription = await this.subscriptionModel.findOne({
@@ -322,7 +340,7 @@ export class SubscriptionService {
   }
 
   async updateSubscription(
-    userId: string,
+    userId: Types.ObjectId,
     dto: UpdateSubscriptionDto,
   ): Promise<Subscription> {
     const { newPlanId } = dto;
@@ -452,7 +470,7 @@ export class SubscriptionService {
 
   async getUserSubscription(userId: Types.ObjectId) {
     try {
-      const subscription = this.subscriptionModel
+      const subscription = await this.subscriptionModel
         .findOne({ userId })
         .lean()
         .exec();

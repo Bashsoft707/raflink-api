@@ -22,6 +22,9 @@ export class Subscription extends Document {
   })
   plan: SubscriptionPlan;
 
+  @Prop({ type: String, required: true })
+  paymentMethodId: string;
+
   @Prop({
     required: true,
     enum: SubscriptionStatus,

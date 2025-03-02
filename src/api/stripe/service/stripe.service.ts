@@ -110,6 +110,17 @@ export class StripeService {
     return customers.data;
   }
 
+  async createTestPaymentMethod(): Promise<string> {
+    const paymentMethod = await this.stripe.paymentMethods.create({
+      type: 'card',
+      card: {
+        token: 'tok_visa',
+      },
+    });
+
+    return paymentMethod.id;
+  }
+
   async attachPaymentMethod(paymentMethodId: string, customerId: string) {
     return this.stripe.paymentMethods.attach(paymentMethodId, {
       customer: customerId,
