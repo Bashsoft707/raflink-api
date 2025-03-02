@@ -26,20 +26,20 @@ async function bootstrap() {
     ],
   });
 
-  app.use(
-    helmet({
-      crossOriginResourcePolicy: { policy: 'cross-origin' },
-      crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: [`'self'`],
-          scriptSrc: [`'self'`, `'unsafe-inline'`, 'cdnjs.cloudflare.com'],
-          styleSrc: [`'self'`, `'unsafe-inline'`, 'cdnjs.cloudflare.com'],
-          imgSrc: [`'self'`, 'data:'],
-        },
-      },
-    }),
-  );
+  // app.use(
+  //   helmet({
+  //     crossOriginResourcePolicy: { policy: 'cross-origin' },
+  //     crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+  //     contentSecurityPolicy: {
+  //       directives: {
+  //         defaultSrc: [`'self'`],
+  //         scriptSrc: [`'self'`, `'unsafe-inline'`, 'cdnjs.cloudflare.com'],
+  //         styleSrc: [`'self'`, `'unsafe-inline'`, 'cdnjs.cloudflare.com'],
+  //         imgSrc: [`'self'`, 'data:'],
+  //       },
+  //     },
+  //   }),
+  // );
 
   const SWAGGER_ENVS = ['development', 'local'];
 
