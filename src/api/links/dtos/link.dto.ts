@@ -5,6 +5,8 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsNumber,
+  IsPositive,
 } from 'class-validator';
 import { TEMPLATE_LINK_LAYOUT } from '../../../constants';
 
@@ -113,4 +115,17 @@ export class UpdateUserLinkDto {
     title: 'lockLink',
   })
   lockLink: boolean;
+}
+
+export class UpdateLinkViewTimeDto {
+  @IsNumber()
+  @IsPositive()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'View time',
+    example: 5,
+    required: true,
+    title: 'viewTime',
+  })
+  viewTime: number;
 }

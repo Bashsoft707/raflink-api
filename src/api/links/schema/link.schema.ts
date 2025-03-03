@@ -20,16 +20,22 @@ export class Link {
   name: string;
 
   @Prop({ type: String, required: true, lowercase: true })
-  linkUrl: String;
+  linkUrl: string;
 
   @Prop({ type: String, lowercase: true })
-  thumbnail: String;
+  thumbnail: string;
 
   @Prop({ type: Number, default: 0 })
-  clickCount: Number;
+  clickCount: number;
 
   @Prop({ type: Boolean, default: false })
-  lockLink: Boolean;
+  lockLink: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  isDisabled: boolean;
+
+  @Prop({ type: Number, default: 0 })
+  viewTime: number;
 }
 
 export type LinkDocument = Link & Document<Types.ObjectId>;

@@ -16,7 +16,11 @@ import {
   ApiTags,
   ApiParam,
 } from '@nestjs/swagger';
-import { CreateUserLinkDto, UpdateUserLinkDto } from '../dtos';
+import {
+  CreateUserLinkDto,
+  UpdateLinkViewTimeDto,
+  UpdateUserLinkDto,
+} from '../dtos';
 import { AccessTokenGuard } from '../../authentication/auth';
 import { Request } from 'express';
 import { TokenData } from '../../authentication/dtos';
@@ -66,6 +70,42 @@ export class LinkController {
     return await this.LinkService.updateUserLink(param.id, user, body);
   }
 
+  @Patch('/user/:id/click')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to update link clicks' })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the user link to update',
+    required: true,
+    type: String,
+  })
+  async updateClickCount(@Param() param: { id: string }, @Req() req: Request) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return await this.LinkService.updateClickCount(param.id, user);
+  }
+
+  @Patch('/user/:id/view')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to update links views' })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the user Link to update',
+    required: true,
+    type: String,
+  })
+  async updateLinkViews(
+    @Param() param: { id: string },
+    @Req() req: Request,
+    @Body() body: UpdateLinkViewTimeDto,
+  ) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return await this.LinkService.updateViewTime(param.id, user, body);
+  }
+
   @Delete('/user/:id')
   @UseGuards(AccessTokenGuard)
   @ApiBearerAuth()
@@ -80,5 +120,15 @@ export class LinkController {
     const { user: tokenData } = req;
     const { user } = tokenData as unknown as TokenData;
     return await this.LinkService.deleteUserLink(param.id, user);
+  }
+
+  @Get('/analytics')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to get links analytics' })
+  async getLinksAnalytics(@Req() req: Request) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return await this.LinkService.getAnalytics(user);
   }
 }

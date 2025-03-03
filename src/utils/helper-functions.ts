@@ -20,3 +20,9 @@ export const errorHandler = (error: Error) => {
 export function capitalize(string: string): string {
   return string.charAt(0).toUpperCase() + string.substring(1).toLowerCase();
 }
+
+export function formatTime(seconds: number): string {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}m ${remainingSeconds}s`;
+}
