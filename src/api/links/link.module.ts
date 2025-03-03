@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { LinkService } from './services/link.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CachesModule } from '../cache/cache.module';
-import { Link, LinkSchema } from './schema/link.schema';
+import { Link, LinkSchema, LinkClick, LinkClickSchema } from './schema';
 import { LinkController } from './controllers/link.controller';
 
 @Module({
@@ -11,6 +11,10 @@ import { LinkController } from './controllers/link.controller';
       {
         name: Link.name,
         schema: LinkSchema,
+      },
+      {
+        name: LinkClick.name,
+        schema: LinkClickSchema,
       },
     ]),
     CachesModule,

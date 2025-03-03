@@ -8,6 +8,7 @@ import {
   UseGuards,
   Patch,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { LinkService } from '../services/link.service';
 import {
@@ -18,6 +19,8 @@ import {
 } from '@nestjs/swagger';
 import {
   CreateUserLinkDto,
+  GraphFilterDto,
+  UpdateClickCountDto,
   UpdateLinkViewTimeDto,
   UpdateUserLinkDto,
 } from '../dtos';
@@ -80,10 +83,14 @@ export class LinkController {
     required: true,
     type: String,
   })
-  async updateClickCount(@Param() param: { id: string }, @Req() req: Request) {
+  async updateClickCount(
+    @Param() param: { id: string },
+    @Req() req: Request,
+    @Body() body: UpdateClickCountDto,
+  ) {
     const { user: tokenData } = req;
     const { user } = tokenData as unknown as TokenData;
-    return await this.LinkService.updateClickCount(param.id, user);
+    return await this.LinkService.updateClickCount(param.id, user, body);
   }
 
   @Patch('/user/:id/view')
@@ -130,5 +137,18 @@ export class LinkController {
     const { user: tokenData } = req;
     const { user } = tokenData as unknown as TokenData;
     return await this.LinkService.getAnalytics(user);
+  }
+
+  @Get('/analytics/graph')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to get links graph analytics' })
+  async getLinksAnalyticsGraph(
+    @Req() req: Request,
+    @Query() query: GraphFilterDto,
+  ) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return await this.LinkService.getFilteredAnalytics(user, query);
   }
 }

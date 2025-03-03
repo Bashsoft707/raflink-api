@@ -38,10 +38,10 @@ import { LinkModule } from './api/links/link.module';
   controllers: [AppController],
   providers: [
     AppService,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: LoggerInterceptor,
-    },
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: LoggerInterceptor,
+    // },
   ],
 })
 export class AppModule implements NestModule {

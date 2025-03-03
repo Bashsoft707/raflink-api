@@ -18,7 +18,11 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '..', 'public'));
 
   app.enableCors({
-    origin: ['https://raflink.vercel.app', 'http://localhost:5173'],
+    origin: [
+      'https://raflink.vercel.app',
+      'http://localhost:5173',
+      'https://raflinks.io/',
+    ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
     allowedHeaders: [

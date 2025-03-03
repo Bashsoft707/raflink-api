@@ -125,7 +125,7 @@ export class SubscriptionService {
 
   async getSubscriptionPlans() {
     try {
-      const plans = await this.subscriptionPlanModel.findOne().lean().exec();
+      const plans = await this.subscriptionPlanModel.find().lean().exec();
 
       return {
         status: 'success',
