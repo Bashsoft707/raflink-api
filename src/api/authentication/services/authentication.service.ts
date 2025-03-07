@@ -44,6 +44,7 @@ export class AuthService {
   async waitingList(payload: OnboardingDto) {
     try {
       const { email } = payload;
+      console.log('Here');
 
       await this.emailService.sendEmail({
         receiver: payload.email,
@@ -71,6 +72,7 @@ export class AuthService {
   async onboarding(payload: OnboardingDto) {
     try {
       const { email } = payload;
+      console.log('Here');
       const otp = await this.otpService.create(email);
 
       await this.emailService.sendEmail({
