@@ -7,13 +7,14 @@ import { MulterModule } from '@nestjs/platform-express';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './api/authentication/authentication.module';
 import { CachesModule } from './api/cache/cache.module';
-import { APP_INTERCEPTOR } from '@nestjs/core';
-import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
+// import { APP_INTERCEPTOR } from '@nestjs/core';
+// import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
 import { TemplateModule } from './api/tp/template.module';
 import { CloudinaryModule } from './api/cloudinary/cloudinary.module';
 import { StripeModule } from './api/stripe/stripe.module';
 import { SubscriptionModule } from './api/subscription/subscription.module';
 import { LinkModule } from './api/links/link.module';
+import { OfferModule } from './api/offer/offer.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { LinkModule } from './api/links/link.module';
     CachesModule,
     TemplateModule,
     LinkModule,
+    OfferModule,
     CloudinaryModule,
     StripeModule.forRootAsync(),
     SubscriptionModule,

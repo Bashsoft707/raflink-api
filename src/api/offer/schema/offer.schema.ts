@@ -1,0 +1,57 @@
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Schema as MongooseSchema, Types } from 'mongoose';
+// import { TEMPLATE_LINK_LAYOUT } from '../../../constants';
+
+@Schema({
+  timestamps: true,
+})
+export class Offer {
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
+  userId: MongooseSchema.Types.ObjectId;
+
+  //   @Prop({
+  //     required: true,
+  //     enum: TEMPLATE_LINK_LAYOUT,
+  //     default: TEMPLATE_LINK_LAYOUT.CLASSIC,
+  //   })
+  //   layout: string;
+
+  @Prop({ type: String, lowercase: true, required: true })
+  name: string;
+
+  @Prop({ type: String, required: true, lowercase: true })
+  description: string;
+
+  @Prop({ type: String, lowercase: true })
+  image: string;
+
+  @Prop({ type: String, required: true })
+  url: string;
+
+  @Prop({ type: String, required: true })
+  discountType: string;
+
+  @Prop({ type: String, required: true })
+  discountAmount: string;
+
+  @Prop({ type: String, required: true })
+  eligibity: string;
+
+  @Prop({ type: Date, required: true })
+  startDate: Date;
+
+  @Prop({ type: Date, required: true })
+  endDate: Date;
+
+  @Prop({ type: String, required: true })
+  payoutPerClick: string;
+
+  @Prop({ type: String, required: true })
+  payoutPerConversion: string;
+
+  @Prop({ type: [String] })
+  targetAudience: string[];
+}
+
+export type OfferDocument = Offer & Document<Types.ObjectId>;
+export const OfferSchema = SchemaFactory.createForClass(Offer);
