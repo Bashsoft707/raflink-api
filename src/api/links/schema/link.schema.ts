@@ -36,6 +36,12 @@ export class Link {
 
   @Prop({ type: Number, default: 0 })
   viewTime: number;
+
+  @Prop({ type: String })
+  category: string;
+
+  @Prop({ type: Number })
+  linkIndex: number;
 }
 
 export type LinkDocument = Link & Document<Types.ObjectId>;

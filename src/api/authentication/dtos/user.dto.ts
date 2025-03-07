@@ -4,9 +4,11 @@ import {
   IsArray,
   IsEmail,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   ValidateNested,
+  IsPositive,
 } from 'class-validator';
 import { Types } from 'mongoose';
 
@@ -24,7 +26,7 @@ export class OnboardingDto {
 
 class SocialLink {
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   @ApiProperty({
     description: 'Social media platform name',
     example: 'Website',
@@ -34,7 +36,7 @@ class SocialLink {
   name: string;
 
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   @ApiProperty({
     description: 'Link url',
     example: 'www.instagram.com/raff',
@@ -52,6 +54,17 @@ class SocialLink {
     title: 'thumbnail',
   })
   thumbnail: string;
+
+  @IsNumber()
+  @IsPositive()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Social media followers count',
+    example: 5,
+    required: false,
+    title: 'smFollowersCount',
+  })
+  followersCount: number;
 }
 
 export class UpdateUserDto {
@@ -118,6 +131,7 @@ export class UpdateUserDto {
         name: 'website',
         linkUrl: 'www.raflink.com',
         thumbnail: 'www.raflink.com/images',
+        followersCount: 5,
       },
     ],
     required: false,

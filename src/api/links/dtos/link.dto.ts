@@ -63,6 +63,27 @@ export class CreateUserLinkDto {
     title: 'lockLink',
   })
   lockLink: boolean;
+
+  @IsNumber()
+  @IsPositive()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Link index',
+    example: 5,
+    required: false,
+    title: 'linkIndex',
+  })
+  linkIndex: number;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Link category',
+    example: 'others',
+    required: false,
+    title: 'category',
+  })
+  category: string;
 }
 
 export class UpdateUserLinkDto {
@@ -117,6 +138,27 @@ export class UpdateUserLinkDto {
     title: 'lockLink',
   })
   lockLink: boolean;
+
+  @IsNumber()
+  @IsPositive()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Link index',
+    example: 5,
+    required: false,
+    title: 'linkIndex',
+  })
+  linkIndex: number;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Link category',
+    example: 'others',
+    required: false,
+    title: 'category',
+  })
+  category: string;
 }
 
 export class UpdateLinkViewTimeDto {

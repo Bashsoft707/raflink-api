@@ -16,6 +16,7 @@ import {
 } from '../dtos';
 import { errorHandler, formatTime } from '../../../utils';
 import { Link, LinkClickDocument, LinkClick, LinkDocument } from '../schema';
+import { User, UserDocument } from 'src/api/authentication/schema';
 
 @Injectable()
 export class LinkService {
@@ -24,6 +25,8 @@ export class LinkService {
     private readonly LinkModel: Model<LinkDocument>,
     @InjectModel(LinkClick.name)
     private readonly LinkClickModel: Model<LinkClickDocument>,
+    @InjectModel(User.name)
+    private readonly userModel: Model<UserDocument>,
   ) {}
 
   async createUserLink(
@@ -413,6 +416,47 @@ export class LinkService {
         statusCode: HttpStatus.OK,
         message: 'User analytics retrieved successfully.',
         data: analyticsData,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async getUserLinkInfo(username: string) {
+    try {
+      const user = await this.userModel
+        .findOne({ username }, 'displayName socialLinks image')
+        .lean()
+        .exec();
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      const userLinks = await this.LinkModel.find(
+        { userId: user._id },
+        '-__v -createdAt -updatedAt',
+      )
+        .lean()
+        .exec();
+
+      const categorizeLinks = userLinks.reduce((acc, link) => {
+        const category = link.category || 'Uncategorized';
+
+        if (!acc[category]) {
+          acc[category] = [];
+        }
+
+        acc[category].push(link);
+        return acc;
+      }, {});
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'User link info retrieved successfully.',
+        data: { ...user, affiliateLinks: userLinks, categorizeLinks },
+        error: null,
       };
     } catch (error) {
       errorHandler(error);

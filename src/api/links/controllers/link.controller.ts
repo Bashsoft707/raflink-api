@@ -151,4 +151,17 @@ export class LinkController {
     const { user } = tokenData as unknown as TokenData;
     return await this.LinkService.getFilteredAnalytics(user, query);
   }
+
+  @Get('/user/:username')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to view user link information' })
+  @ApiParam({
+    name: 'username',
+    description: 'The username of user who owns the link',
+    required: true,
+    type: String,
+  })
+  async userLinkInfo(@Param() param: { username: string }) {
+    return await this.LinkService.getUserLinkInfo(param.username);
+  }
 }

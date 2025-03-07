@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CachesModule } from '../cache/cache.module';
 import { Link, LinkSchema, LinkClick, LinkClickSchema } from './schema';
 import { LinkController } from './controllers/link.controller';
+import { User, UserSchema } from '../authentication/schema';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { LinkController } from './controllers/link.controller';
         name: LinkClick.name,
         schema: LinkClickSchema,
       },
+      { name: User.name, schema: UserSchema },
     ]),
     CachesModule,
   ],

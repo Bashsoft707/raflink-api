@@ -254,6 +254,8 @@ export class AuthService {
   async updateUserInfo(userId: Types.ObjectId, payload: UpdateUserDto) {
     const session = await this.connection.startSession();
 
+    const { username, displayName } = payload;
+
     try {
       const user = await this.userModel.findById(userId).exec();
 
@@ -265,6 +267,21 @@ export class AuthService {
           data: {},
           error: null,
         };
+      }
+
+      if (displayName !== user.displayName || username !== user.username) {
+        const userExist = await this.userModel.findOne({
+          $or: [
+            { username: username?.toLowerCase() },
+            { displayName: displayName?.toLowerCase() },
+          ],
+        });
+
+        if (userExist) {
+          throw new BadRequestException(
+            'Username or display name already exist',
+          );
+        }
       }
 
       const updatedUser = await this.userModel.findByIdAndUpdate(

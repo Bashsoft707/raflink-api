@@ -28,6 +28,7 @@ export class User {
         name: { enum: SOCIALS, type: String },
         linkUrl: { type: String },
         thumbnail: { type: String },
+        followersCount: { type: Number, default: 0 },
       },
     ]),
   )
@@ -35,6 +36,7 @@ export class User {
     name: string;
     linkUrl: string;
     thumbnail: string;
+    followersCount: string;
   }>;
 
   @Prop({ type: [String] })
