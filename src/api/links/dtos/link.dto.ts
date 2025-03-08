@@ -9,6 +9,7 @@ import {
   IsPositive,
   IsDateString,
   IsObject,
+  Min,
 } from 'class-validator';
 import { TEMPLATE_LINK_LAYOUT } from '../../../constants';
 
@@ -64,16 +65,16 @@ export class CreateUserLinkDto {
   })
   lockLink: boolean;
 
-  @IsNumber()
-  @IsPositive()
-  @IsOptional()
-  @ApiProperty({
-    description: 'Link index',
-    example: 5,
-    required: false,
-    title: 'linkIndex',
-  })
-  linkIndex: number;
+  // @IsNumber()
+  // @IsPositive()
+  // @IsOptional()
+  // @ApiProperty({
+  //   description: 'Link index',
+  //   example: 5,
+  //   required: false,
+  //   title: 'linkIndex',
+  // })
+  // linkIndex: number;
 
   @IsString()
   @IsOptional()
@@ -151,7 +152,7 @@ export class UpdateUserLinkDto {
   lockLink: boolean;
 
   @IsNumber()
-  @IsPositive()
+  @Min(0)
   @IsOptional()
   @ApiProperty({
     description: 'Link index',

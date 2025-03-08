@@ -56,6 +56,17 @@ export class CreateSubscriptionPlanDto {
   })
   price: number;
 
+  @IsNumber()
+  @IsPositive()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Old plan price',
+    example: 150,
+    required: false,
+    title: 'oldPrice',
+  })
+  oldPrice: number;
+
   @IsString()
   @IsNotEmpty()
   @IsEnum(['month', 'year', 'week', 'day'])

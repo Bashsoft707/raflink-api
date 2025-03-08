@@ -73,7 +73,7 @@ export class SubscriptionService {
 
   async createSubscriptionPlan(dto: CreateSubscriptionPlanDto) {
     try {
-      const { name, price, duration, currency, benefits } = dto;
+      const { name, price, duration, currency, benefits, oldPrice } = dto;
 
       const existingPlan = await this.subscriptionPlanModel
         .findOne({
@@ -99,6 +99,7 @@ export class SubscriptionService {
         name,
         priceId: plan.id,
         price,
+        oldPrice,
         duration,
         currency,
         benefits,

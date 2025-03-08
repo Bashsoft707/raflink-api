@@ -34,7 +34,20 @@ export class LinkService {
     createLinkDto: CreateUserLinkDto,
   ) {
     try {
-      const newLink = await this.LinkModel.create({ ...createLinkDto, userId });
+      const lastLink = await this.LinkModel.findOne({ userId })
+        .sort({ linkIndex: -1 })
+        .select('linkIndex')
+        .exec();
+      
+      console.log("last link", lastLink)
+
+      const newLinkIndex = lastLink ? lastLink.linkIndex + 1 : 0;
+
+      const newLink = await this.LinkModel.create({
+        ...createLinkDto,
+        userId,
+        linkIndex: newLinkIndex,
+      });
 
       if (!newLink) {
         throw new InternalServerErrorException('Failed to create Link');
