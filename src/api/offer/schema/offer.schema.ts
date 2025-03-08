@@ -51,6 +51,15 @@ export class Offer {
 
   @Prop({ type: [String] })
   targetAudience: string[];
+
+  @Prop({ type: Boolean, default: false })
+  verified: boolean;
+
+  @Prop({ type: Number, default: 0 })
+  percentageCut: number;
+
+  @Prop({ type: Number, default: 0 })
+  discount: number;
 }
 
 export type OfferDocument = Offer & Document<Types.ObjectId>;

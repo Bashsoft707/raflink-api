@@ -58,7 +58,7 @@ export class OfferService {
 
       return {
         status: 'success',
-        statusCode: HttpStatus.CREATED,
+        statusCode: HttpStatus.OK,
         message: 'User Offers retrieved successfully.',
         data: userOffers,
         error: null,
@@ -76,8 +76,43 @@ export class OfferService {
 
       return {
         status: 'success',
-        statusCode: HttpStatus.CREATED,
+        statusCode: HttpStatus.OK,
         message: 'User Offer retrieved successfully.',
+        data: userOffer,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async getOffers() {
+    try {
+      const offers = await this.OfferModel.find({}, '-userId').exec();
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'Offers retrieved successfully.',
+        data: offers,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async getSingleOffer(id: string) {
+    try {
+      const userOffer = await this.OfferModel.findOne(
+        { _id: id },
+        '-userId',
+      ).exec();
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'Single offer retrieved successfully.',
         data: userOffer,
         error: null,
       };

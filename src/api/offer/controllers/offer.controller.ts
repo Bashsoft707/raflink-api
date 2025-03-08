@@ -38,7 +38,7 @@ export class OfferController {
     return await this.OfferService.createOffer(user as any, body);
   }
 
-  @Get('/')
+  @Get('/user')
   @UseGuards(AccessTokenGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Endpoint to get all user offers' })
@@ -46,6 +46,31 @@ export class OfferController {
     const { user: tokenData } = req;
     const { user } = tokenData as unknown as TokenData;
     return await this.OfferService.getUserOffers(user);
+  }
+
+  @Get('/user/:id')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to get single user offer detail' })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the offer to be fetched',
+    required: true,
+    type: String,
+  })
+  async getOffer(@Param() param: { id: string }, @Req() req: Request) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+
+    return await this.OfferService.getOfferById(user, param.id);
+  }
+
+  @Get('/')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to get all offers' })
+  async getOffers() {
+    return await this.OfferService.getOffers();
   }
 
   @Get('/:id')
@@ -58,10 +83,7 @@ export class OfferController {
     required: true,
     type: String,
   })
-  async getOffer(@Param() param: { id: string }, @Req() req: Request) {
-    const { user: tokenData } = req;
-    const { user } = tokenData as unknown as TokenData;
-
-    return await this.OfferService.getOfferById(user, param.id);
+  async getSingleOffer(@Param() param: { id: string }) {
+    return await this.OfferService.getSingleOffer(param.id);
   }
 }
