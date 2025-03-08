@@ -84,6 +84,17 @@ export class CreateUserLinkDto {
     title: 'category',
   })
   category: string;
+
+  @IsNumber()
+  @IsPositive()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Cuts',
+    example: 2,
+    required: false,
+    title: 'cuts',
+  })
+  cuts: number;
 }
 
 export class UpdateUserLinkDto {
@@ -159,6 +170,17 @@ export class UpdateUserLinkDto {
     title: 'category',
   })
   category: string;
+
+  @IsNumber()
+  @IsPositive()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Cuts',
+    example: 2,
+    required: false,
+    title: 'cuts',
+  })
+  cuts: number;
 }
 
 export class UpdateLinkViewTimeDto {

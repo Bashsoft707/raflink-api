@@ -54,9 +54,7 @@ export class LinkService {
 
   async getUserLinks(userId: Types.ObjectId) {
     try {
-      const userLinks = await this.LinkModel.find({ userId })
-        .populate('userId', 'bio socialLinks')
-        .exec();
+      const userLinks = await this.LinkModel.find({ userId }, '-userId').exec();
 
       return {
         status: 'success',
@@ -425,7 +423,7 @@ export class LinkService {
   async getUserLinkInfo(username: string) {
     try {
       const user = await this.userModel
-        .findOne({ username }, 'displayName socialLinks image')
+        .findOne({ username }, 'displayName bio socialLinks image')
         .lean()
         .exec();
 

@@ -42,6 +42,15 @@ export class Link {
 
   @Prop({ type: Number })
   linkIndex: number;
+
+  @Prop({ type: Number, default: 0 })
+  cuts: number;
+
+  @Prop({ type: Number, default: 0 })
+  closedDeals: number;
+
+  @Prop({ type: Number, default: 0 })
+  estimatedEarnings: number;
 }
 
 export type LinkDocument = Link & Document<Types.ObjectId>;
