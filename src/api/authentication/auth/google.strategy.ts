@@ -33,6 +33,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     };
 
     const savedUser = await this.authService.validateOAuthLogin(user);
-    done(null, savedUser.data);
+    done(null, savedUser.data.user);
   }
 }

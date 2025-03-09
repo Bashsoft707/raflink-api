@@ -328,28 +328,36 @@ export class AuthService {
           email: googleUser.email,
           displayName: `${googleUser.firstName} ${googleUser.lastName}`,
           image: googleUser.picture,
+          verified: true,
         });
       }
 
-      const otp = await this.otpService.create(user.email);
+      const tokenData: TokenData = {
+        user: user._id,
+        verified: user.verified,
+        email: user.email,
+        username: user.username,
+      };
 
-      await this.emailService.sendEmail({
-        receiver: user.email,
-        subject: 'Welcome to raflink || OTP Verification',
-        body: `Hello user, Your OTP for email verification is: ${otp} Please enter this OTP to confirm your email address.`,
-        templateKey: TEMPLATES.ONBOARDING,
-        data: {
-          name: 'User',
-          otp,
-          companyEmail: this.configService.get(ENV.EMAIL_FROM),
-        },
-      });
+      const { accessToken, refreshToken } = await this.getAndUpdateToken(
+        tokenData,
+        user,
+      );
+
+      await this.userModel.updateOne(
+        { _id: user._id },
+        { refreshToken: refreshToken },
+      );
 
       return {
         status: 'success',
         statusCode: HttpStatus.OK,
-        message: 'Google authentication successful, check email for otp',
-        data: user,
+        message: 'Google authentication successful',
+        data: {
+          user,
+          accessToken,
+          refreshToken,
+        },
         error: null,
       };
     } catch (error) {
