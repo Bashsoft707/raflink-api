@@ -74,7 +74,6 @@ export class LinkController {
   }
 
   @Patch('/user/:id/click')
-  @UseGuards(AccessTokenGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Endpoint to update link clicks' })
   @ApiParam({
@@ -85,16 +84,12 @@ export class LinkController {
   })
   async updateClickCount(
     @Param() param: { id: string },
-    @Req() req: Request,
     @Body() body: UpdateClickCountDto,
   ) {
-    const { user: tokenData } = req;
-    const { user } = tokenData as unknown as TokenData;
-    return await this.LinkService.updateClickCount(param.id, user, body);
+    return await this.LinkService.updateClickCount(param.id, body);
   }
 
   @Patch('/user/:id/view')
-  @UseGuards(AccessTokenGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Endpoint to update links views' })
   @ApiParam({
@@ -105,12 +100,9 @@ export class LinkController {
   })
   async updateLinkViews(
     @Param() param: { id: string },
-    @Req() req: Request,
     @Body() body: UpdateLinkViewTimeDto,
   ) {
-    const { user: tokenData } = req;
-    const { user } = tokenData as unknown as TokenData;
-    return await this.LinkService.updateViewTime(param.id, user, body);
+    return await this.LinkService.updateViewTime(param.id, body);
   }
 
   @Delete('/user/:id')

@@ -38,8 +38,6 @@ export class LinkService {
         .sort({ linkIndex: -1 })
         .select('linkIndex')
         .exec();
-      
-      console.log("last link", lastLink)
 
       const newLinkIndex = lastLink ? lastLink.linkIndex + 1 : 0;
 
@@ -117,20 +115,12 @@ export class LinkService {
     }
   }
 
-  async updateClickCount(
-    id: string,
-    user: Types.ObjectId,
-    clickData: UpdateClickCountDto,
-  ) {
+  async updateClickCount(id: string, clickData: UpdateClickCountDto) {
     try {
       const userLink = await this.LinkModel.findById(id);
 
       if (!userLink) {
         throw new NotFoundException('User Link not found');
-      }
-
-      if (userLink.userId?.toString() !== user.toString()) {
-        throw new BadRequestException("Link doesn't belong to user");
       }
 
       if (userLink.isDisabled) {
@@ -145,7 +135,7 @@ export class LinkService {
 
       const clickRecord = await this.LinkClickModel.create({
         linkId: id,
-        userId: user,
+        userId: userLink.userId,
         ipAddress: clickData.ipAddress,
         referrer: clickData.referrer,
         geoLocation: clickData.geoLocation,
@@ -165,20 +155,12 @@ export class LinkService {
     }
   }
 
-  async updateViewTime(
-    id: string,
-    user: Types.ObjectId,
-    dto: UpdateLinkViewTimeDto,
-  ) {
+  async updateViewTime(id: string, dto: UpdateLinkViewTimeDto) {
     try {
       const userLink = await this.LinkModel.findById(id);
 
       if (!userLink) {
         throw new NotFoundException('User Link not found');
-      }
-
-      if (userLink.userId?.toString() !== user.toString()) {
-        throw new BadRequestException("Link doesn't belong to user");
       }
 
       if (userLink.isDisabled) {
