@@ -17,6 +17,9 @@ export class SubscriptionPlan {
   @Prop({ required: true, type: Number })
   price: number;
 
+  @Prop({ type: Number, default: 0 })
+  oldPrice: number;
+
   @Prop([Object])
   benefits: Benefit[];
 
