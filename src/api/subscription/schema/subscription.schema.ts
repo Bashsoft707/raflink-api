@@ -50,6 +50,9 @@ export class Subscription extends Document {
   @Prop()
   trialEnd: Date;
 
+  @Prop({ type: String })
+  coupon: string;
+
   @Prop({ type: Object })
   metadata: Record<string, any>;
 }

@@ -295,6 +295,7 @@ export class SubscriptionService {
         metadata: {
           priceId: plan.priceId,
         },
+        coupon
       });
 
       return newSubscription.save();
@@ -473,6 +474,7 @@ export class SubscriptionService {
     try {
       const subscription = await this.subscriptionModel
         .findOne({ userId })
+        .populate('plan', 'name price')
         .lean()
         .exec();
 
@@ -497,7 +499,12 @@ export class SubscriptionService {
       const { page, limit } = pagination;
       const skip = (page - 1) * limit;
       const [subscriptions, total] = await Promise.all([
-        this.subscriptionModel.find().skip(skip).limit(limit).exec(),
+        this.subscriptionModel
+          .find()
+          .populate('plan', 'name price')
+          .skip(skip)
+          .limit(limit)
+          .exec(),
         this.subscriptionModel.countDocuments(),
       ]);
 
