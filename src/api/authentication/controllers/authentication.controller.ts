@@ -78,7 +78,7 @@ export class AuthController {
     const { user } = req;
     const frontendUrl = this.configService.get<string>('FRONTEND_URL');
 
-    const redirectUrl = new URL('/auth/verify', frontendUrl);
+    const redirectUrl = new URL('https://raflinks.io/admin/google/success');
     redirectUrl.searchParams.append('accessToken', user.accessToken);
     redirectUrl.searchParams.append('refreshToken', user.refreshToken);
 
