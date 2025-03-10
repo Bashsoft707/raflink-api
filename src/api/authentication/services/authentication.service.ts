@@ -254,8 +254,6 @@ export class AuthService {
   }
 
   async updateUserInfo(userId: Types.ObjectId, payload: UpdateUserDto) {
-    const session = await this.connection.startSession();
-
     const { username, displayName } = payload;
 
     try {
@@ -271,18 +269,21 @@ export class AuthService {
         };
       }
 
-      if (displayName !== user.displayName || username !== user.username) {
-        const userExist = await this.userModel.findOne({
-          $or: [
-            { username: username?.toLowerCase() },
-            { displayName: displayName?.toLowerCase() },
-          ],
-        });
+      if (username || displayName) {
+        const query = {};
+        if (username) query['username'] = username?.toLowerCase();
+        if (displayName) query['displayName'] = displayName?.toLowerCase();
 
-        if (userExist) {
-          throw new BadRequestException(
-            'Username or display name already exist',
-          );
+        const existingUser = await this.userModel.findOne(query);
+
+        if (existingUser) {
+          if (existingUser.username === username?.toLowerCase()) {
+            throw new BadRequestException('Username already exists');
+          }
+
+          if (existingUser.displayName === displayName?.toLowerCase()) {
+            throw new BadRequestException('Display name already exists');
+          }
         }
       }
 
@@ -312,8 +313,6 @@ export class AuthService {
     } catch (error) {
       console.error('Error during updating user info:', error);
       errorHandler(error);
-    } finally {
-      await session.endSession();
     }
   }
 
