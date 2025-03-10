@@ -9,6 +9,7 @@ import {
   IsString,
   ValidateNested,
   IsPositive,
+  IsObject,
 } from 'class-validator';
 import { Types } from 'mongoose';
 
@@ -169,4 +170,60 @@ export class VerifyUsernameDto {
   })
   @Transform(({ value }) => String(value).toLowerCase().trim())
   username: string;
+}
+
+export class UpdateViewTimeDto {
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'User ip address',
+    example: '89.112.0',
+    required: false,
+    title: 'ipAddress',
+  })
+  ipAddress: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Link url',
+    example: 'www.instagram.com/raff',
+    required: false,
+    title: 'referrer',
+  })
+  referrer: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Device type',
+    example: 'Mobile',
+    required: false,
+    title: 'deviceType',
+  })
+  deviceType: string;
+
+  @IsObject()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Geolocation',
+    example: { country: 'Nigeria', city: 'Lagos' },
+    required: false,
+    title: 'geoLocation',
+  })
+  geoLocation: {
+    country?: string;
+    city?: string;
+  };
+
+  @IsNumber()
+  @IsPositive()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'View time on user profile',
+    example: 10,
+    required: true,
+    title: 'viewTime',
+  })
+  viewTime: number;
 }

@@ -14,6 +14,10 @@ import { RefreshTokenStrategy } from './auth/refreshToken.strategy';
 import { Otp, OtpSchema } from './schema/otp.schema';
 import { PassportModule } from '@nestjs/passport';
 import { GoogleStrategy } from './auth/google.strategy';
+import {
+  ProfileView,
+  ProfileViewSchema,
+} from './schema/profileViewTime.schema';
 
 @Module({
   imports: [
@@ -27,6 +31,10 @@ import { GoogleStrategy } from './auth/google.strategy';
       {
         name: Otp.name,
         schema: OtpSchema,
+      },
+      {
+        name: ProfileView.name,
+        schema: ProfileViewSchema,
       },
     ]),
     CachesModule,

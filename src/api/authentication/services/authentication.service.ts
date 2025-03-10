@@ -5,6 +5,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
@@ -15,6 +16,7 @@ import {
   OnboardingDto,
   TokenData,
   UpdateUserDto,
+  UpdateViewTimeDto,
   ValidateOtpDto,
   VerifyUsernameDto,
 } from '../dtos';
@@ -24,11 +26,17 @@ import { JwtService } from '@nestjs/jwt';
 import { User, UserDocument } from '../schema/user.schema';
 import EncryptService from '../../../helpers/encryption';
 import { GoogleUser } from '../interface';
+import {
+  ProfileView,
+  ProfileViewDocument,
+} from '../schema/profileViewTime.schema';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    @InjectModel(ProfileView.name)
+    private profileViewModel: Model<ProfileViewDocument>,
     @Inject(OtpService)
     private readonly otpService: OtpService,
     @Inject(JwtService)
@@ -465,6 +473,42 @@ export class AuthService {
         statusCode: HttpStatus.OK,
         message: 'Token successfully generated',
         data: { accessToken, refreshToken },
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async updateViewTime(username: string, dto: UpdateViewTimeDto) {
+    try {
+      const user = await this.userModel.findOne({ username });
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      const updatedLink = await this.userModel.findByIdAndUpdate(
+        user._id,
+        { profileViewTime: user.profileViewTime + dto.viewTime },
+        { new: true },
+      );
+
+      const viewTimeRecord = await this.profileViewModel.create({
+        userId: user._id,
+        ipAddress: dto.ipAddress,
+        referrer: dto.referrer,
+        geoLocation: dto.geoLocation,
+        deviceType: dto.deviceType,
+        viewDate: new Date(),
+        viewTime: dto.viewTime,
+      });
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'User view time updated successfully.',
+        data: { totalViews: user.profileViewTime, viewTimeRecord },
         error: null,
       };
     } catch (error) {

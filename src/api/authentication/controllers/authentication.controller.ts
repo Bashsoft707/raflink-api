@@ -7,13 +7,20 @@ import {
   UseGuards,
   Get,
   Res,
+  Param,
 } from '@nestjs/common';
 import { AuthService } from '../services/authentication.service';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import {
   OnboardingDto,
   TokenData,
   UpdateUserDto,
+  UpdateViewTimeDto,
   ValidateOtpDto,
   VerifyUsernameDto,
 } from '../dtos';
@@ -100,5 +107,21 @@ export class AuthController {
   async refreshToken(@Req() req: Request) {
     const payload = req.user as TokenData & { refreshToken: string };
     return await this.authService.refreshTokens(payload);
+  }
+
+  @Patch('/user/:username/view')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to update links views' })
+  @ApiParam({
+    name: 'username',
+    description: 'The username of the user profile to update',
+    required: true,
+    type: String,
+  })
+  async updateLinkViews(
+    @Param() param: { username: string },
+    @Body() body: UpdateViewTimeDto,
+  ) {
+    return await this.authService.updateViewTime(param.username, body);
   }
 }

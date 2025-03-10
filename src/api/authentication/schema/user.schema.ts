@@ -54,6 +54,9 @@ export class User {
 
   @Prop({ default: null })
   stripeCustomerId: string;
+
+  @Prop({ type: Number, default: 0 })
+  profileViewTime: number;
 }
 
 export type UserDocument = User & Document<Types.ObjectId>;

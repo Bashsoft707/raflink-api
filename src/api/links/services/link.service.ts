@@ -17,6 +17,10 @@ import {
 import { errorHandler, formatTime } from '../../../utils';
 import { Link, LinkClickDocument, LinkClick, LinkDocument } from '../schema';
 import { User, UserDocument } from 'src/api/authentication/schema';
+import {
+  ProfileView,
+  ProfileViewDocument,
+} from 'src/api/authentication/schema/profileViewTime.schema';
 
 @Injectable()
 export class LinkService {
@@ -27,6 +31,8 @@ export class LinkService {
     private readonly LinkClickModel: Model<LinkClickDocument>,
     @InjectModel(User.name)
     private readonly userModel: Model<UserDocument>,
+    @InjectModel(ProfileView.name)
+    private readonly profileViewModel: Model<ProfileViewDocument>,
   ) {}
 
   async createUserLink(
@@ -213,7 +219,12 @@ export class LinkService {
 
   async getAnalytics(userId: Types.ObjectId) {
     try {
-      const userLinks = await this.LinkModel.find({ userId });
+      const [userLinks, profileView] = await Promise.all([
+        this.LinkModel.find({ userId }),
+        this.userModel.findOne({
+          _id: userId,
+        }),
+      ]);
 
       const totalClicks = userLinks.reduce(
         (sum, link) => sum + link.clickCount,
@@ -224,12 +235,8 @@ export class LinkService {
         (link) => !link.isDisabled,
       ).length;
 
-      const totalViewTime = userLinks.reduce(
-        (sum, link) => sum + link.viewTime,
-        0,
-      );
-      const averageViewTime =
-        userLinks.length > 0 ? Math.round(totalViewTime / userLinks.length) : 0;
+      const totalViewTime = profileView?.profileViewTime || 0;
+      const averageViewTime = Math.round(totalViewTime / userLinks.length);
 
       const closedDeals = userLinks.filter(
         (link) => link.clickCount > 0 && link.viewTime > 30,
@@ -274,10 +281,16 @@ export class LinkService {
         filterType = 'monthly';
       }
 
-      const linkClicks: any = await this.LinkClickModel.find({
-        userId,
-        createdAt: { $gte: start, $lte: end },
-      });
+      const [linkClicks, profileViews]: any = await Promise.all([
+        this.LinkClickModel.find({
+          userId,
+          createdAt: { $gte: start, $lte: end },
+        }),
+        this.profileViewModel.find({
+          userId,
+          createdAt: { $gte: start, $lte: end },
+        }),
+      ]);
 
       const analyticsData: any = [];
 
@@ -298,18 +311,30 @@ export class LinkService {
               link.createdAt >= periodStart && link.createdAt <= periodEnd,
           );
 
+          const filteredViews = profileViews.filter(
+            (view) =>
+              view.createdAt >= periodStart && view.createdAt <= periodEnd,
+          );
+
+          const viewCount = filteredViews.reduce(
+            (acc, view) => acc + view.viewTime,
+            0,
+          );
+
           const activeSubLinks = filteredLinks.filter(
             (link) => !link.isDisabled,
           ).length;
 
           analyticsData.push({
             period: periodStart.toDateString(),
+            totalClicks: filteredLinks?.length || 0,
             activeSubLinks,
+            viewTime: formatTime(viewCount),
           });
         }
       } else if (filterType === 'weekly') {
         const startCopy = new Date(start);
-        const dayOfWeek = startCopy.getDay(); // 0 is Sunday
+        const dayOfWeek = startCopy.getDay();
 
         const firstSunday = new Date(startCopy);
         firstSunday.setDate(startCopy.getDate() - dayOfWeek);
@@ -333,6 +358,15 @@ export class LinkService {
             (link) => !link.isDisabled,
           ).length;
 
+          const filteredViews = profileViews.filter(
+            (view) => view.createdAt >= weekStart && view.createdAt <= weekEnd,
+          );
+
+          const viewCount = filteredViews.reduce(
+            (acc, view) => acc + view.viewTime,
+            0,
+          );
+
           const weekEndFormatted = weekEnd
             .toDateString()
             .split(' ')
@@ -346,7 +380,9 @@ export class LinkService {
 
           analyticsData.push({
             period: `Week ${i + 1} - ${weekStartFormatted} - ${weekEndFormatted}`,
+            totalClicks: filteredLinks?.length || 0,
             activeSubLinks,
+            viewTime: formatTime(viewCount),
           });
         }
       } else {
@@ -397,9 +433,21 @@ export class LinkService {
             (link) => !link.isDisabled,
           ).length;
 
+          const filteredViews = profileViews.filter(
+            (view) =>
+              view.createdAt >= monthStart && view.createdAt <= monthEnd,
+          );
+
+          const viewCount = filteredViews.reduce(
+            (acc, view) => acc + view.viewTime,
+            0,
+          );
+
           analyticsData.push({
             period: `${months[currentMonth]} ${currentYear}`,
+            totalClicks: filteredLinks?.length || 0,
             activeSubLinks,
+            viewTime: formatTime(viewCount),
           });
         }
       }
