@@ -14,6 +14,7 @@ import { RefreshTokenStrategy } from './auth/refreshToken.strategy';
 import { Otp, OtpSchema } from './schema/otp.schema';
 import { PassportModule } from '@nestjs/passport';
 import { GoogleStrategy } from './auth/google.strategy';
+import { Merchant, MerchantSchema } from './schema/merchants.schema';
 
 @Module({
   imports: [
@@ -27,6 +28,10 @@ import { GoogleStrategy } from './auth/google.strategy';
       {
         name: Otp.name,
         schema: OtpSchema,
+      },
+      {
+        name: Merchant.name,
+        schema: MerchantSchema,
       },
     ]),
     CachesModule,

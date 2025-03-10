@@ -24,11 +24,15 @@ import { JwtService } from '@nestjs/jwt';
 import { User, UserDocument } from '../schema/user.schema';
 import EncryptService from '../../../helpers/encryption';
 import { GoogleUser } from '../interface';
+import { Merchant, MerchantDocument } from '../schema/merchants.schema';
+import { UpdateMerchantDto } from '../dtos/merchant.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    @InjectModel(Merchant.name)
+    private readonly merchantModel: Model<MerchantDocument>,
     @Inject(OtpService)
     private readonly otpService: OtpService,
     @Inject(JwtService)
@@ -75,6 +79,8 @@ export class AuthService {
       console.log('Here');
       const otp = await this.otpService.create(email);
 
+      console.log('Here 2');
+
       await this.emailService.sendEmail({
         receiver: payload.email,
         subject: 'Welcome to raflink || OTP Verification',
@@ -87,6 +93,7 @@ export class AuthService {
         },
       });
 
+      console.log('Here 3');
       return {
         status: 'success',
         statusCode: HttpStatus.CREATED,
@@ -183,9 +190,95 @@ export class AuthService {
     }
   }
 
+  async verifyOtpAndSaveMerchant(payload: ValidateOtpDto) {
+    try {
+      const { email, otp } = payload;
+
+      try {
+        await this.otpService.validate({ otp, email });
+      } catch (error) {
+        throw new BadRequestException({
+          status: 'error',
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: error.message || 'Invalid OTP',
+          data: null,
+          error: null,
+        });
+      }
+
+      let merchant = await this.merchantModel.findOne({ email }).exec();
+
+      if (!merchant) {
+        merchant = await this.merchantModel.create({
+          email,
+        });
+
+        await this.emailService.sendEmail({
+          receiver: payload.email,
+          subject: 'Welcome to raflink',
+          body: `Hello user, Welcome to Raflink`,
+          templateKey: TEMPLATES.WELCOME,
+          data: {
+            name: 'User',
+            companyEmail: this.configService.get(ENV.EMAIL_FROM),
+          },
+        });
+      }
+
+      if (!merchant) {
+        throw new InternalServerErrorException({
+          status: 'error',
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'User could not be created. Please try again later.',
+          data: null,
+          error: null,
+        });
+      }
+
+      const tokenData: TokenData = {
+        user: merchant._id,
+        verified: merchant.verified,
+        email,
+        // username: user.username,
+      };
+
+      const { accessToken, refreshToken } = await this.getAndUpdateToken(
+        tokenData,
+        undefined,
+        merchant,
+      );
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.CREATED,
+        message: 'Account successfully created and verified.',
+        data: {
+          merchant,
+          accessToken,
+          refreshToken,
+        },
+        error: null,
+      };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+
+      console.error('Error during OTP verification and user creation:', error);
+      throw new InternalServerErrorException({
+        status: 'error',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Something went wrong while verifying OTP and saving user.',
+        data: null,
+        error: error.message || 'Internal server error',
+      });
+    }
+  }
+
   async getAndUpdateToken(
     tokenData: TokenData,
-    user: UserDocument,
+    user?: UserDocument,
+    merchant?: MerchantDocument,
     session?: ClientSession,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const { accessToken, refreshToken } = await this.getTokens(tokenData);
@@ -193,14 +286,28 @@ export class AuthService {
     const encryptRefreshToken =
       await this.encryptionService.encrypt(refreshToken);
 
-    await this.userModel
-      .findOneAndUpdate(
-        { _id: user._id },
-        { refreshToken: encryptRefreshToken },
-      )
-      .session(session as any)
-      .lean()
-      .exec();
+    if (user) {
+      await this.userModel
+        .findOneAndUpdate(
+          { _id: user._id },
+          { refreshToken: encryptRefreshToken },
+        )
+        .session(session as any)
+        .lean()
+        .exec();
+    }
+
+    if (merchant) {
+      await this.merchantModel
+        .findOneAndUpdate(
+          { _id: merchant._id },
+          { refreshToken: encryptRefreshToken },
+        )
+        .session(session as any)
+        .lean()
+        .exec();
+    }
+
     return { accessToken, refreshToken };
   }
 
@@ -308,6 +415,69 @@ export class AuthService {
         statusCode: HttpStatus.CREATED,
         message: 'User information successfully updated.',
         data: updatedUser,
+        error: null,
+      };
+    } catch (error) {
+      console.error('Error during updating user info:', error);
+      errorHandler(error);
+    }
+  }
+
+  async updateMerchantInfo(userId: Types.ObjectId, payload: UpdateMerchantDto) {
+    // const { username, displayName } = payload;
+
+    try {
+      const merchant = await this.merchantModel.findById(userId).exec();
+
+      if (!merchant) {
+        return {
+          status: 'error',
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'User not found.',
+          data: {},
+          error: null,
+        };
+      }
+
+      // if (username || displayName) {
+      //   const query = {};
+      //   if (username) query['username'] = username?.toLowerCase();
+      //   if (displayName) query['displayName'] = displayName?.toLowerCase();
+
+      //   const existingUser = await this.userModel.findOne(query);
+
+      //   if (existingUser) {
+      //     if (existingUser.username === username?.toLowerCase()) {
+      //       throw new BadRequestException('Username already exists');
+      //     }
+
+      //     if (existingUser.displayName === displayName?.toLowerCase()) {
+      //       throw new BadRequestException('Display name already exists');
+      //     }
+      //   }
+      // }
+
+      const updatedMerchant = await this.merchantModel.findByIdAndUpdate(
+        userId,
+        payload,
+        { new: true },
+      );
+
+      if (!updatedMerchant) {
+        return {
+          status: 'error',
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'Error in updating user info. Please try again later',
+          data: {},
+          error: null,
+        };
+      }
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.CREATED,
+        message: 'User information successfully updated.',
+        data: updatedMerchant,
         error: null,
       };
     } catch (error) {
