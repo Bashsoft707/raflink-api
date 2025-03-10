@@ -488,11 +488,18 @@ export class AuthService {
         throw new NotFoundException('User not found');
       }
 
-      const updatedLink = await this.userModel.findByIdAndUpdate(
+      const updatedViewTime = await this.userModel.findByIdAndUpdate(
         user._id,
-        { profileViewTime: user.profileViewTime + dto.viewTime },
+        { $inc: { profileViewTime: dto.viewTime } },
         { new: true },
       );
+
+      if (!updatedViewTime) {
+        throw new InternalServerErrorException(
+          500,
+          'error in updating user profile view time',
+        );
+      }
 
       const viewTimeRecord = await this.profileViewModel.create({
         userId: user._id,
@@ -508,7 +515,7 @@ export class AuthService {
         status: 'success',
         statusCode: HttpStatus.OK,
         message: 'User view time updated successfully.',
-        data: { totalViews: user.profileViewTime, viewTimeRecord },
+        data: { totalViews: updatedViewTime.profileViewTime, viewTimeRecord },
         error: null,
       };
     } catch (error) {
