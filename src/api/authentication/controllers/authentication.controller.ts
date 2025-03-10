@@ -28,6 +28,7 @@ import { AccessTokenGuard, RefreshTokenGuard } from '../auth';
 import { Request, Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
+import { UpdateMerchantDto } from '../dtos/merchant.dto';
 
 @ApiTags('auth')
 @Controller('authentication')
@@ -55,6 +56,12 @@ export class AuthController {
     return await this.authService.verifyOtpAndSaveUser(body);
   }
 
+  @Post('verify-merchant-otp')
+  @ApiOperation({ summary: 'Endpoint to verify otp and save merchant' })
+  async validateMerchantOtp(@Body() body: ValidateOtpDto) {
+    return await this.authService.verifyOtpAndSaveMerchant(body);
+  }
+
   @Get('/user')
   @UseGuards(AccessTokenGuard)
   @ApiBearerAuth()
@@ -65,6 +72,16 @@ export class AuthController {
     return await this.authService.getUserInfo(user);
   }
 
+  @Get('/merchant')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to get user info' })
+  async getMerchant(@Req() req: Request) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return await this.authService.getMerchantInfo(user);
+  }
+
   @Patch('/update')
   @UseGuards(AccessTokenGuard)
   @ApiBearerAuth()
@@ -73,6 +90,16 @@ export class AuthController {
     const { user: tokenData } = req;
     const { user } = tokenData as unknown as TokenData;
     return await this.authService.updateUserInfo(user, body);
+  }
+
+  @Patch('/update-merchant')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to update merchant info' })
+  async updateMerchant(@Req() req: Request, @Body() body: UpdateMerchantDto) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return await this.authService.updateMerchantInfo(user, body);
   }
 
   @Get('google')
