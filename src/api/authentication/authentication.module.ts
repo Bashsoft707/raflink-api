@@ -18,6 +18,7 @@ import {
   ProfileView,
   ProfileViewSchema,
 } from './schema/profileViewTime.schema';
+import { Merchant, MerchantSchema } from './schema/merchants.schema';
 
 @Module({
   imports: [
@@ -35,6 +36,10 @@ import {
       {
         name: ProfileView.name,
         schema: ProfileViewSchema,
+      },
+      {
+        name: Merchant.name,
+        schema: MerchantSchema,
       },
     ]),
     CachesModule,
