@@ -236,7 +236,6 @@ export class LinkService {
       ).length;
 
       const totalViewTime = profileView?.profileViewTime || 0;
-      const averageViewTime = Math.round(totalViewTime / userLinks.length);
 
       const closedDeals = userLinks.filter(
         (link) => link.clickCount > 0 && link.viewTime > 30,
@@ -251,7 +250,7 @@ export class LinkService {
         data: {
           totalClicks,
           activeSubLinks,
-          averageViewTime: formatTime(averageViewTime),
+          averageViewTime: formatTime(totalViewTime),
           closedDeals,
           earnings,
         },
