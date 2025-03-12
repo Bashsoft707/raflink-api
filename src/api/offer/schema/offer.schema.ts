@@ -8,6 +8,13 @@ export class Offer {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
   userId: MongooseSchema.Types.ObjectId;
 
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'Merchant',
+    required: true,
+  })
+  merchantId: MongooseSchema.Types.ObjectId;
+
   @Prop({ type: String, lowercase: true, required: true })
   name: string;
 

@@ -86,4 +86,20 @@ export class OfferController {
   async getSingleOffer(@Param() param: { id: string }) {
     return await this.OfferService.getSingleOffer(param.id);
   }
+
+  @Get('/analytics')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to get single offer detail' })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the offer to be fetched',
+    required: true,
+    type: String,
+  })
+  async getOffersAnalytics(@Req() req: Request) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return await this.OfferService.getOffersAnalytics(user);
+  }
 }

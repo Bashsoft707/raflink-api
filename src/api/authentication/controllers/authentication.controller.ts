@@ -29,6 +29,7 @@ import { Request, Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { UpdateMerchantDto } from '../dtos/merchant.dto';
+import { UpdateStaffDto } from '../dtos/raflnk.dto';
 
 @ApiTags('auth')
 @Controller('authentication')
@@ -62,6 +63,12 @@ export class AuthController {
     return await this.authService.verifyOtpAndSaveMerchant(body);
   }
 
+  @Post('verify-raflink-otp')
+  @ApiOperation({ summary: 'Endpoint to verify otp and save raflink staff' })
+  async validateRaflinkOtp(@Body() body: ValidateOtpDto) {
+    return await this.authService.verifyOtpAndSaveRaflinkStaff(body);
+  }
+
   @Get('/user')
   @UseGuards(AccessTokenGuard)
   @ApiBearerAuth()
@@ -75,11 +82,21 @@ export class AuthController {
   @Get('/merchant')
   @UseGuards(AccessTokenGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Endpoint to get user info' })
+  @ApiOperation({ summary: 'Endpoint to get merchant info' })
   async getMerchant(@Req() req: Request) {
     const { user: tokenData } = req;
     const { user } = tokenData as unknown as TokenData;
     return await this.authService.getMerchantInfo(user);
+  }
+
+  @Get('/staff')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to get staff info' })
+  async getStaff(@Req() req: Request) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return await this.authService.getStaffInfo(user);
   }
 
   @Patch('/update')
@@ -100,6 +117,16 @@ export class AuthController {
     const { user: tokenData } = req;
     const { user } = tokenData as unknown as TokenData;
     return await this.authService.updateMerchantInfo(user, body);
+  }
+
+  @Patch('/update-staff')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to update merchant info' })
+  async updateStaff(@Req() req: Request, @Body() body: UpdateStaffDto) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return await this.authService.updateStaffInfo(user, body);
   }
 
   @Get('google')
@@ -123,6 +150,12 @@ export class AuthController {
   @ApiOperation({ summary: 'Endpoint to username' })
   async verifyUsername(@Body() body: VerifyUsernameDto) {
     return await this.authService.verifyUsername(body);
+  }
+
+  @Post('verify-staff-username')
+  @ApiOperation({ summary: 'Endpoint to verify staff username' })
+  async verifyStaffUsername(@Body() body: VerifyUsernameDto) {
+    return await this.authService.verifyStaffUsername(body);
   }
 
   @UseGuards(RefreshTokenGuard)
