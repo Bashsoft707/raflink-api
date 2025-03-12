@@ -19,6 +19,7 @@ import {
   ProfileViewSchema,
 } from './schema/profileViewTime.schema';
 import { Merchant, MerchantSchema } from './schema/merchants.schema';
+import { Raflink, RaflinkSchema } from './schema/raflink.schema';
 
 @Module({
   imports: [
@@ -40,6 +41,11 @@ import { Merchant, MerchantSchema } from './schema/merchants.schema';
       {
         name: Merchant.name,
         schema: MerchantSchema,
+      },
+
+      {
+        name: Raflink.name,
+        schema: RaflinkSchema,
       },
     ]),
     CachesModule,

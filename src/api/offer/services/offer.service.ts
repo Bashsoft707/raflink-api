@@ -120,4 +120,29 @@ export class OfferService {
       errorHandler(error);
     }
   }
+
+  async getOffersAnalytics(userId: Types.ObjectId) {
+    try {
+      const offers = await this.OfferModel.countDocuments({
+        merchantId: userId,
+      });
+
+      const data = {
+        totalOffer: offers,
+        totalAffiliates: 0,
+        topOffers: 0,
+        topAffiliates: 0,
+        trafficSources: {},
+      };
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'Single offer retrieved successfully.',
+        data: data,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
 }

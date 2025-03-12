@@ -32,6 +32,8 @@ import {
 } from '../schema/profileViewTime.schema';
 import { Merchant, MerchantDocument } from '../schema/merchants.schema';
 import { UpdateMerchantDto } from '../dtos/merchant.dto';
+import { Raflink, RaflinkDocument } from '../schema/raflink.schema';
+import { UpdateStaffDto } from '../dtos/raflnk.dto';
 
 @Injectable()
 export class AuthService {
@@ -39,6 +41,8 @@ export class AuthService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(Merchant.name)
     private readonly merchantModel: Model<MerchantDocument>,
+    @InjectModel(Raflink.name)
+    private readonly raflinkModel: Model<RaflinkDocument>,
     @InjectModel(ProfileView.name)
     private profileViewModel: Model<ProfileViewDocument>,
     @Inject(OtpService)
@@ -280,10 +284,97 @@ export class AuthService {
     }
   }
 
+  async verifyOtpAndSaveRaflinkStaff(payload: ValidateOtpDto) {
+    try {
+      const { email, otp } = payload;
+
+      try {
+        await this.otpService.validate({ otp, email });
+      } catch (error) {
+        throw new BadRequestException({
+          status: 'error',
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: error.message || 'Invalid OTP',
+          data: null,
+          error: null,
+        });
+      }
+
+      let staff = await this.raflinkModel.findOne({ email }).exec();
+
+      if (!staff) {
+        staff = await this.raflinkModel.create({
+          email,
+        });
+
+        await this.emailService.sendEmail({
+          receiver: payload.email,
+          subject: 'Welcome to raflink',
+          body: `Hello user, Welcome to Raflink`,
+          templateKey: TEMPLATES.WELCOME,
+          data: {
+            name: 'User',
+            companyEmail: this.configService.get(ENV.EMAIL_FROM),
+          },
+        });
+      }
+
+      if (!staff) {
+        throw new InternalServerErrorException({
+          status: 'error',
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'User could not be created. Please try again later.',
+          data: null,
+          error: null,
+        });
+      }
+
+      const tokenData: TokenData = {
+        user: staff._id,
+        verified: staff.verified,
+        email,
+        username: staff.username,
+      };
+
+      const { accessToken, refreshToken } = await this.getAndUpdateToken(
+        tokenData,
+        undefined,
+        undefined,
+        staff,
+      );
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.CREATED,
+        message: 'Account successfully created and verified.',
+        data: {
+          staff,
+          accessToken,
+          refreshToken,
+        },
+        error: null,
+      };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+
+      console.error('Error during OTP verification and user creation:', error);
+      throw new InternalServerErrorException({
+        status: 'error',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Something went wrong while verifying OTP and saving user.',
+        data: null,
+        error: error.message || 'Internal server error',
+      });
+    }
+  }
+
   async getAndUpdateToken(
     tokenData: TokenData,
     user?: UserDocument,
     merchant?: MerchantDocument,
+    staff?: RaflinkDocument,
     session?: ClientSession,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const { accessToken, refreshToken } = await this.getTokens(tokenData);
@@ -306,6 +397,17 @@ export class AuthService {
       await this.merchantModel
         .findOneAndUpdate(
           { _id: merchant._id },
+          { refreshToken: encryptRefreshToken },
+        )
+        .session(session as any)
+        .lean()
+        .exec();
+    }
+
+    if (staff) {
+      await this.raflinkModel
+        .findOneAndUpdate(
+          { _id: staff._id },
           { refreshToken: encryptRefreshToken },
         )
         .session(session as any)
@@ -386,6 +488,35 @@ export class AuthService {
         statusCode: HttpStatus.CREATED,
         message: 'Merchant information retrieved successfully',
         data: merchant,
+        error: null,
+      };
+    } catch (error) {
+      console.error('Error during updating user info:', error);
+      errorHandler(error);
+    }
+  }
+
+  async getStaffInfo(userId: Types.ObjectId) {
+    try {
+      const staff = await this.raflinkModel
+        .findById(userId, '-__v -refreshToken -createdAt -updatedAt')
+        .exec();
+
+      if (!staff) {
+        return {
+          status: 'error',
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Merchant not found.',
+          data: {},
+          error: null,
+        };
+      }
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.CREATED,
+        message: 'Merchant information retrieved successfully',
+        data: staff,
         error: null,
       };
     } catch (error) {
@@ -520,6 +651,64 @@ export class AuthService {
     }
   }
 
+  async updateStaffInfo(userId: Types.ObjectId, payload: UpdateStaffDto) {
+    const { username } = payload;
+
+    try {
+      const staff = await this.raflinkModel.findById(userId).exec();
+
+      if (!staff) {
+        return {
+          status: 'error',
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'User not found.',
+          data: {},
+          error: null,
+        };
+      }
+
+      if (username) {
+        const query = {};
+        if (username) query['username'] = username?.toLowerCase();
+
+        const existingUser = await this.raflinkModel.findOne(query);
+
+        if (existingUser) {
+          if (existingUser.username === username?.toLowerCase()) {
+            throw new BadRequestException('Username already exists');
+          }
+        }
+      }
+
+      const updatedStaff = await this.raflinkModel.findByIdAndUpdate(
+        userId,
+        payload,
+        { new: true },
+      );
+
+      if (!updatedStaff) {
+        return {
+          status: 'error',
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'Error in updating user info. Please try again later',
+          data: {},
+          error: null,
+        };
+      }
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.CREATED,
+        message: 'User information successfully updated.',
+        data: updatedStaff,
+        error: null,
+      };
+    } catch (error) {
+      console.error('Error during updating user info:', error);
+      errorHandler(error);
+    }
+  }
+
   async validateOAuthLogin(googleUser: GoogleUser): Promise<any> {
     try {
       let user = await this.userModel
@@ -584,6 +773,11 @@ export class AuthService {
     return !!user;
   }
 
+  async isStaffUsernameTaken(username: string) {
+    const user = await this.raflinkModel.findOne({ username }).lean().exec();
+    return !!user;
+  }
+
   async verifyUsername(payload: VerifyUsernameDto) {
     try {
       const { username } = payload;
@@ -629,6 +823,51 @@ export class AuthService {
     }
   }
 
+  async verifyStaffUsername(payload: VerifyUsernameDto) {
+    try {
+      const { username } = payload;
+
+      const staff = await this.raflinkModel.findOne({ username }).lean().exec();
+
+      if (staff) {
+        const initialSuggestions = this.generateUsernameSuggestions(username);
+
+        const availableSuggestions: string[] = [];
+        for (const suggestion of initialSuggestions) {
+          const isTaken = await this.isStaffUsernameTaken(suggestion);
+          if (!isTaken) {
+            availableSuggestions.push(suggestion);
+          }
+
+          if (availableSuggestions.length >= 3) {
+            break;
+          }
+        }
+
+        return {
+          status: 'fail',
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Username taken, see suggestions',
+          data:
+            availableSuggestions.length > 0
+              ? availableSuggestions
+              : initialSuggestions,
+          error: null,
+        };
+      }
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.CREATED,
+        message: 'Useranme verified successfully',
+        data: username,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
   async refreshTokens(payload: TokenData & { refreshToken: string }) {
     try {
       const { refreshToken: token, user: userId } = payload;
@@ -640,7 +879,7 @@ export class AuthService {
           message: 'Access Denied',
         });
 
-      const decryptToken = await await this.encryptionService.decrypt(
+      const decryptToken = await this.encryptionService.decrypt(
         user.refreshToken,
       );
 
