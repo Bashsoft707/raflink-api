@@ -57,6 +57,12 @@ export class User {
 
   @Prop({ type: Number, default: 0 })
   profileViewTime: number;
+
+  @Prop({ type: String, lowercase: true })
+  templateImage: string;
+
+  @Prop({ type: String })
+  templateBackground: string;
 }
 
 export type UserDocument = User & Document<Types.ObjectId>;

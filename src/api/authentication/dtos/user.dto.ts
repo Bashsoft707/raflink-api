@@ -150,6 +150,26 @@ export class UpdateUserDto {
     title: 'promotedContent',
   })
   promotedContent: string[];
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Template Image',
+    example: 'https://imgg.com',
+    required: false,
+    title: 'templateImage',
+  })
+  templateImage: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Template background color',
+    example: '#FFF',
+    required: false,
+    title: 'templateBackground',
+  })
+  templateBackground: string;
 }
 
 export type TokenData = {

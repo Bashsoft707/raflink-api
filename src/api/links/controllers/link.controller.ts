@@ -89,21 +89,21 @@ export class LinkController {
     return await this.LinkService.updateClickCount(param.id, body);
   }
 
-  @Patch('/user/:id/view')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Endpoint to update links views' })
-  @ApiParam({
-    name: 'id',
-    description: 'The ID of the user Link to update',
-    required: true,
-    type: String,
-  })
-  async updateLinkViews(
-    @Param() param: { id: string },
-    @Body() body: UpdateLinkViewTimeDto,
-  ) {
-    return await this.LinkService.updateViewTime(param.id, body);
-  }
+  // @Patch('/user/:id/view')
+  // @ApiBearerAuth()
+  // @ApiOperation({ summary: 'Endpoint to update links views' })
+  // @ApiParam({
+  //   name: 'id',
+  //   description: 'The ID of the user Link to update',
+  //   required: true,
+  //   type: String,
+  // })
+  // async updateLinkViews(
+  //   @Param() param: { id: string },
+  //   @Body() body: UpdateLinkViewTimeDto,
+  // ) {
+  //   return await this.LinkService.updateViewTime(param.id, body);
+  // }
 
   @Delete('/user/:id')
   @UseGuards(AccessTokenGuard)
