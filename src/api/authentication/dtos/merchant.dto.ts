@@ -1,11 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import {
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsPhoneNumber,
-} from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsBoolean } from 'class-validator';
 import { Types } from 'mongoose';
 
 export class UpdateMerchantDto {
@@ -60,6 +55,15 @@ export class UpdateMerchantDto {
     title: 'websiteUrl',
   })
   websiteUrl: string;
+
+  @IsBoolean()
+  @ApiProperty({
+    description: 'To notified if the user is verified or not',
+    example: 'true',
+    required: false,
+    title: 'verified',
+  })
+  verified: boolean;
 }
 
 export type TokenData = {
