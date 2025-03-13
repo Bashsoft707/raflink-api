@@ -5,7 +5,7 @@ import { Document, Schema as MongooseSchema, Types } from 'mongoose';
   timestamps: true,
 })
 export class Offer {
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
   userId: MongooseSchema.Types.ObjectId;
 
   @Prop({
