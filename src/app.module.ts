@@ -15,6 +15,7 @@ import { StripeModule } from './api/stripe/stripe.module';
 import { SubscriptionModule } from './api/subscription/subscription.module';
 import { LinkModule } from './api/links/link.module';
 import { OfferModule } from './api/offer/offer.module';
+import { TransactionModule } from './api/transaction/transaction.module';
 // import { AdminModule } from './admin/admin.module';
 
 @Module({
@@ -37,6 +38,7 @@ import { OfferModule } from './api/offer/offer.module';
     CloudinaryModule,
     StripeModule.forRootAsync(),
     SubscriptionModule,
+    TransactionModule,
     // AdminModule,
   ],
   controllers: [AppController],

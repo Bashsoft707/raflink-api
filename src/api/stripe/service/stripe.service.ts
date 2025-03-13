@@ -121,6 +121,31 @@ export class StripeService {
     return paymentMethod.id;
   }
 
+  async getPaymentMethodDetails(paymentMethodId: string) {
+    try {
+      const paymentMethod =
+        await this.stripe.paymentMethods.retrieve(paymentMethodId);
+
+      if (paymentMethod.card) {
+        const { card } = paymentMethod;
+
+        const cardType = card.brand;
+        const last4 = card.last4;
+
+        return {
+          cardType,
+          last4,
+        };
+      } else {
+        throw new Error('The provided payment method is not a card');
+      }
+    } catch (error) {
+      throw new Error(
+        `Failed to retrieve payment method details: ${error.message}`,
+      );
+    }
+  }
+
   async attachPaymentMethod(paymentMethodId: string, customerId: string) {
     return this.stripe.paymentMethods.attach(paymentMethodId, {
       customer: customerId,

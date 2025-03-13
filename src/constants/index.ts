@@ -81,3 +81,12 @@ export enum SubscriptionPlan {
   FREE = 'free',
   PRO = 'pro',
 }
+
+export enum TransactionStatus {
+  PENDING = 'PENDING',
+  FAILED = 'FAILED',
+  SUCCESS = 'SUCCESS',
+  REVERSED = 'REVERSED',
+  ABANDONED = 'ABANDONED',
+  INCOMPLETE = 'INCOMPLETE',
+}

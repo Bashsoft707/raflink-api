@@ -10,6 +10,8 @@ import {
   SubscriptionPlan,
   SubscriptionPlanSchema,
 } from './schema/subscriptionPlan.schema';
+import { TransactionService } from '../transaction/services/transaction.service';
+import { Transaction, TransactionSchema } from '../transaction/schema';
 
 @Module({
   imports: [
@@ -18,10 +20,11 @@ import {
       { name: Subscription.name, schema: SubscriptionSchema },
       { name: User.name, schema: UserSchema },
       { name: SubscriptionPlan.name, schema: SubscriptionPlanSchema },
+      { name: Transaction.name, schema: TransactionSchema },
     ]),
   ],
   controllers: [SubscriptionController],
-  providers: [SubscriptionService, StripeService],
+  providers: [SubscriptionService, StripeService, TransactionService],
   exports: [SubscriptionService],
 })
 export class SubscriptionModule {}

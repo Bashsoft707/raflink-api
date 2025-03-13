@@ -8,7 +8,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import Stripe from 'stripe';
-import { SubscriptionStatus } from '../../../constants';
+import { SubscriptionStatus, TransactionStatus } from '../../../constants';
 import { User } from '../../authentication/schema';
 import {
   CreateSubscriptionDto,
@@ -21,6 +21,8 @@ import { StripeService } from '../../stripe/service/stripe.service';
 import { SubscriptionPlan as SubscriptionPlanModel } from '../schema/subscriptionPlan.schema';
 import { Pagination } from '../../../common/dto/pagination.dto';
 import { errorHandler } from '../../../utils';
+import { TransactionService } from '../../transaction/services/transaction.service';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class SubscriptionService {
@@ -29,6 +31,8 @@ export class SubscriptionService {
     private subscriptionModel: Model<Subscription>,
     @InjectModel(User.name) private userModel: Model<User>,
     @Inject(StripeService) private readonly stripeService: StripeService,
+    @Inject(TransactionService)
+    private readonly transactionService: TransactionService,
     @InjectModel(SubscriptionPlanModel.name)
     private subscriptionPlanModel: Model<SubscriptionPlanModel>,
   ) {}
@@ -222,10 +226,7 @@ export class SubscriptionService {
     return plan;
   }
 
-  async createSubscription(
-    userId: Types.ObjectId,
-    dto: CreateSubscriptionDto,
-  ): Promise<Subscription> {
+  async createSubscription(userId: Types.ObjectId, dto: CreateSubscriptionDto) {
     const { paymentMethodId, planId, coupon } = dto;
 
     const plan = await this.getSubscriptionPlan(planId);
@@ -273,7 +274,7 @@ export class SubscriptionService {
       const subscription =
         await this.stripeService.createSubscription(subscriptionData);
 
-      const newSubscription = new this.subscriptionModel({
+      const newSubscription = await this.subscriptionModel.create({
         userId,
         stripeCustomerId,
         stripeSubscriptionId: subscription.id,
@@ -295,10 +296,40 @@ export class SubscriptionService {
         metadata: {
           priceId: plan.priceId,
         },
-        coupon
+        coupon,
       });
 
-      return newSubscription.save();
+      if (!newSubscription) {
+        throw new InternalServerErrorException(
+          'Error in creating subscription',
+        );
+      }
+
+      const { cardType, last4 } =
+        await this.stripeService.getPaymentMethodDetails(validPaymentMethodId);
+
+      const transactionPayload = {
+        userId,
+        amount: plan.price,
+        description: 'Payment for user susbcription',
+        transactionType: 'subscription',
+        currency: plan.currency,
+        transactionRef: randomUUID(),
+        cardType,
+        cardLastFourDigit: last4,
+        transactionDate: new Date(),
+        status: TransactionStatus.SUCCESS,
+      };
+
+      await this.transactionService.createTransaction(transactionPayload);
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.CREATED,
+        message: 'User subscription created successfully',
+        data: subscription,
+        error: null,
+      };
     } catch (error) {
       throw new Error(`Failed to create subscription: ${error.message}`);
     }
