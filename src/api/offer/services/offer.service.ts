@@ -31,7 +31,7 @@ export class OfferService {
     try {
       const newOffer = await this.OfferModel.create({
         ...data,
-        userId,
+        merchantId: userId,
       });
 
       if (!newOffer) {
@@ -52,7 +52,7 @@ export class OfferService {
 
   async getUserOffers(userId: Types.ObjectId) {
     try {
-      const userOffers = await this.OfferModel.find({ userId })
+      const userOffers = await this.OfferModel.find({ merchantId: userId })
         .populate('userId')
         .exec();
 
@@ -70,7 +70,10 @@ export class OfferService {
 
   async getOfferById(userId: Types.ObjectId, id: string) {
     try {
-      const userOffer = await this.OfferModel.findOne({ _id: id, userId })
+      const userOffer = await this.OfferModel.findOne({
+        _id: id,
+        merchantId: userId,
+      })
         .populate('userId')
         .exec();
 
