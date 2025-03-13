@@ -29,7 +29,7 @@ import { Request, Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { UpdateMerchantDto } from '../dtos/merchant.dto';
-import { UpdateStaffDto } from '../dtos/raflnk.dto';
+import { CreateStaffDto } from '../dtos/raflnk.dto';
 
 @ApiTags('auth')
 @Controller('authentication')
@@ -119,23 +119,40 @@ export class AuthController {
     return await this.authService.updateMerchantInfo(user, body);
   }
 
-  @Patch('/update-staff')
-  @UseGuards(AccessTokenGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Endpoint to update merchant info' })
-  async updateStaff(@Req() req: Request, @Body() body: UpdateStaffDto) {
-    const { user: tokenData } = req;
-    const { user } = tokenData as unknown as TokenData;
-    return await this.authService.updateStaffInfo(user, body);
-  }
+  // @Patch('/update-staff')
+  // @UseGuards(AccessTokenGuard)
+  // @ApiBearerAuth()
+  // @ApiOperation({ summary: 'Endpoint to update merchant info' })
+  // async updateStaff(@Req() req: Request, @Body() body: UpdateStaffDto) {
+  //   const { user: tokenData } = req;
+  //   const { user } = tokenData as unknown as TokenData;
+  //   return await this.authService.updateStaffInfo(user, body);
+  // }
 
   @Get('google')
   @UseGuards(AuthGuard('google'))
   googleAuth() {}
 
+  @Get('google/merchant')
+  @UseGuards(AuthGuard('google-merchant'))
+  googleMerchntAuth() {}
+
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   googleAuthCallback(@Req() req, @Res() res: Response) {
+    const { user } = req;
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
+
+    const redirectUrl = new URL('https://raflinks.io/admin/google/success');
+    redirectUrl.searchParams.append('accessToken', user.accessToken);
+    redirectUrl.searchParams.append('refreshToken', user.refreshToken);
+
+    return res.redirect(redirectUrl.toString());
+  }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google-merchant'))
+  googleMerchantAuthCallback(@Req() req, @Res() res: Response) {
     const { user } = req;
     const frontendUrl = this.configService.get<string>('FRONTEND_URL');
 
@@ -152,6 +169,12 @@ export class AuthController {
     return await this.authService.verifyUsername(body);
   }
 
+  // @Post('create-staff')
+  // @ApiOperation({ summary: 'Endpoint to create raflink staff' })
+  // async createStaff(@Body() body: CreateStaffDto) {
+  //   return await this.authService.createStaffAccount(body);
+  // }
+
   @Post('verify-staff-username')
   @ApiOperation({ summary: 'Endpoint to verify staff username' })
   async verifyStaffUsername(@Body() body: VerifyUsernameDto) {
@@ -167,6 +190,17 @@ export class AuthController {
   async refreshToken(@Req() req: Request) {
     const payload = req.user as TokenData & { refreshToken: string };
     return await this.authService.refreshTokens(payload);
+  }
+
+  @UseGuards(RefreshTokenGuard)
+  @Get('refresh-merchant')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Endpoint to generate access token using merchant refresh token',
+  })
+  async refreshMerchant(@Req() req: Request) {
+    const payload = req.user as TokenData & { refreshToken: string };
+    return await this.authService.refreshMerchantTokens(payload);
   }
 
   @Patch('/user/:username/view')
