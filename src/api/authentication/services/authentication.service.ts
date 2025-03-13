@@ -33,7 +33,7 @@ import {
 import { Merchant, MerchantDocument } from '../schema/merchants.schema';
 import { UpdateMerchantDto } from '../dtos/merchant.dto';
 import { Raflink, RaflinkDocument } from '../schema/raflink.schema';
-import { UpdateStaffDto } from '../dtos/raflnk.dto';
+// import { UpdateStaffDto } from '../dtos/raflnk.dto';
 
 @Injectable()
 export class AuthService {
@@ -651,63 +651,63 @@ export class AuthService {
     }
   }
 
-  async updateStaffInfo(userId: Types.ObjectId, payload: UpdateStaffDto) {
-    const { username } = payload;
+  // async updateStaffInfo(userId: Types.ObjectId, payload: UpdateStaffDto) {
+  //   const { username } = payload;
 
-    try {
-      const staff = await this.raflinkModel.findById(userId).exec();
+  //   try {
+  //     const staff = await this.raflinkModel.findById(userId).exec();
 
-      if (!staff) {
-        return {
-          status: 'error',
-          statusCode: HttpStatus.NOT_FOUND,
-          message: 'User not found.',
-          data: {},
-          error: null,
-        };
-      }
+  //     if (!staff) {
+  //       return {
+  //         status: 'error',
+  //         statusCode: HttpStatus.NOT_FOUND,
+  //         message: 'User not found.',
+  //         data: {},
+  //         error: null,
+  //       };
+  //     }
 
-      if (username) {
-        const query = {};
-        if (username) query['username'] = username?.toLowerCase();
+  //     if (username) {
+  //       const query = {};
+  //       if (username) query['username'] = username?.toLowerCase();
 
-        const existingUser = await this.raflinkModel.findOne(query);
+  //       const existingUser = await this.raflinkModel.findOne(query);
 
-        if (existingUser) {
-          if (existingUser.username === username?.toLowerCase()) {
-            throw new BadRequestException('Username already exists');
-          }
-        }
-      }
+  //       if (existingUser) {
+  //         if (existingUser.username === username?.toLowerCase()) {
+  //           throw new BadRequestException('Username already exists');
+  //         }
+  //       }
+  //     }
 
-      const updatedStaff = await this.raflinkModel.findByIdAndUpdate(
-        userId,
-        payload,
-        { new: true },
-      );
+  //     const updatedStaff = await this.raflinkModel.findByIdAndUpdate(
+  //       userId,
+  //       payload,
+  //       { new: true },
+  //     );
 
-      if (!updatedStaff) {
-        return {
-          status: 'error',
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'Error in updating user info. Please try again later',
-          data: {},
-          error: null,
-        };
-      }
+  //     if (!updatedStaff) {
+  //       return {
+  //         status: 'error',
+  //         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+  //         message: 'Error in updating user info. Please try again later',
+  //         data: {},
+  //         error: null,
+  //       };
+  //     }
 
-      return {
-        status: 'success',
-        statusCode: HttpStatus.CREATED,
-        message: 'User information successfully updated.',
-        data: updatedStaff,
-        error: null,
-      };
-    } catch (error) {
-      console.error('Error during updating user info:', error);
-      errorHandler(error);
-    }
-  }
+  //     return {
+  //       status: 'success',
+  //       statusCode: HttpStatus.CREATED,
+  //       message: 'User information successfully updated.',
+  //       data: updatedStaff,
+  //       error: null,
+  //     };
+  //   } catch (error) {
+  //     console.error('Error during updating user info:', error);
+  //     errorHandler(error);
+  //   }
+  // }
 
   async validateOAuthLogin(googleUser: GoogleUser): Promise<any> {
     try {
@@ -747,6 +747,58 @@ export class AuthService {
         message: 'Google authentication successful',
         data: {
           user,
+          accessToken,
+          refreshToken,
+        },
+        error: null,
+      };
+    } catch (error) {
+      console.error('Error during OAuth authentication:', error);
+      throw new InternalServerErrorException(
+        'Failed to authenticate with Google',
+      );
+    }
+  }
+
+  async validateMerchantOAuthLogin(googleUser: GoogleUser): Promise<any> {
+    try {
+      let merchant = await this.merchantModel
+        .findOne({ email: googleUser.email })
+        .exec();
+
+      if (!merchant) {
+        merchant = await this.merchantModel.create({
+          email: googleUser.email,
+          // displayName: `${googleUser.firstName} ${googleUser.lastName}`,
+          // image: googleUser.picture,
+          verified: true,
+        });
+      }
+
+      const tokenData: TokenData = {
+        user: merchant._id,
+        verified: merchant.verified,
+        email: merchant.email,
+        // username: user.username,
+      };
+
+      const { accessToken, refreshToken } = await this.getAndUpdateToken(
+        tokenData,
+        undefined,
+        merchant,
+      );
+
+      await this.merchantModel.updateOne(
+        { _id: merchant._id },
+        { refreshToken: refreshToken },
+      );
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'Google authentication successful',
+        data: {
+          merchant,
           accessToken,
           refreshToken,
         },
@@ -901,6 +953,54 @@ export class AuthService {
       const { accessToken, refreshToken } = await this.getAndUpdateToken(
         tokenData,
         user,
+      );
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'Token successfully generated',
+        data: { accessToken, refreshToken },
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async refreshMerchantTokens(payload: TokenData & { refreshToken: string }) {
+    try {
+      const { refreshToken: token, user: userId } = payload;
+      const merchant = await this.merchantModel.findById(userId);
+
+      if (!merchant || !merchant.refreshToken)
+        throw new ForbiddenException({
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Access Denied',
+        });
+
+      const decryptToken = await this.encryptionService.decrypt(
+        merchant.refreshToken,
+      );
+
+      if (decryptToken !== token)
+        throw new ForbiddenException({
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Access Denied',
+        });
+
+      const { _id, email, verified } = merchant;
+
+      const tokenData: TokenData = {
+        user: _id,
+        email,
+        // username,
+        verified,
+      };
+
+      const { accessToken, refreshToken } = await this.getAndUpdateToken(
+        tokenData,
+        undefined,
+        merchant,
       );
 
       return {

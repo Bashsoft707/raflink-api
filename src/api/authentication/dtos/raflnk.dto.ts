@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { Types } from 'mongoose';
 
-export class UpdateStaffDto {
+export class CreateStaffDto {
   @IsNotEmpty()
   @IsString()
   @ApiProperty({
@@ -18,12 +18,23 @@ export class UpdateStaffDto {
   @IsString()
   @ApiProperty({
     description: 'unique username for the user',
-    example: 'egbon',
+    example: 'samuel@gmail.com',
     required: true,
-    title: 'username',
+    title: 'email',
   })
   @Transform(({ value }) => String(value).toLowerCase().trim())
-  username: string;
+  email: string;
+
+  // @IsNotEmpty()
+  // @IsString()
+  // @ApiProperty({
+  //   description: 'unique username for the user',
+  //   example: 'egbon',
+  //   required: true,
+  //   title: 'username',
+  // })
+  // @Transform(({ value }) => String(value).toLowerCase().trim())
+  // username: string;
 
   @IsNotEmpty()
   @IsString()
@@ -35,6 +46,41 @@ export class UpdateStaffDto {
     title: 'contactInfo',
   })
   contactInfo: string;
+}
+
+export class StaffLoginDto {
+  @IsNotEmpty()
+  @IsEmail()
+  @ApiProperty({
+    description: 'unique username for the user',
+    example: 'samuel@gmail.com',
+    required: true,
+    title: 'email',
+  })
+  @Transform(({ value }) => String(value).toLowerCase().trim())
+  email: string;
+
+  // @IsNotEmpty()
+  // @IsString()
+  // @ApiProperty({
+  //   description: 'unique username for the user',
+  //   example: 'egbon',
+  //   required: true,
+  //   title: 'username',
+  // })
+  // @Transform(({ value }) => String(value).toLowerCase().trim())
+  // username: string;
+
+  @IsNotEmpty()
+  @IsString()
+  // @IsPhoneNumber()
+  @ApiProperty({
+    description: 'the user password',
+    example: 'Lycanthrope_10',
+    required: true,
+    title: 'password',
+  })
+  password: string;
 }
 
 // export type TokenData = {
