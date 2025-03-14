@@ -36,6 +36,9 @@ export class Offer {
   @Prop({ type: String, required: true })
   eligibity: string;
 
+  @Prop({ type: String, required: true })
+  instructions: string;
+
   @Prop({ type: Date, required: true })
   startDate: Date;
 

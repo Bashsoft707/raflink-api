@@ -127,6 +127,16 @@ export class CreateOfferDto {
   })
   payoutPerClick: string;
 
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description: 'Description on how the influencer should go about the offer',
+    example: 'Click on the link, ......',
+    required: true,
+    title: 'instructions',
+  })
+  instructions: string;
+
   @IsNotEmpty()
   @IsString()
   @ApiProperty({
