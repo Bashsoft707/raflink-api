@@ -27,6 +27,9 @@ export class Merchant {
   @Prop({ default: false })
   verified: boolean;
 
+  @Prop({ required: false })
+  businessLogo: string;
+
   @Prop({ default: null })
   @Exclude()
   refreshToken: string;

@@ -102,4 +102,20 @@ export class OfferController {
     const { user } = tokenData as unknown as TokenData;
     return await this.OfferService.getOffersAnalytics(user);
   }
+
+  @Get('/deactivate/:id')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to get single offer detail' })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the offer to be deactivated',
+    required: true,
+    type: String,
+  })
+  async deactivateOffer(@Req() req: Request, @Param() param: { id: string }) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return await this.OfferService.deactivateOffer(user, param.id);
+  }
 }
