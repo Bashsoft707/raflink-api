@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
-import { Types } from 'mongoose';
+// import { Types } from 'mongoose';
 
 export class CreateStaffDto {
   @IsNotEmpty()
@@ -25,16 +25,16 @@ export class CreateStaffDto {
   @Transform(({ value }) => String(value).toLowerCase().trim())
   email: string;
 
-  // @IsNotEmpty()
-  // @IsString()
-  // @ApiProperty({
-  //   description: 'unique username for the user',
-  //   example: 'egbon',
-  //   required: true,
-  //   title: 'username',
-  // })
-  // @Transform(({ value }) => String(value).toLowerCase().trim())
-  // username: string;
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({
+    description: 'the role for the staff',
+    example: 'admin',
+    required: true,
+    title: 'role',
+  })
+  @Transform(({ value }) => String(value).toLowerCase().trim())
+  role: string;
 
   @IsNotEmpty()
   @IsString()
@@ -46,6 +46,42 @@ export class CreateStaffDto {
     title: 'contactInfo',
   })
   contactInfo: string;
+}
+
+export class SetupStaffDto {
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({
+    description: 'unique username for the user',
+    example: 'samuel@gmail.com',
+    required: true,
+    title: 'email',
+  })
+  @Transform(({ value }) => String(value).toLowerCase().trim())
+  email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  // @IsPhoneNumber()
+  @ApiProperty({
+    description: 'the account password',
+    example: 'Lycanthrope_10',
+    required: true,
+    title: 'password',
+  })
+  password: string;
+
+  @IsNotEmpty()
+  @IsString()
+  // @IsPhoneNumber()
+  @ApiProperty({
+    description:
+      'to confirm the password input. Must be the same with the password',
+    example: 'Lycanthrope_10',
+    required: true,
+    title: 'confirmPassword',
+  })
+  confirmPassword: string;
 }
 
 export class StaffLoginDto {

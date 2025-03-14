@@ -12,6 +12,7 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Model, Connection, ClientSession, Types } from 'mongoose';
 import { ENV, TEMPLATES } from '../../../constants';
 import { OtpService } from './otp.service';
+import * as bcrypt from 'bcryptjs';
 import {
   OnboardingDto,
   TokenData,
@@ -33,6 +34,11 @@ import {
 import { Merchant, MerchantDocument } from '../schema/merchants.schema';
 import { UpdateMerchantDto } from '../dtos/merchant.dto';
 import { Raflink, RaflinkDocument } from '../schema/raflink.schema';
+import {
+  CreateStaffDto,
+  SetupStaffDto,
+  StaffLoginDto,
+} from '../dtos/raflnk.dto';
 // import { UpdateStaffDto } from '../dtos/raflnk.dto';
 
 @Injectable()
@@ -284,91 +290,91 @@ export class AuthService {
     }
   }
 
-  async verifyOtpAndSaveRaflinkStaff(payload: ValidateOtpDto) {
-    try {
-      const { email, otp } = payload;
+  // async verifyOtpAndSaveRaflinkStaff(payload: ValidateOtpDto) {
+  //   try {
+  //     const { email, otp } = payload;
 
-      try {
-        await this.otpService.validate({ otp, email });
-      } catch (error) {
-        throw new BadRequestException({
-          status: 'error',
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: error.message || 'Invalid OTP',
-          data: null,
-          error: null,
-        });
-      }
+  //     try {
+  //       await this.otpService.validate({ otp, email });
+  //     } catch (error) {
+  //       throw new BadRequestException({
+  //         status: 'error',
+  //         statusCode: HttpStatus.BAD_REQUEST,
+  //         message: error.message || 'Invalid OTP',
+  //         data: null,
+  //         error: null,
+  //       });
+  //     }
 
-      let staff = await this.raflinkModel.findOne({ email }).exec();
+  //     let staff = await this.raflinkModel.findOne({ email }).exec();
 
-      if (!staff) {
-        staff = await this.raflinkModel.create({
-          email,
-        });
+  //     if (!staff) {
+  //       staff = await this.raflinkModel.create({
+  //         email,
+  //       });
 
-        await this.emailService.sendEmail({
-          receiver: payload.email,
-          subject: 'Welcome to raflink',
-          body: `Hello user, Welcome to Raflink`,
-          templateKey: TEMPLATES.WELCOME,
-          data: {
-            name: 'User',
-            companyEmail: this.configService.get(ENV.EMAIL_FROM),
-          },
-        });
-      }
+  //       await this.emailService.sendEmail({
+  //         receiver: payload.email,
+  //         subject: 'Welcome to raflink',
+  //         body: `Hello user, Welcome to Raflink`,
+  //         templateKey: TEMPLATES.WELCOME,
+  //         data: {
+  //           name: 'User',
+  //           companyEmail: this.configService.get(ENV.EMAIL_FROM),
+  //         },
+  //       });
+  //     }
 
-      if (!staff) {
-        throw new InternalServerErrorException({
-          status: 'error',
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'User could not be created. Please try again later.',
-          data: null,
-          error: null,
-        });
-      }
+  //     if (!staff) {
+  //       throw new InternalServerErrorException({
+  //         status: 'error',
+  //         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+  //         message: 'User could not be created. Please try again later.',
+  //         data: null,
+  //         error: null,
+  //       });
+  //     }
 
-      const tokenData: TokenData = {
-        user: staff._id,
-        verified: staff.verified,
-        email,
-        username: staff.username,
-      };
+  //     const tokenData: TokenData = {
+  //       user: staff._id,
+  //       verified: staff.verified,
+  //       email,
+  //       username: staff.username,
+  //     };
 
-      const { accessToken, refreshToken } = await this.getAndUpdateToken(
-        tokenData,
-        undefined,
-        undefined,
-        staff,
-      );
+  //     const { accessToken, refreshToken } = await this.getAndUpdateToken(
+  //       tokenData,
+  //       undefined,
+  //       undefined,
+  //       staff,
+  //     );
 
-      return {
-        status: 'success',
-        statusCode: HttpStatus.CREATED,
-        message: 'Account successfully created and verified.',
-        data: {
-          staff,
-          accessToken,
-          refreshToken,
-        },
-        error: null,
-      };
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
+  //     return {
+  //       status: 'success',
+  //       statusCode: HttpStatus.CREATED,
+  //       message: 'Account successfully created and verified.',
+  //       data: {
+  //         staff,
+  //         accessToken,
+  //         refreshToken,
+  //       },
+  //       error: null,
+  //     };
+  //   } catch (error) {
+  //     if (error instanceof BadRequestException) {
+  //       throw error;
+  //     }
 
-      console.error('Error during OTP verification and user creation:', error);
-      throw new InternalServerErrorException({
-        status: 'error',
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Something went wrong while verifying OTP and saving user.',
-        data: null,
-        error: error.message || 'Internal server error',
-      });
-    }
-  }
+  //     console.error('Error during OTP verification and user creation:', error);
+  //     throw new InternalServerErrorException({
+  //       status: 'error',
+  //       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+  //       message: 'Something went wrong while verifying OTP and saving user.',
+  //       data: null,
+  //       error: error.message || 'Internal server error',
+  //     });
+  //   }
+  // }
 
   async getAndUpdateToken(
     tokenData: TokenData,
@@ -651,63 +657,61 @@ export class AuthService {
     }
   }
 
-  // async updateStaffInfo(userId: Types.ObjectId, payload: UpdateStaffDto) {
-  //   const { username } = payload;
+  async createStaff(payload: CreateStaffDto) {
+    const { email } = payload;
+    try {
+      const checkStaff = await this.raflinkModel.findOne({ email }).exec();
 
-  //   try {
-  //     const staff = await this.raflinkModel.findById(userId).exec();
+      if (checkStaff) {
+        return {
+          status: 'error',
+          statusCode: HttpStatus.CONFLICT,
+          message: 'Email exists.',
+          data: {},
+          error: null,
+        };
+      }
 
-  //     if (!staff) {
-  //       return {
-  //         status: 'error',
-  //         statusCode: HttpStatus.NOT_FOUND,
-  //         message: 'User not found.',
-  //         data: {},
-  //         error: null,
-  //       };
-  //     }
+      const createdStaff = await this.raflinkModel.create({
+        email: payload.email,
+        role: payload.role,
+        fullName: payload.fullName,
+      });
 
-  //     if (username) {
-  //       const query = {};
-  //       if (username) query['username'] = username?.toLowerCase();
+      if (!createdStaff) {
+        throw new InternalServerErrorException({
+          status: 'error',
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'User could not be created. Please try again later.',
+          data: null,
+          error: null,
+        });
+      }
 
-  //       const existingUser = await this.raflinkModel.findOne(query);
+      await this.emailService.sendEmail({
+        receiver: payload.email,
+        subject: 'Welcome to raflink || OTP Verification',
+        body: `Hello user, please click on the button below to setup your raflink staff account.`,
+        templateKey: TEMPLATES.ONBOARDING,
+        data: {
+          name: 'User',
+          link: this.configService.get(ENV.ACCOUNT_SETUP_URL),
+          companyEmail: this.configService.get(ENV.EMAIL_FROM),
+        },
+      });
 
-  //       if (existingUser) {
-  //         if (existingUser.username === username?.toLowerCase()) {
-  //           throw new BadRequestException('Username already exists');
-  //         }
-  //       }
-  //     }
-
-  //     const updatedStaff = await this.raflinkModel.findByIdAndUpdate(
-  //       userId,
-  //       payload,
-  //       { new: true },
-  //     );
-
-  //     if (!updatedStaff) {
-  //       return {
-  //         status: 'error',
-  //         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-  //         message: 'Error in updating user info. Please try again later',
-  //         data: {},
-  //         error: null,
-  //       };
-  //     }
-
-  //     return {
-  //       status: 'success',
-  //       statusCode: HttpStatus.CREATED,
-  //       message: 'User information successfully updated.',
-  //       data: updatedStaff,
-  //       error: null,
-  //     };
-  //   } catch (error) {
-  //     console.error('Error during updating user info:', error);
-  //     errorHandler(error);
-  //   }
-  // }
+      return {
+        status: 'success',
+        statusCode: HttpStatus.CREATED,
+        message: 'Staff created successfully',
+        data: createdStaff,
+        error: null,
+      };
+    } catch (error) {
+      console.error('Error during creating user:', error);
+      errorHandler(error);
+    }
+  }
 
   async validateOAuthLogin(googleUser: GoogleUser): Promise<any> {
     try {
@@ -875,44 +879,103 @@ export class AuthService {
     }
   }
 
-  async verifyStaffUsername(payload: VerifyUsernameDto) {
+  async setupStaffAccount(payload: SetupStaffDto) {
     try {
-      const { username } = payload;
+      const { email } = payload;
 
-      const staff = await this.raflinkModel.findOne({ username }).lean().exec();
+      const staff = await this.raflinkModel.findOne({ email }).exec();
 
-      if (staff) {
-        const initialSuggestions = this.generateUsernameSuggestions(username);
-
-        const availableSuggestions: string[] = [];
-        for (const suggestion of initialSuggestions) {
-          const isTaken = await this.isStaffUsernameTaken(suggestion);
-          if (!isTaken) {
-            availableSuggestions.push(suggestion);
-          }
-
-          if (availableSuggestions.length >= 3) {
-            break;
-          }
-        }
-
+      if (!staff) {
         return {
           status: 'fail',
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Username taken, see suggestions',
-          data:
-            availableSuggestions.length > 0
-              ? availableSuggestions
-              : initialSuggestions,
+          message: 'Email does not exist',
+          data: null,
           error: null,
         };
       }
 
+      if (payload.password !== payload.confirmPassword) {
+        return {
+          status: 'fail',
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Passwords do not match',
+          data: null,
+          error: null,
+        };
+      }
+
+      const hash = await bcrypt.hash(
+        payload.password,
+        Number(this.configService.get(ENV.PASSWORD_ROUNDS)),
+      );
+
+      const updatedStaff = await this.raflinkModel.findOneAndUpdate(
+        { email: payload.email },
+        { $set: { password: hash, verified: true } },
+        { new: true },
+      );
+
       return {
         status: 'success',
         statusCode: HttpStatus.CREATED,
-        message: 'Useranme verified successfully',
-        data: username,
+        message: 'Account setup successfully',
+        data: null,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async loginStaffAccount(payload: StaffLoginDto) {
+    try {
+      const { email } = payload;
+
+      const staff = await this.raflinkModel.findOne({ email }).exec();
+
+      if (!staff) {
+        return {
+          status: 'fail',
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Email does not exist',
+          data: null,
+          error: null,
+        };
+      }
+
+      if (!(await bcrypt.compare(payload.password, staff.password))) {
+        return {
+          status: 'fail',
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Invalid password',
+          data: null,
+          error: null,
+        };
+      }
+
+      const tokenData: TokenData = {
+        user: staff._id,
+        verified: staff.verified,
+        email,
+      };
+
+      const { accessToken, refreshToken } = await this.getAndUpdateToken(
+        tokenData,
+        undefined,
+        undefined,
+        staff,
+      );
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.CREATED,
+        message: 'Account setup successfully',
+        data: {
+          staff,
+          accessToken,
+          refreshToken,
+        },
         error: null,
       };
     } catch (error) {
@@ -1001,6 +1064,55 @@ export class AuthService {
         tokenData,
         undefined,
         merchant,
+      );
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'Token successfully generated',
+        data: { accessToken, refreshToken },
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async refreshStaffTokens(payload: TokenData & { refreshToken: string }) {
+    try {
+      const { refreshToken: token, user: userId } = payload;
+      const staff = await this.raflinkModel.findById(userId);
+
+      if (!staff || !staff.refreshToken)
+        throw new ForbiddenException({
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Access Denied',
+        });
+
+      const decryptToken = await this.encryptionService.decrypt(
+        staff.refreshToken,
+      );
+
+      if (decryptToken !== token)
+        throw new ForbiddenException({
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Access Denied',
+        });
+
+      const { _id, email, verified } = staff;
+
+      const tokenData: TokenData = {
+        user: _id,
+        email,
+        // username,
+        verified,
+      };
+
+      const { accessToken, refreshToken } = await this.getAndUpdateToken(
+        tokenData,
+        undefined,
+        undefined,
+        staff,
       );
 
       return {

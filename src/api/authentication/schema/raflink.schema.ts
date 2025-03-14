@@ -9,14 +9,15 @@ export class Raflink {
   @Prop({ lowercase: true, unique: true, index: true, required: true })
   email: string;
 
-  @Prop({ lowercase: true, unique: true, sparse: true, default: undefined })
+  @Prop({ lowercase: true, sparse: true, required: true })
   fullName: string;
 
-  @Prop({ lowercase: true, unique: true, sparse: true, default: undefined })
-  username: string;
-
-  @Prop({ lowercase: true, unique: true, sparse: true, default: 'admin' })
+  @Prop({ lowercase: true, sparse: true, required: true, default: 'admin' })
   role: string;
+
+  @Prop()
+  @Exclude()
+  password: string;
 
   @Prop({ lowercase: true })
   contactInfo: string;
