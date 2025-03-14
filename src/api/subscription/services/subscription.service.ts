@@ -271,6 +271,9 @@ export class SubscriptionService {
         subscriptionData.coupon = coupon;
       }
 
+      const { cardType, last4 } =
+        await this.stripeService.getPaymentMethodDetails(validPaymentMethodId);
+
       const subscription =
         await this.stripeService.createSubscription(subscriptionData);
 
@@ -297,6 +300,8 @@ export class SubscriptionService {
           priceId: plan.priceId,
         },
         coupon,
+        cardLastFourDigit: last4,
+        cardType,
       });
 
       if (!newSubscription) {
@@ -304,9 +309,6 @@ export class SubscriptionService {
           'Error in creating subscription',
         );
       }
-
-      const { cardType, last4 } =
-        await this.stripeService.getPaymentMethodDetails(validPaymentMethodId);
 
       const transactionPayload = {
         userId,

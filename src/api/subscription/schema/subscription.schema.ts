@@ -53,6 +53,12 @@ export class Subscription extends Document {
   @Prop({ type: String })
   coupon: string;
 
+  @Prop({ type: String })
+  cardLastFourDigit: string;
+
+  @Prop({ type: String })
+  cardType: string;
+
   @Prop({ type: Object })
   metadata: Record<string, any>;
 }
