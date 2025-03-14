@@ -16,7 +16,7 @@ export const onboardingTemplate = `<!DOCTYPE html>
                             <tr>
                                 <td>
                                     <div width="100%" height="80" align="center">
-                                        <img align="center" alt="" src="https://raflink.vercel.app/images/logo.png" style="border: 0; text-decoration: none; display: block" />
+                                        <img align="center" alt="" src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1741948747/logo_qewk5k.png" style="border: 0; text-decoration: none; display: block" />
                                     </div>
                                 </td>
                             </tr>
@@ -55,12 +55,28 @@ export const onboardingTemplate = `<!DOCTYPE html>
                                                         <p style="width: 85%; margin: 1rem auto; font-family: 'Lato Regular', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; color: #666666; line-height: 1.7rem; text-align: center;">
                                                             If you experience any problems using raflink, kindly contact us at <a href="{raflink_email}">{raflink_email}</a> or send us a DM on our social media channels.
                                                         </p>
-                                                            <div class="social-icons">
-                                                                <a href="#"><img src="https://raflink.vercel.app/svgs/facebook_et.svg" alt="Facebook"></a>
-                                                                <a href="#"><img src="https://raflink.vercel.app/svgs/linkdn_et.svg" alt="LinkedIn"></a>
-                                                                <a href="#"><img src="https://raflink.vercel.app/svgs/instagram_et.svg" alt="Instagram"></a>
-                                                                <a href="#"><img src="https://raflink.vercel.app/svgs/twitter_et.svg" alt="Twitter"></a>
-                                                            </div>
+                                                            update the social links to this on the email template 
+
+                                                <div class="social-links">
+                                                        <a href="#" class="social-icon">
+                                                        <img
+                                                            src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1740501549/facebook-logo_ofnr8r.svg"
+                                                            alt="Facebook"
+                                                        />
+                                                        </a>
+                                                        <a href="#" class="social-icon">
+                                                        <img
+                                                            src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1740501547/instagram-logo_k8ib25.svg"
+                                                            alt="Instagram"
+                                                        />
+                                                        </a>
+                                                        <a href="#" class="social-icon">
+                                                        <img
+                                                            src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1740501547/x-logo_ej3czi.svg"
+                                                            alt="Twitter"
+                                                        />
+                                                        </a>
+                                                    </div>
                                                     </footer>
                                                 </td>
                                             </tr>
