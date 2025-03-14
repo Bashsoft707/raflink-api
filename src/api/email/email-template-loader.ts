@@ -5,6 +5,7 @@ import { onboardingTemplate } from './templates/onboarding.html';
 import { TEMPLATES } from '../../constants';
 import { otpTemplate } from './templates/otp.html';
 import { waitingListTemplate } from './templates/waitinglist.html';
+import { accountSetupTemplate } from './templates/accountsetup.html';
 
 @Injectable()
 export class EmailTemplateLoader {
@@ -32,6 +33,16 @@ export class EmailTemplateLoader {
       name: data.name,
     };
     return this.insertParmasIntoTemplate(otpTemplate, params);
+  }
+
+  accountSetupTemplate(data: any) {
+    const params = {
+      link: data.link,
+      raflink_email: data.raflink_email,
+      name: data.name,
+      role: data.role,
+    };
+    return this.insertParmasIntoTemplate(accountSetupTemplate, params);
   }
 
   waitingListTemplate(data: any) {
@@ -72,6 +83,9 @@ export class EmailTemplateLoader {
         break;
       case TEMPLATES.WAITLIST:
         template = this.waitingListTemplate(data);
+        break;
+      case TEMPLATES.ACCOUNTSETUP:
+        template = this.accountSetupTemplate(data);
         break;
       default:
         return this.unsupported();

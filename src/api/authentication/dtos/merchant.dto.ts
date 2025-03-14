@@ -56,6 +56,16 @@ export class UpdateMerchantDto {
   })
   websiteUrl: string;
 
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'The pictureor logo of the business',
+    example: 'https://logo.png',
+    required: false,
+    title: 'businessLogo',
+  })
+  businessLogo: string;
+
   @IsBoolean()
   @ApiProperty({
     description: 'To notified if the user is verified or not',
