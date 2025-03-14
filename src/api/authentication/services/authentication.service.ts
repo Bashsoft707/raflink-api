@@ -692,10 +692,11 @@ export class AuthService {
         receiver: payload.email,
         subject: 'Welcome to raflink || OTP Verification',
         body: `Hello user, please click on the button below to setup your raflink staff account.`,
-        templateKey: TEMPLATES.ONBOARDING,
+        templateKey: TEMPLATES.ACCOUNTSETUP,
         data: {
           name: 'User',
-          link: this.configService.get(ENV.ACCOUNT_SETUP_URL),
+          link: `${this.configService.get(ENV.ACCOUNT_SETUP_URL)}?email=${payload.email}`,
+          role: createdStaff.role,
           companyEmail: this.configService.get(ENV.EMAIL_FROM),
         },
       });

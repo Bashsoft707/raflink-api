@@ -91,7 +91,10 @@ export class OfferService {
 
   async getOffers() {
     try {
-      const offers = await this.OfferModel.find({}, '-userId').exec();
+      const offers = await this.OfferModel.find(
+        { status: 'active' },
+        '-userId',
+      ).exec();
 
       return {
         status: 'success',
@@ -142,6 +145,39 @@ export class OfferService {
         statusCode: HttpStatus.OK,
         message: 'Single offer retrieved successfully.',
         data: data,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async deactivateOffer(userId: Types.ObjectId, offerId: string) {
+    try {
+      const offer = await this.OfferModel.findOne({
+        _id: offerId,
+        merchantId: userId,
+      });
+
+      if (!offer) {
+        return {
+          status: 'fail',
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Offer not found.',
+          data: null,
+          error: null,
+        };
+      }
+
+      const updatedOffer = this.OfferModel.findOneAndReplace(
+        { _id: offerId },
+        { $set: { status: 'deactivated' } },
+      );
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'Single offer deactivated',
+        data: updatedOffer,
         error: null,
       };
     } catch (error) {

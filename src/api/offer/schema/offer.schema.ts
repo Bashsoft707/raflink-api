@@ -39,6 +39,9 @@ export class Offer {
   @Prop({ type: String, required: true })
   instructions: string;
 
+  @Prop({ type: String, required: true, default: 'active' })
+  status: string;
+
   @Prop({ type: Date, required: true })
   startDate: Date;
 
