@@ -42,6 +42,9 @@ export class Offer {
   @Prop({ type: String, required: true, default: 'active' })
   status: string;
 
+  @Prop({ type: String, required: true })
+  durationName: string;
+
   @Prop({ type: Date, required: true })
   startDate: Date;
 
@@ -57,8 +60,8 @@ export class Offer {
   @Prop({ type: [String] })
   targetAudience: string[];
 
-  @Prop({ type: Boolean, default: false })
-  verified: boolean;
+  // @Prop({ type: Boolean, default: false })
+  // verified: boolean;
 
   @Prop({ type: Number, default: 0 })
   percentageCut: number;
