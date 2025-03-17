@@ -155,7 +155,7 @@ export class AuthController {
     return res.redirect(redirectUrl.toString());
   }
 
-  @Get('google/callback')
+  @Get('google/merchant/callback')
   @UseGuards(AuthGuard('google-merchant'))
   googleMerchantAuthCallback(@Req() req, @Res() res: Response) {
     const { user } = req;
