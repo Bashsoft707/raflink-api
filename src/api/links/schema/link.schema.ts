@@ -1,4 +1,4 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 import { TEMPLATE_LINK_LAYOUT } from '../../../constants';
 
@@ -51,6 +51,21 @@ export class Link {
 
   @Prop({ type: Number, default: 0 })
   estimatedEarnings: number;
+
+  @Prop({ type: Number, default: 0 })
+  affiliateEarnings: number;
+
+  @Prop({ type: String })
+  discountType: string;
+
+  @Prop({ type: Number, default: 0 })
+  discountAmount: number;
+
+  @Prop({ type: String })
+  earningType: string;
+
+  @Prop({ type: Number, default: 0 })
+  shareCount: number;
 }
 
 export type LinkDocument = Link & Document<Types.ObjectId>;

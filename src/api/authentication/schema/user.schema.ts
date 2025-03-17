@@ -63,6 +63,9 @@ export class User {
 
   @Prop({ type: String })
   templateBackground: string;
+
+  @Prop({ type: Number, default: 0 })
+  shareCount: number;
 }
 
 export type UserDocument = User & Document<Types.ObjectId>;

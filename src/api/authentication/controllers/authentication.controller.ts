@@ -19,6 +19,7 @@ import {
 import {
   OnboardingDto,
   TokenData,
+  UpdateShareCountDto,
   UpdateUserDto,
   UpdateViewTimeDto,
   ValidateOtpDto,
@@ -238,17 +239,33 @@ export class AuthController {
 
   @Patch('/user/:username/view')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Endpoint to update links views' })
+  @ApiOperation({ summary: 'Endpoint to update user profile view time' })
   @ApiParam({
     name: 'username',
     description: 'The username of the user profile to update',
     required: true,
     type: String,
   })
-  async updateLinkViews(
+  async updateProfileViews(
     @Param() param: { username: string },
     @Body() body: UpdateViewTimeDto,
   ) {
     return await this.authService.updateViewTime(param.username, body);
+  }
+
+  @Patch('/user/:username/share-count')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to update user profile share counts' })
+  @ApiParam({
+    name: 'username',
+    description: 'The username of the user profile to update',
+    required: true,
+    type: String,
+  })
+  async updateProfileShareCount(
+    @Param() param: { username: string },
+    @Body() body: UpdateShareCountDto,
+  ) {
+    return await this.authService.updateShareCount(param.username, body);
   }
 }

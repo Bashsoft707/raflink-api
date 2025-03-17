@@ -26,7 +26,7 @@ import {
 } from '../dtos';
 import { AccessTokenGuard } from '../../authentication/auth';
 import { Request } from 'express';
-import { TokenData } from '../../authentication/dtos';
+import { TokenData, UpdateShareCountDto } from '../../authentication/dtos';
 
 @ApiTags('links')
 @Controller('links')
@@ -155,5 +155,21 @@ export class LinkController {
   })
   async userLinkInfo(@Param() param: { username: string }) {
     return await this.LinkService.getUserLinkInfo(param.username);
+  }
+
+  @Patch('/user/:id/share')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to update link share count' })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the user link to update',
+    required: true,
+    type: String,
+  })
+  async updateShareCount(
+    @Param() param: { id: string },
+    @Body() body: UpdateShareCountDto,
+  ) {
+    return await this.LinkService.updateShareCount(param.id, body);
   }
 }

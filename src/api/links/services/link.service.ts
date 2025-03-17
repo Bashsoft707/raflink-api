@@ -21,6 +21,11 @@ import {
   ProfileView,
   ProfileViewDocument,
 } from 'src/api/authentication/schema/profileViewTime.schema';
+import { UpdateShareCountDto } from 'src/api/authentication/dtos';
+import {
+  ShareCount,
+  ShareCountDocument,
+} from 'src/api/authentication/schema/shareCount.schema';
 
 @Injectable()
 export class LinkService {
@@ -33,6 +38,8 @@ export class LinkService {
     private readonly userModel: Model<UserDocument>,
     @InjectModel(ProfileView.name)
     private readonly profileViewModel: Model<ProfileViewDocument>,
+    @InjectModel(ShareCount.name)
+    private readonly shareCountModel: Model<ShareCountDocument>,
   ) {}
 
   async createUserLink(
@@ -496,6 +503,51 @@ export class LinkService {
         statusCode: HttpStatus.OK,
         message: 'User link info retrieved successfully.',
         data: { ...user, affiliateLinks: userLinks, categorizeLinks },
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async updateShareCount(id: string, dto: UpdateShareCountDto) {
+    try {
+      const userLink = await this.LinkModel.findById(id);
+
+      if (!userLink) {
+        throw new NotFoundException('User Link not found');
+      }
+
+      if (userLink.isDisabled) {
+        throw new BadRequestException('Link is disabled');
+      }
+
+      const updatedLink = await this.LinkModel.findByIdAndUpdate(
+        id,
+        { shareCount: userLink.shareCount + 1 },
+        { new: true },
+      );
+
+      if (!updatedLink) {
+        throw new InternalServerErrorException(
+          'Error in updating link share count',
+        );
+      }
+
+      const countRecord = await this.shareCountModel.create({
+        userId: userLink.userId,
+        linkId: userLink._id,
+        sharedData: 'link',
+        sharedTo: dto.sharedTo,
+        shareCount: dto.shareCount,
+        shareDate: new Date(),
+      });
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'User link share count updated successfully.',
+        data: { totalShares: updatedLink.shareCount, countRecord },
         error: null,
       };
     } catch (error) {

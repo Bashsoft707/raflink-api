@@ -16,6 +16,7 @@ import * as bcrypt from 'bcryptjs';
 import {
   OnboardingDto,
   TokenData,
+  UpdateShareCountDto,
   UpdateUserDto,
   UpdateViewTimeDto,
   ValidateOtpDto,
@@ -39,6 +40,7 @@ import {
   SetupStaffDto,
   StaffLoginDto,
 } from '../dtos/raflnk.dto';
+import { ShareCount, ShareCountDocument } from '../schema/shareCount.schema';
 // import { UpdateStaffDto } from '../dtos/raflnk.dto';
 
 @Injectable()
@@ -51,6 +53,8 @@ export class AuthService {
     private readonly raflinkModel: Model<RaflinkDocument>,
     @InjectModel(ProfileView.name)
     private profileViewModel: Model<ProfileViewDocument>,
+    @InjectModel(ShareCount.name)
+    private readonly shareCountModel: Model<ShareCountDocument>,
     @Inject(OtpService)
     private readonly otpService: OtpService,
     @Inject(JwtService)
@@ -1164,6 +1168,46 @@ export class AuthService {
         statusCode: HttpStatus.OK,
         message: 'User view time updated successfully.',
         data: { totalViews: updatedViewTime.profileViewTime, viewTimeRecord },
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async updateShareCount(username: string, dto: UpdateShareCountDto) {
+    try {
+      const user = await this.userModel.findOne({ username }).exec();
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      const updatedCount = await this.userModel.findByIdAndUpdate(
+        user._id,
+        { shareCount: user.shareCount + 1 },
+        { new: true },
+      );
+
+      if (!updatedCount) {
+        throw new InternalServerErrorException(
+          'Error in updating profile share count',
+        );
+      }
+
+      const countRecord = await this.shareCountModel.create({
+        userId: user._id,
+        sharedData: 'profile',
+        sharedTo: dto.sharedTo,
+        shareCount: dto.shareCount,
+        shareDate: new Date(),
+      });
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'User profile share count updated successfully.',
+        data: { totalShares: updatedCount?.shareCount, countRecord },
         error: null,
       };
     } catch (error) {

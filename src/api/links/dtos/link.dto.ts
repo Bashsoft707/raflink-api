@@ -96,6 +96,48 @@ export class CreateUserLinkDto {
     title: 'cuts',
   })
   cuts: number;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Discount type',
+    example: 'amount',
+    required: false,
+    title: 'discountType',
+  })
+  discountType: string;
+
+  @IsNumber()
+  @IsPositive()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Affiliate earnings',
+    example: 50,
+    required: false,
+    title: 'affiliateEarnings',
+  })
+  affiliateEarnings: number;
+
+  @IsNumber()
+  @IsPositive()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Discount amount',
+    example: 10,
+    required: false,
+    title: 'discountAmount',
+  })
+  discountAmount: number;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Earning type',
+    example: 'Affiliates',
+    required: false,
+    title: 'earningType',
+  })
+  earningType: string;
 }
 
 export class UpdateUserLinkDto {
@@ -182,6 +224,48 @@ export class UpdateUserLinkDto {
     title: 'cuts',
   })
   cuts: number;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Discount type',
+    example: 'amount',
+    required: false,
+    title: 'discountType',
+  })
+  discountType: string;
+
+  @IsNumber()
+  @IsPositive()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Affiliate earnings',
+    example: 50,
+    required: false,
+    title: 'affiliateEarnings',
+  })
+  affiliateEarnings: number;
+
+  @IsNumber()
+  @IsPositive()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Discount amount',
+    example: 10,
+    required: false,
+    title: 'discountAmount',
+  })
+  discountAmount: number;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Earning type',
+    example: 'Affiliates',
+    required: false,
+    title: 'earningType',
+  })
+  earningType: string;
 }
 
 export class UpdateLinkViewTimeDto {

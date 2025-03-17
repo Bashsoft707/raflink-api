@@ -5,7 +5,14 @@ import { CachesModule } from '../cache/cache.module';
 import { Link, LinkSchema, LinkClick, LinkClickSchema } from './schema';
 import { LinkController } from './controllers/link.controller';
 import { User, UserSchema } from '../authentication/schema';
-import { ProfileView, ProfileViewSchema } from '../authentication/schema/profileViewTime.schema';
+import {
+  ProfileView,
+  ProfileViewSchema,
+} from '../authentication/schema/profileViewTime.schema';
+import {
+  ShareCount,
+  ShareCountSchema,
+} from '../authentication/schema/shareCount.schema';
 
 @Module({
   imports: [
@@ -20,6 +27,7 @@ import { ProfileView, ProfileViewSchema } from '../authentication/schema/profile
       },
       { name: User.name, schema: UserSchema },
       { name: ProfileView.name, schema: ProfileViewSchema },
+      { name: ShareCount.name, schema: ShareCountSchema },
     ]),
     CachesModule,
   ],
