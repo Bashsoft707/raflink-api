@@ -25,8 +25,8 @@ export class OfferService {
     const data = {
       ...rest,
       durationName: duration.durationName,
-      startDate: new Date(duration.startDate),
-      endDate: new Date(duration.endDate),
+      startDate: duration.startDate ? new Date(duration.startDate) : null,
+      endDate: duration.endDate ? new Date(duration.endDate) : null,
     };
 
     try {
