@@ -33,6 +33,10 @@ export class DurationDto {
     { message: 'endDate must be a valid date string (YYYY-MM-DD)' },
   )
   endDate: string;
+
+  @IsNotEmpty()
+  @IsString()
+  durationName: string;
 }
 
 export class CreateOfferDto {
@@ -112,7 +116,11 @@ export class CreateOfferDto {
   @Type(() => DurationDto)
   @ApiProperty({
     description: 'The duration during which the offer will be available',
-    example: { startDate: '2025-02-26', endDate: '2025-03-03' },
+    example: {
+      startDate: '2025-02-26',
+      endDate: '2025-03-03',
+      durationName: '1 week',
+    },
     required: true,
   })
   duration: DurationDto;

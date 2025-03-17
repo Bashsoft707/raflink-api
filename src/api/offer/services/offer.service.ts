@@ -24,6 +24,7 @@ export class OfferService {
 
     const data = {
       ...rest,
+      durationName: duration.durationName,
       startDate: new Date(duration.startDate),
       endDate: new Date(duration.endDate),
     };
