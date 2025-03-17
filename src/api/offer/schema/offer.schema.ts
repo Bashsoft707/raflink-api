@@ -45,10 +45,10 @@ export class Offer {
   @Prop({ type: String, required: true })
   durationName: string;
 
-  @Prop({ type: Date, required: true })
+  @Prop({ type: Date, required: false })
   startDate: Date;
 
-  @Prop({ type: Date, required: true })
+  @Prop({ type: Date, required: false })
   endDate: Date;
 
   @Prop({ type: String, required: true })

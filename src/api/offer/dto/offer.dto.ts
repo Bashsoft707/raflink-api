@@ -18,7 +18,7 @@ import {
 } from 'class-validator';
 
 export class DurationDto {
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @IsDateString(
     {},
@@ -26,7 +26,7 @@ export class DurationDto {
   )
   startDate: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @IsDateString(
     {},
