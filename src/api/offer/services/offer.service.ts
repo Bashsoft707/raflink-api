@@ -170,15 +170,18 @@ export class OfferService {
         };
       }
 
-      const updatedOffer = this.OfferModel.findOneAndReplace(
-        { _id: offerId },
-        { $set: { status: 'deactivated' } },
-      );
+      offer.status = 'deactivated';
+      await offer.save();
+      // const updatedOffer = this.OfferModel.findOneAndReplace(
+      //   { _id: offerId },
+      //   { $set: { status: 'deactivated' } },
+      //   { new: true },
+      // );
       return {
         status: 'success',
         statusCode: HttpStatus.OK,
         message: 'Single offer deactivated',
-        data: updatedOffer,
+        data: offer,
         error: null,
       };
     } catch (error) {
