@@ -177,7 +177,7 @@ export const waitingListTemplate = `<!DOCTYPE html>
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                     <tr>
                         <td class="footer">
-                                <div class="social-links">
+                                <div class="social-icons">
                                     <a href="#" class="social-icon">
                                     <img
                                         src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1742298726/facebook_gyrgr2.png"
