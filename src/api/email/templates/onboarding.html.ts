@@ -55,24 +55,22 @@ export const onboardingTemplate = `<!DOCTYPE html>
                                                         <p style="width: 85%; margin: 1rem auto; font-family: 'Lato Regular', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; color: #666666; line-height: 1.7rem; text-align: center;">
                                                             If you experience any problems using raflink, kindly contact us at <a href="{raflink_email}">{raflink_email}</a> or send us a DM on our social media channels.
                                                         </p>
-                                                            update the social links to this on the email template 
-
                                                 <div class="social-links">
-                                                        <a href="#" class="social-icon">
+                                                    <a href="#" class="social-icon">
                                                         <img
-                                                            src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1740501549/facebook-logo_ofnr8r.svg"
+                                                            src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1742298726/facebook_gyrgr2.png"
                                                             alt="Facebook"
                                                         />
                                                         </a>
                                                         <a href="#" class="social-icon">
                                                         <img
-                                                            src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1740501547/instagram-logo_k8ib25.svg"
+                                                            src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1742298725/instagram_ntxelk.png"
                                                             alt="Instagram"
                                                         />
                                                         </a>
                                                         <a href="#" class="social-icon">
                                                         <img
-                                                            src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1740501547/x-logo_ej3czi.svg"
+                                                            src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1742298725/twitter_iobuam.png"
                                                             alt="Twitter"
                                                         />
                                                         </a>

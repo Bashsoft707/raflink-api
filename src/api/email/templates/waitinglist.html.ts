@@ -177,12 +177,26 @@ export const waitingListTemplate = `<!DOCTYPE html>
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                     <tr>
                         <td class="footer">
-                            <div class="social-icons">
-                                <a href="#"><img src="https://raflink.vercel.app/svgs/facebook_et.svg" alt="Facebook"></a>
-                                <a href="#"><img src="https://raflink.vercel.app/svgs/linkdn_et.svg" alt="LinkedIn"></a>
-                                <a href="#"><img src="https://raflink.vercel.app/svgs/instagram_et.svg" alt="Instagram"></a>
-                                <a href="#"><img src="https://raflink.vercel.app/svgs/twitter_et.svg" alt="Twitter"></a>
-                            </div>
+                                <div class="social-links">
+                                    <a href="#" class="social-icon">
+                                    <img
+                                        src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1742298726/facebook_gyrgr2.png"
+                                        alt="Facebook"
+                                    />
+                                    </a>
+                                    <a href="#" class="social-icon">
+                                    <img
+                                        src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1742298725/instagram_ntxelk.png"
+                                        alt="Instagram"
+                                    />
+                                    </a>
+                                    <a href="#" class="social-icon">
+                                    <img
+                                        src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1742298725/twitter_iobuam.png"
+                                        alt="Twitter"
+                                    />
+                                    </a>
+                                </div>
 
                             <p style="color: #666666;">Copyright (c) 2025 Raflinks. All rights reserved.</p>
                             <p style="color: #666666;">You are receiving this mail because you opted in via our website.</p>

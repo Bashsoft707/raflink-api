@@ -24,7 +24,7 @@ export const welcomeTemplate = `
 
         /* Header styles */
         .header {
-            background-image: url('https://raflink.vercel.app/images/email_template_header.jpeg');
+            background-image: url('https://res.cloudinary.com/dthbsdbxs/image/upload/v1741948737/email_template_header_hql8cl.jpg');
             background-size: cover;
             background-position: center;
             padding: 20px;
@@ -160,25 +160,25 @@ export const welcomeTemplate = `
                             <div class="feature-box">
                                 <div class="feature-title">Add Your Links</div>
                                 <p class="feature-description">Organize all your affiliate and personal links in one place.</p>
-                                <img src="https://raflink.vercel.app/images/add_your_link.png" alt="Add Your Links Interface" class="feature-image">
+                                <img src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1742296986/add_your_link_ba0udt.png" alt="Add Your Links Interface" class="feature-image">
                             </div>
 
                             <div class="feature-box">
                                 <div class="feature-title">Share & Earn</div>
                                 <p class="feature-description">Post your links anywhere and track your performance in real-time.</p>
-                                <img src="https://raflink.vercel.app/images/share_earn.png" alt="Share and Earn Interface" class="feature-image">
+                                <img src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1742296987/share_earn_edv5k6.png" alt="Share and Earn Interface" class="feature-image">
                             </div>
 
                             <div class="feature-box">
                                 <div class="feature-title">Discover Brands</div>
                                 <p class="feature-description">Explore affiliate opportunities that match your audience.</p>
-                                <img src="https://raflink.vercel.app/images/discover_brand.png" alt="Discover Brands Interface" class="feature-image">
+                                <img src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1742296987/discover_brand_papbju.png" alt="Discover Brands Interface" class="feature-image">
                             </div>
 
                             <p>You're just a few clicks away from making the most of your links!</p>
 
                             <a href="#" class="cta-button">
-                                Get Started <img src="https://raflink.vercel.app/svgs/arrow_forward.svg" alt="→" style="vertical-align: middle; margin-left: 8px;">
+                                Get Started &rarr;
                             </a>
 
                             <p>If you have any questions, we're here to help. Just hit reply!</p>
@@ -194,18 +194,32 @@ export const welcomeTemplate = `
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                     <tr>
                         <td class="footer">
-                            <div class="social-icons">
-                                <a href="#"><img src="https://raflink.vercel.app/svgs/facebook_et.svg" alt="Facebook"></a>
-                                <a href="#"><img src="https://raflink.vercel.app/svgs/linkdn_et.svg" alt="LinkedIn"></a>
-                                <a href="#"><img src="https://raflink.vercel.app/svgs/instagram_et.svg" alt="Instagram"></a>
-                                <a href="#"><img src="https://raflink.vercel.app/svgs/twitter_et.svg" alt="Twitter"></a>
-                            </div>
+                            <div class="social-links">
+                                    <a href="#" class="social-icon">
+                                    <img
+                                        src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1742298726/facebook_gyrgr2.png"
+                                        alt="Facebook"
+                                    />
+                                    </a>
+                                    <a href="#" class="social-icon">
+                                    <img
+                                        src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1742298725/instagram_ntxelk.png"
+                                        alt="Instagram"
+                                    />
+                                    </a>
+                                    <a href="#" class="social-icon">
+                                    <img
+                                        src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1742298725/twitter_iobuam.png"
+                                        alt="Twitter"
+                                    />
+                                    </a>
+                                </div>
 
                             <p style="color: #666666;">Copyright (c) 2025 Raflinks. All rights reserved.</p>
                             <p style="color: #666666;">You are receiving this mail because you opted in via our website.</p>
 
                             <h2>Visit the Website</h2>
-                            <img src="https://raflink.vercel.app/images/footer_image.png" alt="Raflinks Dashboard" class="footer-image">
+                            <img src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1742297198/footer_image_ceqhps.png" alt="Raflinks Dashboard" class="footer-image">
 
                             <div class="footer-links">
                                 <a href="#">Privacy Policy</a>
