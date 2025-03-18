@@ -21,6 +21,7 @@ import {
 import { Merchant, MerchantSchema } from './schema/merchants.schema';
 import { Raflink, RaflinkSchema } from './schema/raflink.schema';
 import { ShareCount, ShareCountSchema } from './schema/shareCount.schema';
+import { MerchantGoogleStrategy } from './auth/google.merchant.strategy';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { ShareCount, ShareCountSchema } from './schema/shareCount.schema';
     AccessTokenStrategy,
     RefreshTokenStrategy,
     GoogleStrategy,
+    MerchantGoogleStrategy,
   ],
   controllers: [AuthController],
   exports: [AuthService],
