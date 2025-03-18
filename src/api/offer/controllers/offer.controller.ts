@@ -113,9 +113,9 @@ export class OfferController {
     required: true,
     type: String,
   })
-  async deactivateOffer(@Req() req: Request, @Param() param: { id: string }) {
+  async toggleOffer(@Req() req: Request, @Param() param: { id: string }) {
     const { user: tokenData } = req;
     const { user } = tokenData as unknown as TokenData;
-    return await this.OfferService.deactivateOffer(user, param.id);
+    return await this.OfferService.toggleOfferStatus(user, param.id);
   }
 }
