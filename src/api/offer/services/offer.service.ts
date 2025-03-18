@@ -153,7 +153,7 @@ export class OfferService {
     }
   }
 
-  async deactivateOffer(userId: Types.ObjectId, offerId: string) {
+  async toggleOfferStatus(userId: Types.ObjectId, offerId: string) {
     try {
       const offer = await this.OfferModel.findOne({
         _id: offerId,
@@ -180,7 +180,7 @@ export class OfferService {
       return {
         status: 'success',
         statusCode: HttpStatus.OK,
-        message: 'Single offer deactivated',
+        message: `Offer ${offer.status}`,
         data: offer,
         error: null,
       };
