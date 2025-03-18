@@ -170,7 +170,7 @@ export class OfferService {
         };
       }
 
-      offer.status = 'deactivated';
+      offer.status = offer.status === 'active' ? 'deactivated' : 'active';
       await offer.save();
       // const updatedOffer = this.OfferModel.findOneAndReplace(
       //   { _id: offerId },

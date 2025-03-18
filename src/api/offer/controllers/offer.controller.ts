@@ -103,10 +103,10 @@ export class OfferController {
     return await this.OfferService.getOffersAnalytics(user);
   }
 
-  @Get('/deactivate/:id')
+  @Get('/toggle-status/:id')
   @UseGuards(AccessTokenGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Endpoint to get single offer detail' })
+  @ApiOperation({ summary: 'Endpoint to activate or deactivate offer' })
   @ApiParam({
     name: 'id',
     description: 'The ID of the offer to be deactivated',
