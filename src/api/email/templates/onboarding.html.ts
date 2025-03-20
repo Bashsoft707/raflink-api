@@ -59,7 +59,7 @@ export const onboardingTemplate = `<!DOCTYPE html>
                         align="center"
                         alt=""
                         src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1741948747/logo_qewk5k.png"
-                        style="border: 0; text-decoration: none; display: block; width: 20px; height: 20px"
+                        style="border: 0; text-decoration: none; display: block; width: 45px; height: 45px"
                       />
                     </div>
                   </td>

@@ -130,7 +130,7 @@ export const waitingListTemplate = `<!DOCTYPE html>
                     <tr>
                         <td class="header">
                             <div class="headerContent">
-                            <img src="https://raflink.vercel.app/images/logo.png" alt="Raflinks Logo" style="border: 0; display: block; width: 20px; height: 20px"">
+                            <img src="https://raflink.vercel.app/images/logo.png" alt="Raflinks Logo" style="border: 0; display: block; width: 45px; height: 45px"">
                             <h1 style="color: #1B3B36; margin-top: 20px;">You're on the List! 🎉</h1>
                             <p style="color: #666666;">Big things are coming, and you're first in line!</p>
                             </div>
