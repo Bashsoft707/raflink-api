@@ -149,7 +149,7 @@ export const welcomeTemplate = `
                   <img
                     src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1741948747/logo_qewk5k.png"
                     alt="Raflinks Logo"
-                    style="width: 80px"
+                    style="border: 0; display: block; width: 20px; height: 20px"
                   />
                   <h1 style="color: #1b3b36; margin-top: 20px">
                     Let's Start Tracking Your Links 🚀
@@ -303,4 +303,4 @@ export const welcomeTemplate = `
     </table>
   </body>
 </html>
-`; 
+`;

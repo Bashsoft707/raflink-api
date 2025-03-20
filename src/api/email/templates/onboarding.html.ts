@@ -59,7 +59,7 @@ export const onboardingTemplate = `<!DOCTYPE html>
                         align="center"
                         alt=""
                         src="https://res.cloudinary.com/dthbsdbxs/image/upload/v1741948747/logo_qewk5k.png"
-                        style="border: 0; text-decoration: none; display: block"
+                        style="border: 0; text-decoration: none; display: block; width: 20px; height: 20px"
                       />
                     </div>
                   </td>
@@ -158,8 +158,7 @@ export const onboardingTemplate = `<!DOCTYPE html>
                                   text-align: center;
                                 "
                               >
-                                We're here to make affiliate marketing easier
-                                for you.
+                                We’re here to make social monetization and affiliate marketing easier for you🔥.
                               </p>
                             </div>
                             <footer
@@ -185,8 +184,7 @@ export const onboardingTemplate = `<!DOCTYPE html>
                                 "
                               >
                                 If you experience any problems using raflink,
-                                kindly contact us at
-                                <a href="{raflink_email}">{raflink_email}</a> or
+                                kindly contact us at Raflinks or
                                 send us a DM on our social media channels.
                               </p>
                               <div
@@ -239,4 +237,4 @@ export const onboardingTemplate = `<!DOCTYPE html>
     </table>
   </body>
 </html>
-`; 
+`;
