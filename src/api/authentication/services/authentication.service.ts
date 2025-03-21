@@ -729,7 +729,6 @@ export class AuthService {
           email: googleUser.email,
           displayName: `${googleUser.firstName} ${googleUser.lastName}`,
           image: googleUser.picture,
-          verified: true,
         });
       }
 
