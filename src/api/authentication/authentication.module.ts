@@ -22,6 +22,7 @@ import { Merchant, MerchantSchema } from './schema/merchants.schema';
 import { Raflink, RaflinkSchema } from './schema/raflink.schema';
 import { ShareCount, ShareCountSchema } from './schema/shareCount.schema';
 import { MerchantGoogleStrategy } from './auth/google.merchant.strategy';
+import { OtpAuthService } from './services/otp-auth.service';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { MerchantGoogleStrategy } from './auth/google.merchant.strategy';
   providers: [
     AuthService,
     OtpService,
+    OtpAuthService,
     EncryptService,
     EmailService,
     EmailTemplateLoader,

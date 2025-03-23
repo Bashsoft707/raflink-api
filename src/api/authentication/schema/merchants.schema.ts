@@ -36,6 +36,16 @@ export class Merchant {
 
   //   @Prop({ default: null })
   //   stripeCustomerId: string;
+
+  @Prop({ type: Boolean, default: false })
+  twoFactorEnabled: boolean;
+
+  @Prop({ type: String, default: null })
+  @Exclude()
+  twoFactorSecret: string;
+
+  @Prop({ type: Boolean, default: false })
+  twoFactorVerified: boolean;
 }
 
 export type MerchantDocument = Merchant & Document<Types.ObjectId>;

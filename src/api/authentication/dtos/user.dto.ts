@@ -247,3 +247,15 @@ export class UpdateViewTimeDto {
   })
   viewTime: number;
 }
+
+export class VerifyTwoFactorDto {
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({
+    description: 'Token',
+    example: 'rtyuiutyr',
+    required: true,
+    title: 'token',
+  })
+  token: string;
+}

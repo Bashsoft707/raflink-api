@@ -23,6 +23,7 @@ import {
   UpdateUserDto,
   UpdateViewTimeDto,
   ValidateOtpDto,
+  VerifyTwoFactorDto,
   VerifyUsernameDto,
 } from '../dtos';
 import { AccessTokenGuard, RefreshTokenGuard } from '../auth';
@@ -66,6 +67,83 @@ export class AuthController {
   @ApiOperation({ summary: 'Endpoint to verify otp and save merchant' })
   async validateMerchantOtp(@Body() body: ValidateOtpDto) {
     return await this.authService.verifyOtpAndSaveMerchant(body);
+  }
+
+  @Get('generate/:type')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to enable two factor authentication' })
+  @ApiParam({
+    name: 'type',
+    description: 'The type of entity (user or merchant) trying to enable 2fa',
+    required: true,
+    type: String,
+  })
+  async generate(@Req() req: Request, @Param() param: { type: string }) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+
+    return await this.authService.enable2FA(user, param.type);
+  }
+
+  @Post('verify/:type')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to verify two factor authentication' })
+  @ApiParam({
+    name: 'type',
+    description: 'The type of entity (user or merchant) trying to enable 2fa',
+    required: true,
+    type: String,
+  })
+  async verify(
+    @Req() req: Request,
+    @Param() param: { type: string },
+    @Body() verifyDto: VerifyTwoFactorDto,
+  ) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return await this.authService.verify2FA(user, param.type, verifyDto.token);
+  }
+
+  @Post('validate/:type')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to validate two factor authentication' })
+  @ApiParam({
+    name: 'type',
+    description: 'The type of entity (user or merchant) trying to enable 2fa',
+    required: true,
+    type: String,
+  })
+  async validate2FA(
+    @Req() req: Request,
+    @Param() param: { type: string },
+    @Body() body: VerifyTwoFactorDto,
+  ) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return this.authService.validate2FALogin(user, param.type, body.token);
+  }
+
+  @Post('disable/:type')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to disable two factor authentication' })
+  @ApiParam({
+    name: 'type',
+    description: 'The type of entity (user or merchant) trying to enable 2fa',
+    required: true,
+    type: String,
+  })
+  async disable(
+    @Req() req: Request,
+    @Param() param: { type: string },
+    @Body() verifyDto: VerifyTwoFactorDto,
+  ) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return await this.authService.disable2FA(user, param.type, verifyDto.token);
   }
 
   // @Post('verify-raflink-otp')

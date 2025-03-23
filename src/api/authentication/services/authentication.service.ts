@@ -41,6 +41,7 @@ import {
   StaffLoginDto,
 } from '../dtos/raflnk.dto';
 import { ShareCount, ShareCountDocument } from '../schema/shareCount.schema';
+import { OtpAuthService } from './otp-auth.service';
 // import { UpdateStaffDto } from '../dtos/raflnk.dto';
 
 @Injectable()
@@ -57,6 +58,8 @@ export class AuthService {
     private readonly shareCountModel: Model<ShareCountDocument>,
     @Inject(OtpService)
     private readonly otpService: OtpService,
+    @Inject(OtpAuthService)
+    private readonly otpAuthService: OtpAuthService,
     @Inject(JwtService)
     private readonly jwtService: JwtService,
     @Inject(EmailService)
@@ -447,6 +450,217 @@ export class AuthService {
     ]);
     return { accessToken, refreshToken };
   }
+
+  async getUserType(userId, type) {
+    let user;
+
+    if (type === 'user') {
+      user = await this.userModel.findById(userId);
+    } else if (user === 'merchant') {
+      user = await this.merchantModel.findById(userId);
+    }
+
+    if (!user) {
+      throw new NotFoundException(`${type} not found`);
+    }
+
+    return user;
+  }
+
+  async updateUserType(id, type, data) {
+    console.log('id', id, data, type);
+    type === 'user'
+      ? await this.userModel.updateOne({ _id: id }, data, { new: true })
+      : await this.merchantModel.updateOne({ _id: id }, data, { new: true });
+  }
+
+  async enable2FA(userId: Types.ObjectId, userType: string) {
+    try {
+      const user = await this.getUserType(userId, userType);
+
+      const { secret, qrCode } = await this.otpAuthService.enable2FA(
+        user,
+        userId,
+        user.email,
+        userType,
+        async (id, data) => {
+          await this.updateUserType(id, userType, data);
+        },
+      );
+
+      return {
+        status: 'sucess',
+        statusCode: HttpStatus.OK,
+        message: `Two factor enabled for ${userType} successfully`,
+        data: { secret, qrCode },
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async verify2FA(userId: Types.ObjectId, userType: string, token: string) {
+    try {
+      const user = await this.getUserType(userId, userType);
+
+      const verified = await this.otpAuthService.verify2FA(
+        user,
+        userId,
+        userType,
+        token,
+        (user) => user.twoFactorSecret,
+        async (id, data) => {
+          await this.updateUserType(id, userType, data);
+        },
+      );
+
+      if (!verified) {
+        return {
+          status: 'fail',
+          statusCode: HttpStatus.FAILED_DEPENDENCY,
+          message: `Token verification failed`,
+          data: null,
+          error: null,
+        };
+      }
+
+      return {
+        status: 'sucess',
+        statusCode: HttpStatus.OK,
+        message: `Two factor verified for ${userType} successfully`,
+        data: verified,
+        error: null,
+      };
+    } catch (error) {
+      console.log('Error', error);
+      errorHandler(error);
+    }
+  }
+
+  async validate2FALogin(
+    userId: Types.ObjectId,
+    userType: string,
+    token: string,
+  ) {
+    try {
+      const user = await this.getUserType(userId, userType);
+
+      const { twoFactorSecret, twoFactorEnabled } = user;
+
+      const result = await this.otpAuthService.validate2FALogin(
+        userType,
+        token,
+        twoFactorSecret,
+        twoFactorEnabled,
+      );
+
+      if (!result) {
+        throw new InternalServerErrorException(
+          `Error in validating ${userType} two factor authentication`,
+        );
+      }
+
+      const tokenData: TokenData = {
+        user: user._id,
+        verified: user.verified,
+        email: user.email,
+      };
+
+      const { accessToken, refreshToken } = await this.getAndUpdateToken(
+        tokenData,
+        user,
+      );
+
+      return {
+        status: 'sucess',
+        statusCode: HttpStatus.OK,
+        message: `Two factor authentication validated for ${userType} successfully`,
+        data: { accessToken, refreshToken },
+        error: null,
+      };
+    } catch (error) {
+      console.log('Error', error);
+      errorHandler(error);
+    }
+  }
+
+  async disable2FA(userId: Types.ObjectId, userType: string, token: string) {
+    try {
+      const user = await this.getUserType(userId, userType);
+
+      const result = await this.otpAuthService.disable2FA(
+        user,
+        userId,
+        userType,
+        token,
+        (user) => user.twoFactorSecret,
+        (user) => user.twoFactorEnabled,
+        async (id, data) => {
+          await this.updateUserType(id, userType, data);
+        },
+      );
+
+      if (!result) {
+        return {
+          status: 'fail',
+          statusCode: HttpStatus.FAILED_DEPENDENCY,
+          message: `Token verification failed`,
+          data: null,
+          error: null,
+        };
+      }
+
+      return {
+        status: 'sucess',
+        statusCode: HttpStatus.OK,
+        message: `Two factor disabled for ${userType} successfully`,
+        data: result,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  // async verify2FALogin(
+  //   entityId: string,
+  //   token: string,
+  //   entityType: 'user' | 'merchant',
+  // ): Promise<any> {
+  //   const model = entityType === 'user' ? this.userModel : this.merchantModel;
+  //   const service =
+  //     entityType === 'user' ? this.user2FAService : this.merchant2FAService;
+
+  //   const entity = await model.findById(entityId);
+
+  //   if (!entity) {
+  //     throw new UnauthorizedException(`${entityType} not found`);
+  //   }
+
+  //   const isValid = await service.validate2FALogin(entityId, token);
+
+  //   if (!isValid) {
+  //     throw new UnauthorizedException('Invalid 2FA token');
+  //   }
+
+  //   // Create tokens after successful 2FA verification
+  //   const payload = {
+  //     email: entity.email,
+  //     sub: entity._id,
+  //     entityType,
+  //   };
+
+  //   return {
+  //     accessToken: this.jwtService.sign(payload),
+  //     refreshToken: this.jwtService.sign(payload, { expiresIn: '7d' }),
+  //     entity: {
+  //       _id: entity._id,
+  //       email: entity.email,
+  //       entityType,
+  //     },
+  //   };
+  // }
 
   async getUserInfo(userId: Types.ObjectId) {
     try {
