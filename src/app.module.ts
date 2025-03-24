@@ -39,7 +39,7 @@ import { TransactionModule } from './api/transaction/transaction.module';
     StripeModule.forRootAsync(),
     SubscriptionModule,
     TransactionModule,
-    // AdminModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [
