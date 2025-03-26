@@ -28,4 +28,15 @@ export class AdminController {
     // const { user } = tokenData as unknown as TokenData;
     return await this.adminService.getDashboardAnalyticsGraph(query);
   }
+
+  @Get('/user/view-time')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to get user info' })
+  async getProfileViewTime(
+    @Req() req: Request,
+    @Query() query: GraphFilterDto,
+  ) {
+    return await this.adminService.getViewTime(query);
+  }
 }
