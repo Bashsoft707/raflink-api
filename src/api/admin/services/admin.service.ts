@@ -299,21 +299,26 @@ export class AdminService {
   async getDashboardAnalytics() {
     try {
       // Get today's date
-      const today = new Date();
-      today.setHours(23, 59, 59, 999);
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+
+      const [todayUserCount, todayMerchantCount, todayOfferCount] =
+        await Promise.all([
+          this.userModel.countDocuments({ createdAt: { $gte: todayStart } }),
+          this.merchantModel.countDocuments({
+            createdAt: { $gte: todayStart },
+          }),
+          this.OfferModel.countDocuments({ createdAt: { $gte: todayStart } }),
+        ]);
+
+      console.log(todayUserCount);
+      console.log(todayMerchantCount);
+      console.log(todayOfferCount);
 
       // Get yesterday's date
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       yesterday.setHours(0, 0, 0, 0);
-
-      // Fetch total counts
-      const [totalUserCount, totalMerchantCount, totalOfferCount] =
-        await Promise.all([
-          this.userModel.countDocuments(),
-          this.merchantModel.countDocuments(),
-          this.OfferModel.countDocuments(),
-        ]);
 
       // Fetch yesterday's counts
       const [yesterdayUserCount, yesterdayMerchantCount, yesterdayOfferCount] =
@@ -338,26 +343,38 @@ export class AdminService {
           }),
         ]);
 
+      console.log(yesterdayUserCount);
+      console.log(yesterdayMerchantCount);
+      console.log(yesterdayOfferCount);
+
+      // Fetch total counts
+      const [totalUserCount, totalMerchantCount, totalOfferCount] =
+        await Promise.all([
+          this.userModel.countDocuments(),
+          this.merchantModel.countDocuments(),
+          this.OfferModel.countDocuments(),
+        ]);
+
       // Function to calculate percentage increase
       const calculatePercentageIncrease = (
-        total: number,
+        today: number,
         yesterday: number,
       ) => {
-        if (yesterday === 0) return total > 0 ? 100 : 0; // Avoid division by zero
-        return ((total - yesterday) / yesterday) * 100;
+        if (yesterday === 0) return today > 0 ? 100 : 0; // Avoid division by zero
+        return ((today - yesterday) / yesterday) * 100;
       };
 
       // Compute percentage increases
       const userGrowth = calculatePercentageIncrease(
-        totalUserCount,
+        todayUserCount,
         yesterdayUserCount,
       );
       const merchantGrowth = calculatePercentageIncrease(
-        totalMerchantCount,
+        todayMerchantCount,
         yesterdayMerchantCount,
       );
       const offerGrowth = calculatePercentageIncrease(
-        totalOfferCount,
+        todayOfferCount,
         yesterdayOfferCount,
       );
 
@@ -375,6 +392,83 @@ export class AdminService {
       return errorHandler(error);
     }
   }
+
+  // async getDashboardAnalytics() {
+  //   try {
+  //     // Get today's start & end time
+  //     const today = new Date();
+  //     today.setHours(0, 0, 0, 0);
+
+  //     const yesterday = new Date(today);
+  //     yesterday.setDate(yesterday.getDate() - 1);
+
+  //     // Fetch total counts
+  //     const [totalUserCount, totalMerchantCount, totalOfferCount] =
+  //       await Promise.all([
+  //         this.userModel.countDocuments(),
+  //         this.merchantModel.countDocuments(),
+  //         this.OfferModel.countDocuments(),
+  //       ]);
+
+  //     // Fetch yesterday's counts correctly
+  //     const [yesterdayUserCount, yesterdayMerchantCount, yesterdayOfferCount] =
+  //       await Promise.all([
+  //         this.userModel.countDocuments({
+  //           createdAt: { $gte: yesterday, $lt: today },
+  //         }),
+  //         this.merchantModel.countDocuments({
+  //           createdAt: { $gte: yesterday, $lt: today },
+  //         }),
+  //         this.OfferModel.countDocuments({
+  //           createdAt: { $gte: yesterday, $lt: today },
+  //         }),
+  //       ]);
+
+  //     // Function to calculate percentage increase
+  //     // const calculatePercentageIncrease = (
+  //     //   total: number,
+  //     //   yesterday: number,
+  //     // ) => {
+  //     //   if (yesterday === 0) return total > 0 ? 100 : 0; // Avoid division by zero
+  //     //   return ((total - yesterday) / yesterday) * 100;
+  //     // };
+
+  //     const calculatePercentageIncrease = (
+  //       total: number,
+  //       yesterday: number,
+  //     ) => {
+  //       if (yesterday === 0) return total > 0 ? 'N/A' : '0%'; // Avoid infinite growth
+  //       return (((total - yesterday) / yesterday) * 100).toFixed(2) + '%';
+  //     };
+
+  //     // Compute percentage increases
+  //     const userGrowth = calculatePercentageIncrease(
+  //       totalUserCount,
+  //       yesterdayUserCount,
+  //     );
+  //     const merchantGrowth = calculatePercentageIncrease(
+  //       totalMerchantCount,
+  //       yesterdayMerchantCount,
+  //     );
+  //     const offerGrowth = calculatePercentageIncrease(
+  //       totalOfferCount,
+  //       yesterdayOfferCount,
+  //     );
+
+  //     return {
+  //       totalUsers: totalUserCount,
+  //       userGrowth: userGrowth.toFixed(2) + '%',
+
+  //       totalMerchants: totalMerchantCount,
+  //       merchantGrowth: merchantGrowth.toFixed(2) + '%',
+
+  //       totalOffers: totalOfferCount,
+  //       offerGrowth: offerGrowth.toFixed(2) + '%',
+  //     };
+  //   } catch (error) {
+  //     return errorHandler(error);
+  //   }
+  // }
 
   async getDashboardAnalyticsGraph(query: GraphFilterDto) {
     try {
