@@ -8,6 +8,8 @@ import {
   MerchantDocument,
 } from '../../authentication/schema/merchants.schema';
 import { Offer, OfferDocument } from '../../offer/schema';
+import { GraphFilterDto } from '../../links/dtos';
+import { errorHandler } from '../../../utils';
 
 // const credentials = JSON.parse(fs.readFileSync('service-account.json', 'utf8'));
 
@@ -43,14 +45,331 @@ export class AdminService {
     //   },
     // });
 
-    const [userCount, merchantCount, offerCount] = await Promise.all([
-      this.userModel.countDocuments(),
-      this.merchantModel.countDocuments(),
-      this.OfferModel.countDocuments(),
-    ]);
+    try {
+      const [userCount, merchantCount, offerCount] = await Promise.all([
+        this.userModel.countDocuments(),
+        this.merchantModel.countDocuments(),
+        this.OfferModel.countDocuments(),
+      ]);
 
-    const responseData = { userCount, merchantCount, offerCount };
+      const responseData = { userCount, merchantCount, offerCount };
 
-    return responseData;
+      return responseData;
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  // async getDashboardAnalyticsGraph(query: GraphFilterDto) {
+  //   try {
+  //     const { startDate, endDate } = query;
+
+  //     const start = new Date(startDate);
+  //     const end = new Date(endDate);
+  //     end.setHours(23, 59, 59, 999); // Last millisecond of the day
+
+  //     const timeDiff = Number(end) - Number(start);
+  //     const dayCount = timeDiff / (1000 * 60 * 60 * 24);
+
+  //     let filterType: 'weekly' | 'monthly';
+  //     let groupByFormat: string;
+
+  //     if (dayCount >= 30) {
+  //       filterType = 'monthly';
+  //       groupByFormat = '%Y-%m'; // Group by month
+  //     } else {
+  //       filterType = 'weekly';
+  //       groupByFormat = '%Y-%m-%d'; // Group by day
+  //     }
+
+  //     // Function to fetch signups
+  //     const getSignUps = async (model: any) => {
+  //       return await model.aggregate([
+  //         {
+  //           $match: {
+  //             createdAt: { $gte: start, $lte: end },
+  //           },
+  //         },
+  //         {
+  //           $group: {
+  //             _id: {
+  //               $dateToString: { format: groupByFormat, date: '$createdAt' },
+  //             },
+  //             count: { $sum: 1 },
+  //           },
+  //         },
+  //         { $sort: { _id: 1 } },
+  //       ]);
+  //     };
+
+  //     // Fetch signups
+  //     const userSignUps = await getSignUps(this.userModel);
+  //     const merchantSignUps = await getSignUps(this.merchantModel);
+
+  //     // Combine results into a map
+  //     const signUpMap = new Map();
+  //     [...userSignUps, ...merchantSignUps].forEach(({ _id, count }) => {
+  //       signUpMap.set(_id, (signUpMap.get(_id) || 0) + count);
+  //     });
+
+  //     let finalData: { date: string; count: number }[] = [];
+
+  //     if (filterType === 'weekly') {
+  //       let allDates: string[] = [];
+  //       let current = new Date(start);
+
+  //       while (current <= end) {
+  //         allDates.push(current.toISOString().split('T')[0]); // YYYY-MM-DD format
+  //         current.setDate(current.getDate() + 1);
+  //       }
+
+  //       finalData = allDates.map((date) => ({
+  //         date,
+  //         count: signUpMap.get(date) || 0, // Default to 0 if no data
+  //       }));
+  //     } else {
+  //       let allMonths: string[] = [];
+  //       let current = new Date(start);
+  //       current.setDate(1); // Start at the first of the month
+
+  //       while (current <= end) {
+  //         allMonths.push(
+  //           `${current.toLocaleString('default', { month: 'long' })} ${current.getFullYear()}`,
+  //         );
+  //         current.setMonth(current.getMonth() + 1);
+  //       }
+
+  //       finalData = allMonths.map((month, index) => {
+  //         const [monthName, year] = month.split(' ');
+  //         const monthIndex =
+  //           new Date(Date.parse(`${monthName} 1, 2000`)).getMonth() + 1;
+
+  //         return {
+  //           date: month,
+  //           count:
+  //             signUpMap.get(`${year}-${String(monthIndex).padStart(2, '0')}`) ||
+  //             0,
+  //         };
+  //       });
+  //     }
+
+  //     return { filterType, data: finalData };
+  //   } catch (error) {
+  //     errorHandler(error);
+  //   }
+  // }
+
+  // async getDashboardAnalyticsGraph(query: GraphFilterDto) {
+  //   try {
+  //     const { startDate, endDate } = query;
+  //     const start = new Date(startDate);
+  //     const end = new Date(endDate);
+  //     end.setHours(23, 59, 59, 999);
+
+  //     const dayCount =
+  //       (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
+
+  //     const isMonthly = dayCount >= 30;
+  //     const filterType = isMonthly ? 'monthly' : 'weekly';
+  //     const groupByFormat = isMonthly ? '%Y-%m' : '%Y-%m-%d';
+
+  //     // Function to fetch signups
+  //     const getSignUps = async (model: any) => {
+  //       return model.aggregate([
+  //         { $match: { createdAt: { $gte: start, $lte: end } } },
+  //         {
+  //           $group: {
+  //             _id: {
+  //               $dateToString: { format: groupByFormat, date: '$createdAt' },
+  //             },
+  //             count: { $sum: 1 },
+  //           },
+  //         },
+  //         { $sort: { _id: 1 } },
+  //       ]);
+  //     };
+
+  //     // Fetch signups
+  //     const [userSignUps, merchantSignUps] = await Promise.all([
+  //       getSignUps(this.userModel),
+  //       getSignUps(this.merchantModel),
+  //     ]);
+
+  //     // Merge signup counts
+  //     const signUpMap = new Map<string, number>();
+  //     for (const { _id, count } of [...userSignUps, ...merchantSignUps]) {
+  //       signUpMap.set(_id, (signUpMap.get(_id) || 0) + count);
+  //     }
+
+  //     // Generate final data points
+  //     let finalData: { date: string; count: number }[] = [];
+  //     let current = new Date(start);
+
+  //     if (isMonthly) {
+  //       current.setDate(1);
+  //       while (current <= end) {
+  //         const dateKey = `${current.toLocaleString('default', { month: 'long' })} ${current.getFullYear()}`;
+  //         finalData.push({
+  //           date: dateKey,
+  //           count:
+  //             signUpMap.get(
+  //               `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}`,
+  //             ) || 0,
+  //         });
+  //         current.setMonth(current.getMonth() + 1);
+  //       }
+  //     } else {
+  //       while (current <= end) {
+  //         const dateKey = current.toISOString().split('T')[0];
+  //         finalData.push({ date: dateKey, count: signUpMap.get(dateKey) || 0 });
+  //         current.setDate(current.getDate() + 1);
+  //       }
+  //     }
+
+  //     return { filterType, data: finalData };
+  //   } catch (error) {
+  //     return errorHandler(error);
+  //   }
+  // }
+
+  // async getDashboardAnalyticsGraph(query: GraphFilterDto) {
+  //   try {
+  //     const { startDate, endDate } = query;
+  //     const start = new Date(startDate);
+  //     const end = new Date(endDate);
+  //     end.setHours(23, 59, 59, 999);
+
+  //     const year = start.getFullYear(); // Get the year from startDate
+  //     const isMonthly = true; // Always returning monthly data
+  //     const groupByFormat = '%Y-%m';
+
+  //     // Function to fetch signups
+  //     const getSignUps = async (model: any) => {
+  //       return model.aggregate([
+  //         {
+  //           $match: {
+  //             createdAt: {
+  //               $gte: new Date(`${year}-01-01`),
+  //               $lte: new Date(`${year}-12-31T23:59:59.999Z`),
+  //             },
+  //           },
+  //         },
+  //         {
+  //           $group: {
+  //             _id: {
+  //               $dateToString: { format: groupByFormat, date: '$createdAt' },
+  //             },
+  //             count: { $sum: 1 },
+  //           },
+  //         },
+  //         { $sort: { _id: 1 } },
+  //       ]);
+  //     };
+
+  //     // Fetch signups
+  //     const [userSignUps, merchantSignUps] = await Promise.all([
+  //       getSignUps(this.userModel),
+  //       getSignUps(this.merchantModel),
+  //     ]);
+
+  //     // Merge signup counts
+  //     const signUpMap = new Map<string, number>();
+  //     for (const { _id, count } of [...userSignUps, ...merchantSignUps]) {
+  //       signUpMap.set(_id, (signUpMap.get(_id) || 0) + count);
+  //     }
+
+  //     // Generate final data points for all 12 months
+  //     let finalData: { date: string; count: number }[] = [];
+  //     for (let month = 0; month < 12; month++) {
+  //       const dateKey = `${new Date(year, month).toLocaleString('default', { month: 'long' })} ${year}`;
+  //       const dbKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+
+  //       finalData.push({
+  //         date: dateKey,
+  //         count: signUpMap.get(dbKey) || 0,
+  //       });
+  //     }
+
+  //     return { filterType: 'monthly', data: finalData };
+  //   } catch (error) {
+  //     return errorHandler(error);
+  //   }
+  // }
+
+  async getDashboardAnalyticsGraph(query: GraphFilterDto) {
+    try {
+      const { startDate, endDate } = query;
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+
+      const dayCount =
+        (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
+      const isMonthly = dayCount >= 30;
+      const filterType = isMonthly ? 'monthly' : 'weekly';
+      const year = start.getFullYear();
+
+      // Determine MongoDB group format
+      const groupByFormat = isMonthly ? '%Y-%m' : '%Y-%m-%d';
+
+      // Function to fetch signups
+      const getSignUps = async (model: any) => {
+        return model.aggregate([
+          { $match: { createdAt: { $gte: start, $lte: end } } },
+          {
+            $group: {
+              _id: {
+                $dateToString: { format: groupByFormat, date: '$createdAt' },
+              },
+              count: { $sum: 1 },
+            },
+          },
+          { $sort: { _id: 1 } },
+        ]);
+      };
+
+      // Fetch signups
+      const [userSignUps, merchantSignUps] = await Promise.all([
+        getSignUps(this.userModel),
+        getSignUps(this.merchantModel),
+      ]);
+
+      // Merge signup counts
+      const signUpMap = new Map<string, number>();
+      for (const { _id, count } of [...userSignUps, ...merchantSignUps]) {
+        signUpMap.set(_id, (signUpMap.get(_id) || 0) + count);
+      }
+
+      // Generate final data points
+      let finalData: { date: string; count: number }[] = [];
+
+      if (isMonthly) {
+        // Monthly: Iterate from January to December
+        for (let month = 0; month < 12; month++) {
+          const dateKey = `${new Date(year, month).toLocaleString('default', { month: 'long' })} ${year}`;
+          const dbKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+
+          finalData.push({
+            date: dateKey,
+            count: signUpMap.get(dbKey) || 0,
+          });
+        }
+      } else {
+        // Weekly: Iterate over each day in the range
+        let current = new Date(start);
+        while (current <= end) {
+          const dateKey = current.toISOString().split('T')[0]; // Format YYYY-MM-DD
+          finalData.push({
+            date: dateKey,
+            count: signUpMap.get(dateKey) || 0,
+          });
+          current.setDate(current.getDate() + 1);
+        }
+      }
+
+      return { filterType, data: finalData };
+    } catch (error) {
+      return errorHandler(error);
+    }
   }
 }
