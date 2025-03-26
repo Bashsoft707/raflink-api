@@ -623,45 +623,6 @@ export class AuthService {
     }
   }
 
-  // async verify2FALogin(
-  //   entityId: string,
-  //   token: string,
-  //   entityType: 'user' | 'merchant',
-  // ): Promise<any> {
-  //   const model = entityType === 'user' ? this.userModel : this.merchantModel;
-  //   const service =
-  //     entityType === 'user' ? this.user2FAService : this.merchant2FAService;
-
-  //   const entity = await model.findById(entityId);
-
-  //   if (!entity) {
-  //     throw new UnauthorizedException(`${entityType} not found`);
-  //   }
-
-  //   const isValid = await service.validate2FALogin(entityId, token);
-
-  //   if (!isValid) {
-  //     throw new UnauthorizedException('Invalid 2FA token');
-  //   }
-
-  //   // Create tokens after successful 2FA verification
-  //   const payload = {
-  //     email: entity.email,
-  //     sub: entity._id,
-  //     entityType,
-  //   };
-
-  //   return {
-  //     accessToken: this.jwtService.sign(payload),
-  //     refreshToken: this.jwtService.sign(payload, { expiresIn: '7d' }),
-  //     entity: {
-  //       _id: entity._id,
-  //       email: entity.email,
-  //       entityType,
-  //     },
-  //   };
-  // }
-
   async getUserInfo(userId: Types.ObjectId) {
     try {
       const user = await this.userModel

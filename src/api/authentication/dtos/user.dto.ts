@@ -10,6 +10,7 @@ import {
   ValidateNested,
   IsPositive,
   IsObject,
+  IsBoolean,
 } from 'class-validator';
 import { Types } from 'mongoose';
 
@@ -170,6 +171,16 @@ export class UpdateUserDto {
     title: 'templateBackground',
   })
   templateBackground: string;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Hide logo',
+    example: false,
+    required: false,
+    title: 'hidLogo',
+  })
+  hideLogo: boolean;
 }
 
 export type TokenData = {

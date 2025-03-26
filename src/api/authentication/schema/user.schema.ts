@@ -67,12 +67,8 @@ export class User {
   @Prop({ type: Number, default: 0 })
   shareCount: number;
 
-  // @Prop({ type: String, default: null })
-  // @Exclude()
-  // twoFactorSecret: string;
-
-  // @Prop({ type: Boolean, default: false })
-  // isTwoFactorEnabled: boolean;
+  @Prop({ type: Boolean, default: false })
+  hideLogo: boolean;
 
   @Prop({ type: Boolean, default: false })
   twoFactorEnabled: boolean;
