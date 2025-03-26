@@ -27,38 +27,38 @@ export class AdminService {
     @InjectModel(Offer.name)
     private readonly OfferModel: Model<OfferDocument>,
   ) {}
-  async getDashboardAnalytics() {
-    // const analytics = google.analyticsreporting_v4({
-    //   version: 'v4',
-    //   auth,
-    // });
+  // async getDashboardAnalytics() {
+  //   // const analytics = google.analyticsreporting_v4({
+  //   //   version: 'v4',
+  //   //   auth,
+  //   // });
 
-    // const response = await analytics.reports.batchGet({
-    //   requestBody: {
-    //     reportRequests: [
-    //       {
-    //         viewId: 'YOUR_VIEW_ID', // Replace with your GA4 View ID
-    //         dateRanges: [{ startDate: '7daysAgo', endDate: 'today' }],
-    //         metrics: [{ expression: 'ga:activeUsers' }],
-    //       },
-    //     ],
-    //   },
-    // });
+  //   // const response = await analytics.reports.batchGet({
+  //   //   requestBody: {
+  //   //     reportRequests: [
+  //   //       {
+  //   //         viewId: 'YOUR_VIEW_ID', // Replace with your GA4 View ID
+  //   //         dateRanges: [{ startDate: '7daysAgo', endDate: 'today' }],
+  //   //         metrics: [{ expression: 'ga:activeUsers' }],
+  //   //       },
+  //   //     ],
+  //   //   },
+  //   // });
 
-    try {
-      const [userCount, merchantCount, offerCount] = await Promise.all([
-        this.userModel.countDocuments(),
-        this.merchantModel.countDocuments(),
-        this.OfferModel.countDocuments(),
-      ]);
+  //   try {
+  //     const [userCount, merchantCount, offerCount] = await Promise.all([
+  //       this.userModel.countDocuments(),
+  //       this.merchantModel.countDocuments(),
+  //       this.OfferModel.countDocuments(),
+  //     ]);
 
-      const responseData = { userCount, merchantCount, offerCount };
+  //     const responseData = { userCount, merchantCount, offerCount };
 
-      return responseData;
-    } catch (error) {
-      errorHandler(error);
-    }
-  }
+  //     return responseData;
+  //   } catch (error) {
+  //     errorHandler(error);
+  //   }
+  // }
 
   // async getDashboardAnalyticsGraph(query: GraphFilterDto) {
   //   try {
@@ -295,6 +295,86 @@ export class AdminService {
   //     return errorHandler(error);
   //   }
   // }
+
+  async getDashboardAnalytics() {
+    try {
+      // Get today's date
+      const today = new Date();
+      today.setHours(23, 59, 59, 999);
+
+      // Get yesterday's date
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      yesterday.setHours(0, 0, 0, 0);
+
+      // Fetch total counts
+      const [totalUserCount, totalMerchantCount, totalOfferCount] =
+        await Promise.all([
+          this.userModel.countDocuments(),
+          this.merchantModel.countDocuments(),
+          this.OfferModel.countDocuments(),
+        ]);
+
+      // Fetch yesterday's counts
+      const [yesterdayUserCount, yesterdayMerchantCount, yesterdayOfferCount] =
+        await Promise.all([
+          this.userModel.countDocuments({
+            createdAt: {
+              $gte: new Date(yesterday.getTime() - 86400000),
+              $lte: yesterday,
+            },
+          }),
+          this.merchantModel.countDocuments({
+            createdAt: {
+              $gte: new Date(yesterday.getTime() - 86400000),
+              $lte: yesterday,
+            },
+          }),
+          this.OfferModel.countDocuments({
+            createdAt: {
+              $gte: new Date(yesterday.getTime() - 86400000),
+              $lte: yesterday,
+            },
+          }),
+        ]);
+
+      // Function to calculate percentage increase
+      const calculatePercentageIncrease = (
+        total: number,
+        yesterday: number,
+      ) => {
+        if (yesterday === 0) return total > 0 ? 100 : 0; // Avoid division by zero
+        return ((total - yesterday) / yesterday) * 100;
+      };
+
+      // Compute percentage increases
+      const userGrowth = calculatePercentageIncrease(
+        totalUserCount,
+        yesterdayUserCount,
+      );
+      const merchantGrowth = calculatePercentageIncrease(
+        totalMerchantCount,
+        yesterdayMerchantCount,
+      );
+      const offerGrowth = calculatePercentageIncrease(
+        totalOfferCount,
+        yesterdayOfferCount,
+      );
+
+      return {
+        totalUsers: totalUserCount,
+        userGrowth: userGrowth.toFixed(2) + '%',
+
+        totalMerchants: totalMerchantCount,
+        merchantGrowth: merchantGrowth.toFixed(2) + '%',
+
+        totalOffers: totalOfferCount,
+        offerGrowth: offerGrowth.toFixed(2) + '%',
+      };
+    } catch (error) {
+      return errorHandler(error);
+    }
+  }
 
   async getDashboardAnalyticsGraph(query: GraphFilterDto) {
     try {
