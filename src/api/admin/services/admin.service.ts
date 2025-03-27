@@ -2,7 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 // import * as google from 'googleapis';
 import { User, UserDocument } from '../../authentication/schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import {
   Merchant,
   MerchantDocument,
@@ -14,6 +14,11 @@ import {
   ProfileView,
   ProfileViewDocument,
 } from 'src/api/authentication/schema/profileViewTime.schema';
+
+import {
+  Raflink,
+  RaflinkDocument,
+} from '../../authentication/schema/raflink.schema';
 
 // const credentials = JSON.parse(fs.readFileSync('service-account.json', 'utf8'));
 
@@ -32,6 +37,8 @@ export class AdminService {
     private readonly OfferModel: Model<OfferDocument>,
     @InjectModel(ProfileView.name)
     private readonly profileViewModel: Model<ProfileViewDocument>,
+    @InjectModel(Raflink.name)
+    private readonly raflinkModel: Model<RaflinkDocument>,
   ) {}
   // async getDashboardAnalytics() {
   //   // const analytics = google.analyticsreporting_v4({
@@ -777,6 +784,34 @@ export class AdminService {
         statusCode: HttpStatus.OK,
         message: 'User profile views retrieved successfully.',
         data: analyticsData,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+  async getStaffs() {
+    try {
+      const staffs = await this.raflinkModel.find({ role: 'staff' });
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'Staffs retrieved successfully.',
+        data: staffs,
+      };
+    } catch (error) {
+      return errorHandler(error);
+    }
+  }
+
+  async deleteStaff(id: Types.ObjectId) {
+    try {
+      const deletedStaff = await this.raflinkModel.findByIdAndDelete(id);
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'User deleted successfully.',
+        data: null,
       };
     } catch (error) {
       errorHandler(error);

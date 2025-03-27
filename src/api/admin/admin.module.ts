@@ -13,6 +13,10 @@ import {
   MerchantSchema,
 } from '../authentication/schema/merchants.schema';
 import { Offer, OfferSchema } from '../offer/schema';
+import {
+  Raflink,
+  RaflinkSchema,
+} from '../authentication/schema/raflink.schema';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -35,6 +39,10 @@ import { Offer, OfferSchema } from '../offer/schema';
       {
         name: Offer.name,
         schema: OfferSchema,
+      },
+      {
+        name: Raflink.name,
+        schema: RaflinkSchema,
       },
     ]),
   ],
