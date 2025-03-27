@@ -456,7 +456,7 @@ export class AuthService {
 
     if (type === 'user') {
       user = await this.userModel.findById(userId);
-    } else if (user === 'merchant') {
+    } else if (type === 'merchant') {
       user = await this.merchantModel.findById(userId);
     }
 
@@ -468,7 +468,6 @@ export class AuthService {
   }
 
   async updateUserType(id, type, data) {
-    console.log('id', id, data, type);
     type === 'user'
       ? await this.userModel.updateOne({ _id: id }, data, { new: true })
       : await this.merchantModel.updateOne({ _id: id }, data, { new: true });

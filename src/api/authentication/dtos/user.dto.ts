@@ -264,7 +264,7 @@ export class VerifyTwoFactorDto {
   @IsString()
   @ApiProperty({
     description: 'Token',
-    example: 'rtyuiutyr',
+    example: '204509',
     required: true,
     title: 'token',
   })
