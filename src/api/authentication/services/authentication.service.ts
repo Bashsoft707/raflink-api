@@ -488,7 +488,7 @@ export class AuthService {
       );
 
       return {
-        status: 'sucess',
+        status: 'success',
         statusCode: HttpStatus.OK,
         message: `Two factor enabled for ${userType} successfully`,
         data: { secret, qrCode },
@@ -515,17 +515,11 @@ export class AuthService {
       );
 
       if (!verified) {
-        return {
-          status: 'fail',
-          statusCode: HttpStatus.FAILED_DEPENDENCY,
-          message: `Token verification failed`,
-          data: null,
-          error: null,
-        };
+        throw new InternalServerErrorException('Token verification failed');
       }
 
       return {
-        status: 'sucess',
+        status: 'success',
         statusCode: HttpStatus.OK,
         message: `Two factor verified for ${userType} successfully`,
         data: verified,
@@ -572,7 +566,7 @@ export class AuthService {
       );
 
       return {
-        status: 'sucess',
+        status: 'success',
         statusCode: HttpStatus.OK,
         message: `Two factor authentication validated for ${userType} successfully`,
         data: { accessToken, refreshToken },
@@ -601,17 +595,11 @@ export class AuthService {
       );
 
       if (!result) {
-        return {
-          status: 'fail',
-          statusCode: HttpStatus.FAILED_DEPENDENCY,
-          message: `Token verification failed`,
-          data: null,
-          error: null,
-        };
+        throw new InternalServerErrorException('Token verification failed');
       }
 
       return {
-        status: 'sucess',
+        status: 'success',
         statusCode: HttpStatus.OK,
         message: `Two factor disabled for ${userType} successfully`,
         data: result,
