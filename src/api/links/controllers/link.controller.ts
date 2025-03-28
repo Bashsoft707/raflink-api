@@ -18,10 +18,10 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import {
+  CreateCategoryDto,
   CreateUserLinkDto,
   GraphFilterDto,
   UpdateClickCountDto,
-  UpdateLinkViewTimeDto,
   UpdateUserLinkDto,
 } from '../dtos';
 import { AccessTokenGuard } from '../../authentication/auth';
@@ -171,5 +171,61 @@ export class LinkController {
     @Body() body: UpdateShareCountDto,
   ) {
     return await this.LinkService.updateShareCount(param.id, body);
+  }
+
+  @Post('/category')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to create category' })
+  async createCategory(@Req() req: Request, @Body() body: CreateCategoryDto) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return await this.LinkService.createCategory(user as any, body);
+  }
+
+  @Get('/category')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to get categories' })
+  async getCategories(@Req() req: Request) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return await this.LinkService.getCategory(user);
+  }
+
+  @Patch('/category/:id')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to update category' })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the user category to update',
+    required: true,
+    type: String,
+  })
+  async updateCategory(
+    @Param() param: { id: string },
+    @Req() req: Request,
+    @Body() body: CreateCategoryDto,
+  ) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return await this.LinkService.updateCategory(param.id, user, body);
+  }
+
+  @Delete('/category/:id')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to update category' })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the user category to delete',
+    required: true,
+    type: String,
+  })
+  async deleteCategory(@Param() param: { id: string }, @Req() req: Request) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return await this.LinkService.deleteCategory(param.id, user);
   }
 }

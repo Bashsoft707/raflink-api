@@ -10,6 +10,7 @@ import {
   IsDateString,
   IsObject,
   Min,
+  IsMongoId,
 } from 'class-validator';
 import { TEMPLATE_LINK_LAYOUT } from '../../../constants';
 
@@ -65,22 +66,11 @@ export class CreateUserLinkDto {
   })
   lockLink: boolean;
 
-  // @IsNumber()
-  // @IsPositive()
-  // @IsOptional()
-  // @ApiProperty({
-  //   description: 'Link index',
-  //   example: 5,
-  //   required: false,
-  //   title: 'linkIndex',
-  // })
-  // linkIndex: number;
-
-  @IsString()
+  @IsMongoId()
   @IsOptional()
   @ApiProperty({
     description: 'Link category',
-    example: 'others',
+    example: '67b6c6f202cc89efe1d651tn',
     required: false,
     title: 'category',
   })
@@ -204,11 +194,11 @@ export class UpdateUserLinkDto {
   })
   linkIndex: number;
 
-  @IsString()
+  @IsMongoId()
   @IsOptional()
   @ApiProperty({
     description: 'Link category',
-    example: 'others',
+    example: '67b6c6f202cc89efe1d651tn',
     required: false,
     title: 'category',
   })
@@ -346,4 +336,16 @@ export class UpdateClickCountDto {
     country?: string;
     city?: string;
   };
+}
+
+export class CreateCategoryDto {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Category name',
+    example: 'Amazon products',
+    required: true,
+    title: 'categoryName',
+  })
+  categoryName: string;
 }

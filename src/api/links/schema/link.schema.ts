@@ -37,8 +37,12 @@ export class Link {
   @Prop({ type: Number, default: 0 })
   viewTime: number;
 
-  @Prop({ type: String })
-  category: string;
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'Category',
+    index: true,
+  })
+  category: MongooseSchema.Types.ObjectId;
 
   @Prop({ type: Number })
   linkIndex: number;

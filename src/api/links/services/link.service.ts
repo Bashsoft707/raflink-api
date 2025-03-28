@@ -8,6 +8,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import {
+  CreateCategoryDto,
   CreateUserLinkDto,
   GraphFilterDto,
   UpdateClickCountDto,
@@ -26,6 +27,7 @@ import {
   ShareCount,
   ShareCountDocument,
 } from 'src/api/authentication/schema/shareCount.schema';
+import { Category, CategoryDocument } from '../schema/category.schema';
 
 @Injectable()
 export class LinkService {
@@ -40,6 +42,8 @@ export class LinkService {
     private readonly profileViewModel: Model<ProfileViewDocument>,
     @InjectModel(ShareCount.name)
     private readonly shareCountModel: Model<ShareCountDocument>,
+    @InjectModel(Category.name)
+    private readonly categoryModel: Model<CategoryDocument>,
   ) {}
 
   async createUserLink(
@@ -51,6 +55,16 @@ export class LinkService {
         .sort({ linkIndex: -1 })
         .select('linkIndex')
         .exec();
+
+      if (createLinkDto.category) {
+        const category = await this.categoryModel
+          .findOne({ userId, _id: createLinkDto.category })
+          .exec();
+
+        if (!category) {
+          throw new BadRequestException('Category not found');
+        }
+      }
 
       const newLinkIndex = lastLink ? lastLink.linkIndex + 1 : 0;
 
@@ -78,7 +92,9 @@ export class LinkService {
 
   async getUserLinks(userId: Types.ObjectId) {
     try {
-      const userLinks = await this.LinkModel.find({ userId }, '-userId').exec();
+      const userLinks = await this.LinkModel.find({ userId }, '-userId')
+        .populate('category', 'categoryName')
+        .exec();
 
       return {
         status: 'success',
@@ -108,6 +124,16 @@ export class LinkService {
         throw new BadRequestException("Link doesn't belong to user");
       }
 
+      if (updateLinkDto.category) {
+        const category = await this.categoryModel
+          .findOne({ userId: user, _id: updateLinkDto.category })
+          .exec();
+
+        if (!category) {
+          throw new BadRequestException('Category not found');
+        }
+      }
+
       const updatedUserLink = await this.LinkModel.findByIdAndUpdate(
         id,
         updateLinkDto,
@@ -115,6 +141,10 @@ export class LinkService {
           new: true,
         },
       );
+
+      if (!updatedUserLink) {
+        throw new InternalServerErrorException('Failed to update Link');
+      }
 
       return {
         status: 'success',
@@ -480,15 +510,16 @@ export class LinkService {
         throw new NotFoundException('User not found');
       }
 
-      const userLinks = await this.LinkModel.find(
+      const userLinks: any = await this.LinkModel.find(
         { userId: user._id },
         '-__v -createdAt -updatedAt',
       )
+        .populate('category', 'categoryName')
         .lean()
         .exec();
 
       const categorizeLinks = userLinks.reduce((acc, link) => {
-        const category = link.category || 'Uncategorized';
+        const category = link.category?.categoryName || 'Uncategorized';
 
         if (!acc[category]) {
           acc[category] = [];
@@ -498,11 +529,22 @@ export class LinkService {
         return acc;
       }, {});
 
+      const formattedCategorizedLinks = Object.entries(categorizeLinks).map(
+        ([categoryName, links]) => ({
+          categoryName,
+          links,
+        }),
+      );
+
       return {
         status: 'success',
         statusCode: HttpStatus.OK,
         message: 'User link info retrieved successfully.',
-        data: { ...user, affiliateLinks: userLinks, categorizeLinks },
+        data: {
+          ...user,
+          affiliateLinks: userLinks,
+          categorizeLinks: formattedCategorizedLinks,
+        },
         error: null,
       };
     } catch (error) {
@@ -548,6 +590,135 @@ export class LinkService {
         statusCode: HttpStatus.OK,
         message: 'User link share count updated successfully.',
         data: { totalShares: updatedLink.shareCount, countRecord },
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async createCategory(userId: Types.ObjectId, dto: CreateCategoryDto) {
+    try {
+      const { categoryName } = dto;
+
+      const exisitingCategory = await this.categoryModel
+        .findOne({ userId, categoryName: categoryName.toLowerCase() })
+        .exec();
+
+      if (exisitingCategory) {
+        throw new BadRequestException(
+          `Category ${categoryName} already exists`,
+        );
+      }
+
+      const newCategory = await this.categoryModel.create({
+        userId,
+        categoryName,
+      });
+
+      if (!newCategory) {
+        throw new InternalServerErrorException('Failed to create category');
+      }
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.CREATED,
+        message: 'Category created successfully.',
+        data: newCategory,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async getCategory(userId: Types.ObjectId) {
+    try {
+      const category = await this.categoryModel
+        .find({ userId }, '-userId')
+        .exec();
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.CREATED,
+        message: 'Categories retrieved successfully.',
+        data: category,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async updateCategory(
+    id: string,
+    user: Types.ObjectId,
+    dto: CreateCategoryDto,
+  ) {
+    try {
+      const category = await this.categoryModel.findById(id);
+
+      if (!category) {
+        throw new NotFoundException('Category not found');
+      }
+
+      if (category.userId?.toString() !== user.toString()) {
+        throw new BadRequestException("Link doesn't belong to user");
+      }
+
+      const exisitingCategory = await this.categoryModel
+        .findOne({ userId: user, categoryName: dto.categoryName.toLowerCase() })
+        .exec();
+
+      if (exisitingCategory) {
+        throw new BadRequestException(
+          `Category ${dto.categoryName} already exists`,
+        );
+      }
+
+      const updatedCategory = await this.categoryModel.findByIdAndUpdate(
+        id,
+        dto,
+        {
+          new: true,
+        },
+      );
+
+      if (!updatedCategory) {
+        throw new InternalServerErrorException('Failed to update category');
+      }
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'Category updated successfully.',
+        data: updatedCategory,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async deleteCategory(id: string, user: Types.ObjectId) {
+    try {
+      const category = await this.categoryModel.findById(id).exec();
+
+      if (!category) {
+        throw new NotFoundException('Category not found');
+      }
+
+      if (category.userId?.toString() !== user.toString()) {
+        throw new BadRequestException("Link doesn't belong to user");
+      }
+
+      await category.deleteOne();
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'Category deleted successfully.',
+        data: null,
         error: null,
       };
     } catch (error) {
