@@ -557,4 +557,27 @@ export class SubscriptionService {
       errorHandler(error);
     }
   }
+
+  async validateCoupon(coupon: string) {
+    try {
+      console.log('got here');
+      const couponDetails = await this.stripeService.validateCouponCode(coupon);
+
+      console.log('Coupon details:', couponDetails);
+
+      if (!couponDetails) {
+        throw new NotFoundException('Coupon not found');
+      }
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'Coupon is valid',
+        data: couponDetails,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
 }

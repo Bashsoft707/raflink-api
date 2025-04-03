@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import Stripe from 'stripe';
 
 @Injectable()
@@ -108,6 +108,41 @@ export class StripeService {
   async getCustomers(): Promise<Stripe.Customer[]> {
     const customers = await this.stripe.customers.list();
     return customers.data;
+  }
+
+  // async validateCouponCode(couponCode: string): Promise<Stripe.Coupon> {
+  //   try {
+  //     console.log('couponCode', couponCode);
+  //     const coupon = await this.stripe.coupons.retrieve(couponCode);
+  //     console.log('coupon', coupon);
+  //     if (coupon.valid) {
+  //       return coupon;
+  //     } else {
+  //       throw new Error('Invalid coupon code');
+  //     }
+  //   } catch (error) {
+  //     throw new Error(`Error validating coupon code: ${error.message}`);
+  //   }
+  // }
+
+  async validateCouponCode(couponCode: string): Promise<Stripe.Coupon> {
+    try {
+      console.log('couponCode', couponCode);
+      const coupon = await this.stripe.coupons.retrieve(couponCode);
+      console.log('coupon', coupon);
+      if (coupon.valid) {
+        return coupon;
+      } else {
+        throw new BadRequestException('Invalid coupon code');
+      }
+    } catch (error) {
+      if (error.type === 'StripeInvalidRequestError') {
+        throw new NotFoundException('Coupon not found');
+      }
+      throw new InternalServerErrorException(
+        `Error validating coupon code: ${error.message}`,
+      );
+    }
   }
 
   async createTestPaymentMethod(): Promise<string> {

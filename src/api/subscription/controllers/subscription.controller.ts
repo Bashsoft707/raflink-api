@@ -97,6 +97,19 @@ export class SubscriptionController {
     return await this.subscriptionService.deleteSubscriptionPlan(param.id);
   }
 
+  @Get('coupon/:code')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to validate coupon code' })
+  @ApiParam({
+    name: 'code',
+    description: 'The coupon code to validate',
+    required: true,
+    type: String,
+  })
+  async validateCoupon(@Param() param: { code: string }) {
+    return await this.subscriptionService.validateCoupon(param.code);
+  }
+
   @UseGuards(AccessTokenGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Endpoint to create subscription' })
