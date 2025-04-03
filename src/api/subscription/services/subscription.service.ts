@@ -336,7 +336,7 @@ export class SubscriptionService {
         status: 'success',
         statusCode: HttpStatus.CREATED,
         message: 'User subscription created successfully',
-        data: subscription,
+        data: newSubscription,
         error: null,
       };
     } catch (error) {
