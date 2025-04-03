@@ -584,4 +584,20 @@ export class SubscriptionService {
       errorHandler(error);
     }
   }
+
+  async getCoupons() {
+    try {
+      const coupons = await this.stripeService.getCoupons();
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'Coupons retrieved successfully',
+        data: coupons,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
 }

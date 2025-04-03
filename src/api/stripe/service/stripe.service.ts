@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import Stripe from 'stripe';
 
 @Injectable()
@@ -110,10 +115,15 @@ export class StripeService {
     return customers.data;
   }
 
+  async getCoupons(): Promise<Stripe.Coupon[]> {
+    const coupons = await this.stripe.coupons.list();
+    return coupons.data;
+  }
+
   async validateCouponCode(couponCode: string): Promise<Stripe.Coupon> {
     try {
       const coupon = await this.stripe.coupons.retrieve(couponCode);
-  
+
       if (coupon.valid) {
         return coupon;
       } else {

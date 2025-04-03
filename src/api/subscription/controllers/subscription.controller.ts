@@ -97,6 +97,7 @@ export class SubscriptionController {
     return await this.subscriptionService.deleteSubscriptionPlan(param.id);
   }
 
+  @UseGuards(AccessTokenGuard)
   @Get('coupon/:code')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Endpoint to validate coupon code' })
@@ -108,6 +109,14 @@ export class SubscriptionController {
   })
   async validateCoupon(@Param() param: { code: string }) {
     return await this.subscriptionService.validateCoupon(param.code);
+  }
+
+  @UseGuards(AccessTokenGuard)
+  @Get('coupons')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to get coupon codes' })
+  async getCoupons() {
+    return await this.subscriptionService.getCoupons();
   }
 
   @UseGuards(AccessTokenGuard)
