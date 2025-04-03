@@ -268,6 +268,13 @@ export class SubscriptionService {
       };
 
       if (coupon) {
+        const couponDetails =
+          await this.stripeService.validateCouponCode(coupon);
+
+        if (!couponDetails) {
+          throw new NotFoundException('Coupon not found');
+        }
+
         subscriptionData.coupon = coupon;
       }
 
@@ -333,7 +340,7 @@ export class SubscriptionService {
         error: null,
       };
     } catch (error) {
-      throw new Error(`Failed to create subscription: ${error.message}`);
+      errorHandler(error);
     }
   }
 
@@ -560,10 +567,7 @@ export class SubscriptionService {
 
   async validateCoupon(coupon: string) {
     try {
-      console.log('got here');
       const couponDetails = await this.stripeService.validateCouponCode(coupon);
-
-      console.log('Coupon details:', couponDetails);
 
       if (!couponDetails) {
         throw new NotFoundException('Coupon not found');
