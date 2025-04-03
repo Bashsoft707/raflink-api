@@ -28,6 +28,7 @@ import {
   ShareCountDocument,
 } from 'src/api/authentication/schema/shareCount.schema';
 import { Category, CategoryDocument } from '../schema/category.schema';
+import { Tracker, TrackerDocument } from '../schema/tracker.schema';
 
 @Injectable()
 export class LinkService {
@@ -44,6 +45,8 @@ export class LinkService {
     private readonly shareCountModel: Model<ShareCountDocument>,
     @InjectModel(Category.name)
     private readonly categoryModel: Model<CategoryDocument>,
+    @InjectModel(Tracker.name)
+    private readonly trackerModel: Model<TrackerDocument>,
   ) {}
 
   async createUserLink(
@@ -721,6 +724,51 @@ export class LinkService {
         data: null,
         error: null,
       };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async trackSales(res, query) {
+    try {
+      const { affiliateId, amount, orderId } = query;
+
+      if (affiliateId && amount) {
+        const affiliateLink = await this.LinkModel.findOne({ _id: affiliateId })
+          .lean()
+          .exec();
+
+        if (!affiliateLink) {
+          throw new NotFoundException('Affiliate link not found');
+        }
+
+        const tracker = await this.trackerModel.create({
+          affiliateId,
+          userId: affiliateLink.userId,
+          amount,
+          orderId,
+        });
+
+        if (!tracker) {
+          throw new InternalServerErrorException('Failed to track sale');
+        }
+      }
+
+      // 1x1 transparent pixel
+      const pixel = Buffer.from(
+        '47494638396101000100800000ffffff00000021f90401000001002c00000000010001000002024401003b',
+        'hex',
+      );
+
+      res.setHeader('Content-Type', 'image/gif');
+      res.setHeader(
+        'Cache-Control',
+        'no-store, no-cache, must-revalidate, proxy-revalidate',
+      );
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      res.setHeader('Content-Length', pixel.length);
+      res.end(pixel);
     } catch (error) {
       errorHandler(error);
     }

@@ -13,6 +13,7 @@ import {
   IsMongoId,
 } from 'class-validator';
 import { TEMPLATE_LINK_LAYOUT } from '../../../constants';
+import { Transform } from 'class-transformer';
 
 export class CreateUserLinkDto {
   @IsString()
@@ -348,4 +349,38 @@ export class CreateCategoryDto {
     title: 'categoryName',
   })
   categoryName: string;
+}
+
+export class TrackerDto {
+  @IsNumber()
+  @IsNotEmpty()
+  @IsPositive()
+  @Transform(({ value }) => parseFloat(value))
+  @ApiProperty({
+    description: 'Sales amount',
+    example: 500,
+    required: true,
+    title: 'amount',
+  })
+  amount: number;
+
+  @IsMongoId()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Affiliate id',
+    example: '67b6c6f202cc89efe1d651tn',
+    required: true,
+    title: 'affiliateId',
+  })
+  affiliateId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Order Id',
+    example: 'ORD-123456',
+    required: true,
+    title: 'orderId',
+  })
+  orderId: string;
 }

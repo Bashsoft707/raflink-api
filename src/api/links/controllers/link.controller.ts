@@ -9,6 +9,7 @@ import {
   Patch,
   Delete,
   Query,
+  Res,
 } from '@nestjs/common';
 import { LinkService } from '../services/link.service';
 import {
@@ -21,11 +22,12 @@ import {
   CreateCategoryDto,
   CreateUserLinkDto,
   GraphFilterDto,
+  TrackerDto,
   UpdateClickCountDto,
   UpdateUserLinkDto,
 } from '../dtos';
 import { AccessTokenGuard } from '../../authentication/auth';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { TokenData, UpdateShareCountDto } from '../../authentication/dtos';
 
 @ApiTags('links')
@@ -227,5 +229,13 @@ export class LinkController {
     const { user: tokenData } = req;
     const { user } = tokenData as unknown as TokenData;
     return await this.LinkService.deleteCategory(param.id, user);
+  }
+
+  @Get('/tracker')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to track sales' })
+  async trackSales(@Res() res: Response, @Query() query: TrackerDto) {
+    return await this.LinkService.trackSales(res, query);
   }
 }

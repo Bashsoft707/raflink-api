@@ -14,6 +14,7 @@ import {
   ShareCountSchema,
 } from '../authentication/schema/shareCount.schema';
 import { Category, CategorySchema } from './schema/category.schema';
+import { Tracker, TrackerSchema } from './schema/tracker.schema';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { Category, CategorySchema } from './schema/category.schema';
       { name: ProfileView.name, schema: ProfileViewSchema },
       { name: ShareCount.name, schema: ShareCountSchema },
       { name: Category.name, schema: CategorySchema },
+      { name: Tracker.name, schema: TrackerSchema },
     ]),
     CachesModule,
   ],
