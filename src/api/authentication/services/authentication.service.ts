@@ -1375,4 +1375,14 @@ export class AuthService {
       errorHandler(error);
     }
   }
+
+  async findUserRoleById(id: string) {
+    const user = await this.raflinkModel.findById(id, 'role').exec();
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
 }

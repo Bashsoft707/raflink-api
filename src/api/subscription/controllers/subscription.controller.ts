@@ -32,6 +32,8 @@ import {
 } from '@nestjs/swagger';
 import { TokenData } from '../../authentication/dtos';
 import { Pagination } from '../../../common/dto/pagination.dto';
+import { RolesGuard } from 'src/api/authentication/auth/role.guard';
+import { Roles } from 'src/api/authentication/decorators/role.decorator';
 
 @ApiTags('subscriptions')
 @Controller('subscriptions')
@@ -111,7 +113,8 @@ export class SubscriptionController {
     return await this.subscriptionService.validateCoupon(param.code);
   }
 
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles('admin', 'staff')
   @Get('coupons')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Endpoint to get coupon codes' })

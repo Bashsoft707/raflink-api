@@ -12,6 +12,7 @@ import {
 } from './schema/subscriptionPlan.schema';
 import { TransactionService } from '../transaction/services/transaction.service';
 import { Transaction, TransactionSchema } from '../transaction/schema';
+import { AuthModule } from '../authentication/authentication.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { Transaction, TransactionSchema } from '../transaction/schema';
       { name: SubscriptionPlan.name, schema: SubscriptionPlanSchema },
       { name: Transaction.name, schema: TransactionSchema },
     ]),
+    AuthModule,
   ],
   controllers: [SubscriptionController],
   providers: [SubscriptionService, StripeService, TransactionService],

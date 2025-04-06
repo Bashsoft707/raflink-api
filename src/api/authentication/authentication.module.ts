@@ -45,7 +45,6 @@ import { OtpAuthService } from './services/otp-auth.service';
         name: Merchant.name,
         schema: MerchantSchema,
       },
-
       {
         name: Raflink.name,
         schema: RaflinkSchema,
