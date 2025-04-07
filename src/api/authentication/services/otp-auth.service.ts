@@ -27,7 +27,7 @@ export class OtpAuthService {
       algorithm: this.algorithm,
       digits: this.digits,
       period: this.period,
-      secret: OTPAuth.Secret.fromHex(secret),
+      secret: OTPAuth.Secret.fromBase32(secret),
     });
 
     const otpauthUrl = totp.toString();
