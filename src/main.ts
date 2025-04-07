@@ -22,6 +22,7 @@ async function bootstrap() {
       'https://raflink.vercel.app',
       'http://localhost:5173',
       'https://raflinks.io',
+      'https://staging.raflinks.io',
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,

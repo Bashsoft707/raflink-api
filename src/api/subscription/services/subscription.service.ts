@@ -244,11 +244,11 @@ export class SubscriptionService {
 
       let validPaymentMethodId = paymentMethodId;
 
-      if (process.env.NODE_ENV === 'development') {
-        validPaymentMethodId =
-          await this.stripeService.createTestPaymentMethod();
-        console.log(`Test payment method created: ${validPaymentMethodId}`);
-      }
+      // if (process.env.NODE_ENV === 'development') {
+      //   validPaymentMethodId =
+      //     await this.stripeService.createTestPaymentMethod();
+      //   console.log(`Test payment method created: ${validPaymentMethodId}`);
+      // }
 
       await this.stripeService.attachPaymentMethod(
         validPaymentMethodId,
