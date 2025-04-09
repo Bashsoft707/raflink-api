@@ -6,7 +6,7 @@ import {
   Post,
   Req,
   UseGuards,
-  // Patch,
+  Patch,
   // Delete,
   // Query,
 } from '@nestjs/common';
@@ -20,7 +20,7 @@ import {
 import { AccessTokenGuard } from '../../authentication/auth';
 import { Request } from 'express';
 import { TokenData } from '../../authentication/dtos';
-import { CreateOfferDto } from '../dto';
+import { CreateOfferDto, UpdateOfferDto } from '../dto';
 import { OfferService } from '../services/offer.service';
 
 @ApiTags('offers')
@@ -85,6 +85,26 @@ export class OfferController {
   })
   async getSingleOffer(@Param() param: { id: string }) {
     return await this.OfferService.getSingleOffer(param.id);
+  }
+
+  @Patch('/:id')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to update offer' })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the offer to be fetched',
+    required: true,
+    type: String,
+  })
+  async updateOffer(
+    @Req() req: Request,
+    @Param() param: { id: string },
+    @Body() body: UpdateOfferDto,
+  ) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return await this.OfferService.updateOffer(user, param.id, body);
   }
 
   @Get('/analytics')

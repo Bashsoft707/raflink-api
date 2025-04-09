@@ -3,6 +3,7 @@ import { OfferService } from './services/offer.service';
 import { OfferController } from './controllers/offer.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Offer, OfferSchema } from './schema';
+import { Category, CategorySchema } from '../links/schema/category.schema';
 
 @Module({
   imports: [
@@ -10,6 +11,10 @@ import { Offer, OfferSchema } from './schema';
       {
         name: Offer.name,
         schema: OfferSchema,
+      },
+      {
+        name: Category.name,
+        schema: CategorySchema,
       },
     ]),
   ],
