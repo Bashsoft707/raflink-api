@@ -3,6 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import Stripe from 'stripe';
 
@@ -190,7 +191,57 @@ export class StripeService {
   }
 
   async createSubscription(subscriptionData: Stripe.SubscriptionCreateParams) {
-    return this.stripe.subscriptions.create(subscriptionData);
+    try {
+      return await this.stripe.subscriptions.create(subscriptionData);
+    } catch (error) {
+      if (error instanceof Stripe.errors.StripeError) {
+        switch (error.type) {
+          case 'StripeCardError':
+            // Card declined, insufficient funds, expired card, etc.
+            throw new BadRequestException(`Payment failed: ${error.message}`);
+
+          case 'StripeInvalidRequestError':
+            // Invalid parameters were supplied to Stripe's API
+            throw new BadRequestException(
+              `Invalid subscription request: ${error.message}`,
+            );
+
+          case 'StripeAPIError':
+            // API errors from Stripe
+            throw new ServiceUnavailableException(
+              `Stripe service error: ${error.message}`,
+            );
+
+          case 'StripeConnectionError':
+            // Network issues between your server and Stripe
+            throw new ServiceUnavailableException(
+              'Connection to payment service failed',
+            );
+
+          case 'StripeAuthenticationError':
+            // Authentication with Stripe's API failed
+            throw new InternalServerErrorException(
+              'Payment service authentication failed',
+            );
+
+          case 'StripeRateLimitError':
+            // Too many requests made to the API too quickly
+            throw new BadRequestException(
+              'Payment service rate limit exceeded',
+            );
+
+          default:
+            // Handle other Stripe errors
+            throw new InternalServerErrorException(
+              `Payment processing error: ${error.message}`,
+            );
+        }
+      }
+
+      // Handle non-Stripe errors
+      console.error('Subscription creation error:', error);
+      throw new InternalServerErrorException('Failed to process subscription');
+    }
   }
 
   async cancelSubscription(

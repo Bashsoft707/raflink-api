@@ -1,4 +1,5 @@
 import {
+  HttpException,
   HttpStatus,
   Inject,
   Injectable,
@@ -284,6 +285,12 @@ export class SubscriptionService {
       const subscription =
         await this.stripeService.createSubscription(subscriptionData);
 
+      if (!subscription) {
+        throw new InternalServerErrorException(
+          'Error in creating subscription',
+        );
+      }
+
       const newSubscription = await this.subscriptionModel.create({
         userId,
         stripeCustomerId,
@@ -340,7 +347,14 @@ export class SubscriptionService {
         error: null,
       };
     } catch (error) {
-      errorHandler(error);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      console.error('Subscription creation failed:', error);
+      throw new InternalServerErrorException(
+        'Failed to process subscription: ' + (error.message || 'Unknown error'),
+      );
     }
   }
 
