@@ -527,7 +527,7 @@ export class SubscriptionService {
   async getUserSubscription(userId: Types.ObjectId) {
     try {
       const subscription = await this.subscriptionModel
-        .findOne({ userId })
+        .findOne({ userId, status: SubscriptionStatus.ACTIVE })
         .populate('plan', 'name price')
         .lean()
         .exec();
