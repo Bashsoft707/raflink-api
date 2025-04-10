@@ -6,6 +6,7 @@ import { TEMPLATES } from '../../constants';
 import { otpTemplate } from './templates/otp.html';
 import { waitingListTemplate } from './templates/waitinglist.html';
 import { accountSetupTemplate } from './templates/accountsetup.html';
+import { successfulSubscriptionTemplate } from './templates/successfulSubscription.html';
 
 @Injectable()
 export class EmailTemplateLoader {
@@ -62,6 +63,20 @@ export class EmailTemplateLoader {
     return this.insertParmasIntoTemplate(onboardingTemplate, params);
   }
 
+  successfulSubscriptionTemplate(data: any) {
+    const params = {
+      name: data.name,
+      raflink_email: data.companyEmail,
+      amount: data.amount,
+      cardType: data.cardType,
+      last4: data.last4,
+    };
+    return this.insertParmasIntoTemplate(
+      successfulSubscriptionTemplate,
+      params,
+    );
+  }
+
   unsupported() {
     return 'template not supported';
   }
@@ -86,6 +101,9 @@ export class EmailTemplateLoader {
         break;
       case TEMPLATES.ACCOUNTSETUP:
         template = this.accountSetupTemplate(data);
+        break;
+      case TEMPLATES.SUCCESSFUL_SUBSCRIPTION:
+        template = this.successfulSubscriptionTemplate(data);
         break;
       default:
         return this.unsupported();

@@ -9,7 +9,12 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import Stripe from 'stripe';
-import { SubscriptionStatus, TransactionStatus } from '../../../constants';
+import {
+  ENV,
+  SubscriptionStatus,
+  TEMPLATES,
+  TransactionStatus,
+} from '../../../constants';
 import { User } from '../../authentication/schema';
 import {
   CreateSubscriptionDto,
@@ -24,6 +29,8 @@ import { Pagination } from '../../../common/dto/pagination.dto';
 import { errorHandler } from '../../../utils';
 import { TransactionService } from '../../transaction/services/transaction.service';
 import { randomUUID } from 'crypto';
+import { EmailService } from 'src/api/email/email.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SubscriptionService {
@@ -34,6 +41,8 @@ export class SubscriptionService {
     @Inject(StripeService) private readonly stripeService: StripeService,
     @Inject(TransactionService)
     private readonly transactionService: TransactionService,
+    @Inject(EmailService) private readonly emailService: EmailService,
+    @Inject(ConfigService) private readonly configService: ConfigService,
     @InjectModel(SubscriptionPlanModel.name)
     private subscriptionPlanModel: Model<SubscriptionPlanModel>,
   ) {}
@@ -314,6 +323,11 @@ export class SubscriptionService {
           priceId: plan.priceId,
         },
         coupon,
+        amountPaid:
+          typeof subscription.latest_invoice === 'object' &&
+          subscription.latest_invoice?.amount_paid
+            ? Number(subscription.latest_invoice.amount_paid) / 100
+            : plan.price,
         cardLastFourDigit: last4,
         cardType,
       });
@@ -326,7 +340,7 @@ export class SubscriptionService {
 
       const transactionPayload = {
         userId,
-        amount: plan.price,
+        amount: newSubscription.amountPaid,
         description: 'Payment for user susbcription',
         transactionType: 'subscription',
         currency: plan.currency,
@@ -338,6 +352,26 @@ export class SubscriptionService {
       };
 
       await this.transactionService.createTransaction(transactionPayload);
+
+      const user = await this.userModel
+        .findById(userId)
+        .select('email username displayName')
+        .lean()
+        .exec();
+
+      await this.emailService.sendEmail({
+        receiver: String(user?.email),
+        subject: 'Subscription Confirmation',
+        body: `Thank you for subscribing to our service! Your subscription is now active.`,
+        templateKey: TEMPLATES.SUCCESSFUL_SUBSCRIPTION,
+        data: {
+          name: user?.displayName ?? user?.username,
+          companyEmail: this.configService.get(ENV.EMAIL_FROM),
+          amount: newSubscription.amountPaid,
+          cardType,
+          last4,
+        },
+      });
 
       return {
         status: 'success',

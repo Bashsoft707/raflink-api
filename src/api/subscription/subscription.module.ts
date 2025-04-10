@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SubscriptionService } from './services/subscription.service';
 import { SubscriptionController } from './controllers/subscription.controller';
 import { Subscription, SubscriptionSchema } from './schema';
@@ -13,6 +13,8 @@ import {
 import { TransactionService } from '../transaction/services/transaction.service';
 import { Transaction, TransactionSchema } from '../transaction/schema';
 import { AuthModule } from '../authentication/authentication.module';
+import { EmailService } from '../email/email.service';
+import { EmailTemplateLoader } from '../email/email-template-loader';
 
 @Module({
   imports: [
@@ -26,7 +28,14 @@ import { AuthModule } from '../authentication/authentication.module';
     AuthModule,
   ],
   controllers: [SubscriptionController],
-  providers: [SubscriptionService, StripeService, TransactionService],
+  providers: [
+    SubscriptionService,
+    StripeService,
+    TransactionService,
+    EmailService,
+    EmailTemplateLoader,
+    ConfigService,
+  ],
   exports: [SubscriptionService],
 })
 export class SubscriptionModule {}

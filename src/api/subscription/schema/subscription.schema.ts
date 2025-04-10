@@ -53,6 +53,9 @@ export class Subscription extends Document {
   @Prop({ type: String })
   coupon: string;
 
+  @Prop({ type: Number, required: true })
+  amountPaid: number;
+
   @Prop({ type: String })
   cardLastFourDigit: string;
 
