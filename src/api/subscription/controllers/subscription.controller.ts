@@ -32,8 +32,8 @@ import {
 } from '@nestjs/swagger';
 import { TokenData } from '../../authentication/dtos';
 import { Pagination } from '../../../common/dto/pagination.dto';
-import { RolesGuard } from 'src/api/authentication/auth/role.guard';
-import { Roles } from 'src/api/authentication/decorators/role.decorator';
+import { RolesGuard } from '../../authentication/auth/role.guard';
+import { Roles } from '../../authentication/decorators/role.decorator';
 
 @ApiTags('subscriptions')
 @Controller('subscriptions')

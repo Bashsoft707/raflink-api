@@ -13,7 +13,7 @@ import { errorHandler, formatTime } from '../../../utils';
 import {
   ProfileView,
   ProfileViewDocument,
-} from 'src/api/authentication/schema/profileViewTime.schema';
+} from '../../authentication/schema/profileViewTime.schema';
 
 import {
   Raflink,

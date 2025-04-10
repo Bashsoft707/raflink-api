@@ -17,16 +17,16 @@ import {
 } from '../dtos';
 import { errorHandler, formatTime } from '../../../utils';
 import { Link, LinkClickDocument, LinkClick, LinkDocument } from '../schema';
-import { User, UserDocument } from 'src/api/authentication/schema';
+import { User, UserDocument } from '../../authentication/schema';
 import {
   ProfileView,
   ProfileViewDocument,
-} from 'src/api/authentication/schema/profileViewTime.schema';
-import { UpdateShareCountDto } from 'src/api/authentication/dtos';
+} from '../../authentication/schema/profileViewTime.schema';
+import { UpdateShareCountDto } from '../../authentication/dtos';
 import {
   ShareCount,
   ShareCountDocument,
-} from 'src/api/authentication/schema/shareCount.schema';
+} from '../../authentication/schema/shareCount.schema';
 import { Category, CategoryDocument } from '../schema/category.schema';
 import { Tracker, TrackerDocument } from '../schema/tracker.schema';
 

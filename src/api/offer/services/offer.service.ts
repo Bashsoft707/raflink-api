@@ -13,10 +13,7 @@ import { Model, Types } from 'mongoose';
 import { errorHandler } from '../../../utils';
 import { Offer, OfferDocument } from '../schema';
 import { CreateOfferDto, UpdateOfferDto } from '../dto';
-import {
-  Category,
-  CategoryDocument,
-} from 'src/api/links/schema/category.schema';
+import { Category, CategoryDocument } from '../../links/schema/category.schema';
 
 @Injectable()
 export class OfferService {

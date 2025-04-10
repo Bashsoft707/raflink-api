@@ -29,7 +29,7 @@ import { Pagination } from '../../../common/dto/pagination.dto';
 import { errorHandler } from '../../../utils';
 import { TransactionService } from '../../transaction/services/transaction.service';
 import { randomUUID } from 'crypto';
-import { EmailService } from 'src/api/email/email.service';
+import { EmailService } from '../../email/email.service';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
