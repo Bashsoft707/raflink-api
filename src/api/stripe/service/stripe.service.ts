@@ -248,7 +248,30 @@ export class StripeService {
     subscriptionId: string,
     cancelParams: Stripe.SubscriptionCancelParams,
   ) {
-    return this.stripe.subscriptions.cancel(subscriptionId, cancelParams);
+    try {
+      return this.stripe.subscriptions.cancel(subscriptionId, cancelParams);
+    } catch (error) {
+      if (error instanceof Stripe.errors.StripeError) {
+        switch (error.type) {
+          case 'StripeInvalidRequestError':
+            throw new BadRequestException(
+              `Invalid subscription cancellation request: ${error.message}`,
+            );
+          case 'StripeAPIError':
+            throw new ServiceUnavailableException(
+              `Stripe service error: ${error.message}`,
+            );
+          default:
+            throw new InternalServerErrorException(
+              `Failed to cancel subscription: ${error.message}`,
+            );
+        }
+      } else {
+        throw new InternalServerErrorException(
+          `Failed to cancel subscription: ${error.message}`,
+        );
+      }
+    }
   }
 
   async updateSubscription(subscriptionId: string, newPlanId: string) {
