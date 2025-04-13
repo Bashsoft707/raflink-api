@@ -77,6 +77,56 @@ export class CreateTemplateDto {
   })
   name: string;
 
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Background Image',
+    example: 'https://imgg.com/background',
+    required: false,
+    title: 'backgroundImage',
+  })
+  backgroundImage: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Background Color',
+    example: '#FFFFFF',
+    required: false,
+    title: 'backgroundColor',
+  })
+  backgroundColor: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Text Color',
+    example: '#000000',
+    required: false,
+    title: 'textColor',
+  })
+  textColor: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Subtitle Color',
+    example: '#FEFEFE',
+    required: false,
+    title: 'subtitleColor',
+  })
+  subtitleColor: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Container Color',
+    example: '#FAFAFA',
+    required: false,
+    title: 'containerColor',
+  })
+  containerColor: string;
+
   @IsObject()
   @IsOptional()
   @ApiProperty({
@@ -160,6 +210,56 @@ export class CreateUserTemplateDto {
   })
   name: string;
 
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Background Image',
+    example: 'https://imgg.com/background',
+    required: false,
+    title: 'backgroundImage',
+  })
+  backgroundImage: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Background Color',
+    example: '#FFFFFF',
+    required: false,
+    title: 'backgroundColor',
+  })
+  backgroundColor: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Text Color',
+    example: '#000000',
+    required: false,
+    title: 'textColor',
+  })
+  textColor: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Subtitle Color',
+    example: '#FEFEFE',
+    required: false,
+    title: 'subtitleColor',
+  })
+  subtitleColor: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Container Color',
+    example: '#FAFAFA',
+    required: false,
+    title: 'containerColor',
+  })
+  containerColor: string;
+
   @IsObject()
   @IsOptional()
   @ApiProperty({
@@ -212,6 +312,56 @@ export class UpdateTemplateDto {
     title: 'name',
   })
   name: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Background Image',
+    example: 'https://imgg.com/background',
+    required: false,
+    title: 'backgroundImage',
+  })
+  backgroundImage: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Background Color',
+    example: '#FFFFFF',
+    required: false,
+    title: 'backgroundColor',
+  })
+  backgroundColor: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Text Color',
+    example: '#000000',
+    required: false,
+    title: 'textColor',
+  })
+  textColor: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Subtitle Color',
+    example: '#FEFEFE',
+    required: false,
+    title: 'subtitleColor',
+  })
+  subtitleColor: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Container Color',
+    example: '#FAFAFA',
+    required: false,
+    title: 'containerColor',
+  })
+  containerColor: string;
 
   @IsObject()
   @IsOptional()

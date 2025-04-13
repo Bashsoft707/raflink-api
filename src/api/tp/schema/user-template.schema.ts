@@ -22,6 +22,21 @@ export class UserTemplate {
   @Prop({ lowercase: true, required: true })
   name: string;
 
+  @Prop({ type: String, lowercase: true })
+  backgroundColor: string;
+
+  @Prop({ type: String, lowercase: true })
+  backgroundImage: string;
+
+  @Prop({ type: String, lowercase: true })
+  textColor: string;
+
+  @Prop({ type: String, lowercase: true })
+  subtitleColor: string;
+
+  @Prop({ type: String, lowercase: true })
+  containerColor: string;
+
   @Prop({ type: Object })
   templateStyle: Object;
 

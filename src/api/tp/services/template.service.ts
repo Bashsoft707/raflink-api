@@ -125,6 +125,15 @@ export class TemplateService {
         userId,
         templateId: baseTemplate._id,
         name: createUserTemplateDto.name || baseTemplate.name,
+        backgroundImage:
+          createUserTemplateDto.backgroundImage || baseTemplate.backgroundImage,
+        backgroundColor:
+          createUserTemplateDto.backgroundColor || baseTemplate.backgroundColor,
+        textColor: createUserTemplateDto.textColor || baseTemplate.textColor,
+        subtitleColor:
+          createUserTemplateDto.subtitleColor || baseTemplate.subtitleColor,
+        containerColor:
+          createUserTemplateDto.containerColor || baseTemplate.containerColor,
         templateStyle:
           createUserTemplateDto.templateStyle || baseTemplate.templateStyle,
         socialLinksStyle:

@@ -21,6 +21,21 @@ export class Template {
   @Prop({ type: Object })
   linkStyle: Object;
 
+  @Prop({ type: String, lowercase: true })
+  backgroundColor: string;
+
+  @Prop({ type: String, lowercase: true })
+  backgroundImage: string;
+
+  @Prop({ type: String, lowercase: true })
+  textColor: string;
+
+  @Prop({ type: String, lowercase: true })
+  subtitleColor: string;
+
+  @Prop({ type: String, lowercase: true })
+  containerColor: string;
+
   @Prop(
     raw([
       {
