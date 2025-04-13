@@ -115,6 +115,56 @@ export class UpdateUserDto {
   @IsString()
   @IsOptional()
   @ApiProperty({
+    description: 'Background Image',
+    example: 'https://imgg.com/background',
+    required: false,
+    title: 'backgroundImage',
+  })
+  backgroundImage: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Background Color',
+    example: '#FFFFFF',
+    required: false,
+    title: 'backgroundColor',
+  })
+  backgroundColor: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Text Color',
+    example: '#000000',
+    required: false,
+    title: 'textColor',
+  })
+  textColor: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Subtitle Color',
+    example: '#FEFEFE',
+    required: false,
+    title: 'subtitleColor',
+  })
+  subtitleColor: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Container Color',
+    example: '#FAFAFA',
+    required: false,
+    title: 'containerColor',
+  })
+  containerColor: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
     description: 'User goals',
     example: 'Get rich',
     required: false,

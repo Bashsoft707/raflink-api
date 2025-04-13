@@ -7,20 +7,53 @@ import { SOCIALS } from '../../../constants';
   timestamps: true,
 })
 export class User {
-  @Prop({ lowercase: true, unique: true, index: true, required: true })
+  @Prop({
+    type: String,
+    lowercase: true,
+    unique: true,
+    index: true,
+    required: true,
+  })
   email: string;
 
-  @Prop({ lowercase: true, unique: true, sparse: true, default: undefined })
+  @Prop({
+    type: String,
+    lowercase: true,
+    unique: true,
+    sparse: true,
+    default: undefined,
+  })
   displayName: string;
 
-  @Prop({ lowercase: true, unique: true, sparse: true, default: undefined })
+  @Prop({
+    type: String,
+    lowercase: true,
+    unique: true,
+    sparse: true,
+    default: undefined,
+  })
   username: string;
 
-  @Prop({ lowercase: true })
+  @Prop({ type: String, lowercase: true })
   bio: string;
 
-  @Prop({ lowercase: true })
+  @Prop({ type: String, lowercase: true })
   image: string;
+
+  @Prop({ type: String, lowercase: true })
+  backgroundColor: string;
+
+  @Prop({ type: String, lowercase: true })
+  backgroundImage: string;
+
+  @Prop({ type: String, lowercase: true })
+  textColor: string;
+
+  @Prop({ type: String, lowercase: true })
+  subtitleColor: string;
+
+  @Prop({ type: String, lowercase: true })
+  containerColor: string;
 
   @Prop(
     raw([

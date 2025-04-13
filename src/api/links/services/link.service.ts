@@ -505,7 +505,10 @@ export class LinkService {
   async getUserLinkInfo(username: string) {
     try {
       const user = await this.userModel
-        .findOne({ username }, 'displayName bio socialLinks image hideLogo')
+        .findOne(
+          { username },
+          'displayName bio socialLinks image hideLogo backgroundImage backgroundColor textColor subtitleColor containerColor',
+        )
         .lean()
         .exec();
 
