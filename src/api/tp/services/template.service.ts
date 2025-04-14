@@ -122,7 +122,7 @@ export class TemplateService {
       }
 
       const userTemplate = await this.userTemplateModel.findOneAndUpdate(
-        { userId, templateId: baseTemplate._id },
+        { userId },
         {
           userId,
           templateId: baseTemplate._id,
