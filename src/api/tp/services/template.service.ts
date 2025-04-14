@@ -121,38 +121,33 @@ export class TemplateService {
         throw new NotFoundException('Base template not found');
       }
 
-      const existingUserTemplate = await this.userTemplateModel
-        .findOne({ userId })
-        .lean()
-        .exec();
-
-      if (existingUserTemplate) {
-        throw new BadRequestException('User template already exists');
-      }
-
-      const userTemplate = await this.userTemplateModel.create({
-        userId,
-        templateId: baseTemplate._id,
-        name: baseTemplate.name,
-        backgroundImage: baseTemplate.backgroundImage,
-        backgroundColor: baseTemplate.backgroundColor,
-        textColor: baseTemplate.textColor,
-        subtitleColor: baseTemplate.subtitleColor,
-        containerColor: baseTemplate.containerColor,
-        templateStyle: baseTemplate.templateStyle,
-        socialLinksStyle: baseTemplate.socialLinksStyle,
-        linkStyle: baseTemplate.linkStyle,
-        socialLinksPosition: baseTemplate.socialLinksPosition,
-      });
+      const userTemplate = await this.userTemplateModel.findOneAndUpdate(
+        { userId, templateId: baseTemplate._id },
+        {
+          userId,
+          templateId: baseTemplate._id,
+          name: baseTemplate.name,
+          backgroundImage: baseTemplate.backgroundImage,
+          backgroundColor: baseTemplate.backgroundColor,
+          textColor: baseTemplate.textColor,
+          subtitleColor: baseTemplate.subtitleColor,
+          containerColor: baseTemplate.containerColor,
+          templateStyle: baseTemplate.templateStyle,
+          socialLinksStyle: baseTemplate.socialLinksStyle,
+          linkStyle: baseTemplate.linkStyle,
+          socialLinksPosition: baseTemplate.socialLinksPosition,
+        },
+        { upsert: true, new: true },
+      );
 
       if (!userTemplate) {
-        throw new BadRequestException('Failed to create user template');
+        throw new BadRequestException('Failed to create/update user template');
       }
 
       return {
         status: 'success',
-        statusCode: HttpStatus.CREATED,
-        message: 'User template created successfully',
+        statusCode: HttpStatus.OK,
+        message: 'User template created/updated successfully',
         data: userTemplate,
         error: null,
       };
