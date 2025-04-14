@@ -163,16 +163,16 @@ export class TemplateService {
 
   async findUserTemplates(userId: Types.ObjectId) {
     try {
-      const userTemplates = await this.userTemplateModel
-        .find({ userId })
+      const userTemplate = await this.userTemplateModel
+        .findOne({ userId })
         .populate('userId', 'bio socialLinks')
         .exec();
 
       return {
         status: 'success',
-        statusCode: HttpStatus.CREATED,
+        statusCode: HttpStatus.OK,
         message: 'User templates retrieved successfully.',
-        data: userTemplates,
+        data: userTemplate,
         error: null,
       };
     } catch (error) {
