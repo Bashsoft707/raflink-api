@@ -15,6 +15,7 @@ import {
 } from '../authentication/schema/shareCount.schema';
 import { Category, CategorySchema } from './schema/category.schema';
 import { Tracker, TrackerSchema } from './schema/tracker.schema';
+import { UserTemplate, UserTemplateSchema } from '../tp/schema';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { Tracker, TrackerSchema } from './schema/tracker.schema';
       { name: ShareCount.name, schema: ShareCountSchema },
       { name: Category.name, schema: CategorySchema },
       { name: Tracker.name, schema: TrackerSchema },
+      { name: UserTemplate.name, schema: UserTemplateSchema },
     ]),
     CachesModule,
   ],

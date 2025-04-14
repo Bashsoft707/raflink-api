@@ -29,6 +29,7 @@ import {
 } from '../../authentication/schema/shareCount.schema';
 import { Category, CategoryDocument } from '../schema/category.schema';
 import { Tracker, TrackerDocument } from '../schema/tracker.schema';
+import { UserTemplate } from 'src/api/tp/schema';
 
 @Injectable()
 export class LinkService {
@@ -47,6 +48,8 @@ export class LinkService {
     private readonly categoryModel: Model<CategoryDocument>,
     @InjectModel(Tracker.name)
     private readonly trackerModel: Model<TrackerDocument>,
+    @InjectModel(UserTemplate.name)
+    private readonly userTemplateModel: Model<UserTemplate>,
   ) {}
 
   async createUserLink(
@@ -516,6 +519,11 @@ export class LinkService {
         throw new NotFoundException('User not found');
       }
 
+      const userTemplate: any = await this.userTemplateModel
+        .findOne({ userId: user._id }, '-__v -userId -createdAt -updatedAt')
+        .lean()
+        .exec();
+
       const userLinks: any = await this.LinkModel.find(
         { userId: user._id },
         '-__v -createdAt -updatedAt',
@@ -548,6 +556,7 @@ export class LinkService {
         message: 'User link info retrieved successfully.',
         data: {
           ...user,
+          userTemplate,
           affiliateLinks: userLinks,
           categorizeLinks: formattedCategorizedLinks,
         },
