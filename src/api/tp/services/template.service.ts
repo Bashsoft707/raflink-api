@@ -121,29 +121,33 @@ export class TemplateService {
         throw new NotFoundException('Base template not found');
       }
 
+      const existingUserTemplate = await this.userTemplateModel
+        .findOne({ userId })
+        .lean()
+        .exec();
+
+      if (existingUserTemplate) {
+        throw new BadRequestException('User template already exists');
+      }
+
       const userTemplate = await this.userTemplateModel.create({
         userId,
         templateId: baseTemplate._id,
-        name: createUserTemplateDto.name || baseTemplate.name,
-        backgroundImage:
-          createUserTemplateDto.backgroundImage || baseTemplate.backgroundImage,
-        backgroundColor:
-          createUserTemplateDto.backgroundColor || baseTemplate.backgroundColor,
-        textColor: createUserTemplateDto.textColor || baseTemplate.textColor,
-        subtitleColor:
-          createUserTemplateDto.subtitleColor || baseTemplate.subtitleColor,
-        containerColor:
-          createUserTemplateDto.containerColor || baseTemplate.containerColor,
-        templateStyle:
-          createUserTemplateDto.templateStyle || baseTemplate.templateStyle,
-        socialLinksStyle:
-          createUserTemplateDto.socialLinksStyle ||
-          baseTemplate.socialLinksStyle,
-        linkStyle: createUserTemplateDto.linkStyle || baseTemplate.linkStyle,
-        socialLinksPosition:
-          createUserTemplateDto.socialLinksPosition ||
-          baseTemplate.socialLinksPosition,
+        name: baseTemplate.name,
+        backgroundImage: baseTemplate.backgroundImage,
+        backgroundColor: baseTemplate.backgroundColor,
+        textColor: baseTemplate.textColor,
+        subtitleColor: baseTemplate.subtitleColor,
+        containerColor: baseTemplate.containerColor,
+        templateStyle: baseTemplate.templateStyle,
+        socialLinksStyle: baseTemplate.socialLinksStyle,
+        linkStyle: baseTemplate.linkStyle,
+        socialLinksPosition: baseTemplate.socialLinksPosition,
       });
+
+      if (!userTemplate) {
+        throw new BadRequestException('Failed to create user template');
+      }
 
       return {
         status: 'success',

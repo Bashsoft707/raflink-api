@@ -200,106 +200,106 @@ export class CreateUserTemplateDto {
   })
   templateId: string;
 
-  @IsString()
-  @IsOptional()
-  @ApiProperty({
-    description: 'Template name',
-    example: 'popstar',
-    required: false,
-    title: 'name',
-  })
-  name: string;
+  // @IsString()
+  // @IsOptional()
+  // @ApiProperty({
+  //   description: 'Template name',
+  //   example: 'popstar',
+  //   required: false,
+  //   title: 'name',
+  // })
+  // name: string;
 
-  @IsString()
-  @IsOptional()
-  @ApiProperty({
-    description: 'Background Image',
-    example: 'https://imgg.com/background',
-    required: false,
-    title: 'backgroundImage',
-  })
-  backgroundImage: string;
+  // @IsString()
+  // @IsOptional()
+  // @ApiProperty({
+  //   description: 'Background Image',
+  //   example: 'https://imgg.com/background',
+  //   required: false,
+  //   title: 'backgroundImage',
+  // })
+  // backgroundImage: string;
 
-  @IsString()
-  @IsOptional()
-  @ApiProperty({
-    description: 'Background Color',
-    example: '#FFFFFF',
-    required: false,
-    title: 'backgroundColor',
-  })
-  backgroundColor: string;
+  // @IsString()
+  // @IsOptional()
+  // @ApiProperty({
+  //   description: 'Background Color',
+  //   example: '#FFFFFF',
+  //   required: false,
+  //   title: 'backgroundColor',
+  // })
+  // backgroundColor: string;
 
-  @IsString()
-  @IsOptional()
-  @ApiProperty({
-    description: 'Text Color',
-    example: '#000000',
-    required: false,
-    title: 'textColor',
-  })
-  textColor: string;
+  // @IsString()
+  // @IsOptional()
+  // @ApiProperty({
+  //   description: 'Text Color',
+  //   example: '#000000',
+  //   required: false,
+  //   title: 'textColor',
+  // })
+  // textColor: string;
 
-  @IsString()
-  @IsOptional()
-  @ApiProperty({
-    description: 'Subtitle Color',
-    example: '#FEFEFE',
-    required: false,
-    title: 'subtitleColor',
-  })
-  subtitleColor: string;
+  // @IsString()
+  // @IsOptional()
+  // @ApiProperty({
+  //   description: 'Subtitle Color',
+  //   example: '#FEFEFE',
+  //   required: false,
+  //   title: 'subtitleColor',
+  // })
+  // subtitleColor: string;
 
-  @IsString()
-  @IsOptional()
-  @ApiProperty({
-    description: 'Container Color',
-    example: '#FAFAFA',
-    required: false,
-    title: 'containerColor',
-  })
-  containerColor: string;
+  // @IsString()
+  // @IsOptional()
+  // @ApiProperty({
+  //   description: 'Container Color',
+  //   example: '#FAFAFA',
+  //   required: false,
+  //   title: 'containerColor',
+  // })
+  // containerColor: string;
 
-  @IsObject()
-  @IsOptional()
-  @ApiProperty({
-    description: 'Template styles',
-    example: '{}',
-    required: false,
-    title: 'templateStyle',
-  })
-  templateStyle: Object;
+  // @IsObject()
+  // @IsOptional()
+  // @ApiProperty({
+  //   description: 'Template styles',
+  //   example: '{}',
+  //   required: false,
+  //   title: 'templateStyle',
+  // })
+  // templateStyle: Object;
 
-  @IsObject()
-  @IsOptional()
-  @ApiProperty({
-    description: 'Socual Links styles',
-    example: '{}',
-    required: false,
-    title: 'socialLinksStyle',
-  })
-  socialLinksStyle: Object;
+  // @IsObject()
+  // @IsOptional()
+  // @ApiProperty({
+  //   description: 'Socual Links styles',
+  //   example: '{}',
+  //   required: false,
+  //   title: 'socialLinksStyle',
+  // })
+  // socialLinksStyle: Object;
 
-  @IsObject()
-  @IsOptional()
-  @ApiProperty({
-    description: 'Link Styles',
-    example: '{}',
-    required: false,
-    title: 'linkStyle',
-  })
-  linkStyle: Object;
+  // @IsObject()
+  // @IsOptional()
+  // @ApiProperty({
+  //   description: 'Link Styles',
+  //   example: '{}',
+  //   required: false,
+  //   title: 'linkStyle',
+  // })
+  // linkStyle: Object;
 
-  @IsString()
-  @IsNotEmpty()
-  @IsEnum(SOCIAL_LINKS_POSITON)
-  @ApiProperty({
-    description: 'Links position',
-    example: SOCIAL_LINKS_POSITON.TOP,
-    required: true,
-    title: 'socialLinksPosition',
-  })
-  socialLinksPosition: string;
+  // @IsString()
+  // @IsNotEmpty()
+  // @IsEnum(SOCIAL_LINKS_POSITON)
+  // @ApiProperty({
+  //   description: 'Links position',
+  //   example: SOCIAL_LINKS_POSITON.TOP,
+  //   required: true,
+  //   title: 'socialLinksPosition',
+  // })
+  // socialLinksPosition: string;
 }
 
 export class UpdateTemplateDto {
