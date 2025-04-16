@@ -112,6 +112,12 @@ export class User {
 
   @Prop({ type: Boolean, default: false })
   twoFactorVerified: boolean;
+
+  @Prop({
+    type: Boolean,
+    default: false,
+  })
+  isPremium: boolean;
 }
 
 export type UserDocument = User & Document<Types.ObjectId>;
