@@ -11,9 +11,11 @@ export class Category {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     ref: 'User',
-    required: true,
   })
   userId: MongooseSchema.Types.ObjectId;
+
+  @Prop({ type: String, lowercase: true })
+  type: string;
 }
 
 export type CategoryDocument = Category & Document<Types.ObjectId>;

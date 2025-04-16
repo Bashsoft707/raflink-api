@@ -4,6 +4,7 @@ import { OfferController } from './controllers/offer.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Offer, OfferSchema } from './schema';
 import { Category, CategorySchema } from '../links/schema/category.schema';
+import { AuthModule } from '../authentication/authentication.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { Category, CategorySchema } from '../links/schema/category.schema';
         schema: CategorySchema,
       },
     ]),
+    AuthModule,
   ],
   controllers: [OfferController],
   providers: [OfferService],

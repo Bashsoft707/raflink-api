@@ -629,6 +629,7 @@ export class LinkService {
       const newCategory = await this.categoryModel.create({
         userId,
         categoryName,
+        type: 'link',
       });
 
       if (!newCategory) {
@@ -655,7 +656,7 @@ export class LinkService {
 
       return {
         status: 'success',
-        statusCode: HttpStatus.CREATED,
+        statusCode: HttpStatus.OK,
         message: 'Categories retrieved successfully.',
         data: category,
         error: null,

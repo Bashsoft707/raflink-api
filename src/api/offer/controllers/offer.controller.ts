@@ -22,6 +22,9 @@ import { Request } from 'express';
 import { TokenData } from '../../authentication/dtos';
 import { CreateOfferDto, UpdateOfferDto } from '../dto';
 import { OfferService } from '../services/offer.service';
+import { CreateCategoryDto } from 'src/api/links/dtos';
+import { RolesGuard } from '../../authentication/auth/role.guard';
+import { Roles } from '../../authentication/decorators/role.decorator';
 
 @ApiTags('offers')
 @Controller('offers')
@@ -137,5 +140,22 @@ export class OfferController {
     const { user: tokenData } = req;
     const { user } = tokenData as unknown as TokenData;
     return await this.OfferService.toggleOfferStatus(user, param.id);
+  }
+
+  @Post('/category')
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles('admin', 'staff')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to create offers category' })
+  async createCategory(@Req() req: Request, @Body() body: CreateCategoryDto) {
+    return await this.OfferService.createCategory(body);
+  }
+
+  @Get('/category/all')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to get offer categories' })
+  async getCategories(@Req() req: Request) {
+    return await this.OfferService.getCategory();
   }
 }

@@ -14,6 +14,7 @@ import { errorHandler } from '../../../utils';
 import { Offer, OfferDocument } from '../schema';
 import { CreateOfferDto, UpdateOfferDto } from '../dto';
 import { Category, CategoryDocument } from '../../links/schema/category.schema';
+import { CreateCategoryDto } from '../../links/dtos';
 
 @Injectable()
 export class OfferService {
@@ -262,6 +263,60 @@ export class OfferService {
         statusCode: HttpStatus.OK,
         message: `Offer ${offer.status}`,
         data: offer,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async createCategory(dto: CreateCategoryDto) {
+    try {
+      const { categoryName } = dto;
+
+      const exisitingCategory = await this.categoryModel
+        .findOne({ categoryName: categoryName.toLowerCase(), type: 'offer' })
+        .exec();
+
+      if (exisitingCategory) {
+        throw new BadRequestException(
+          `Category ${categoryName} already exists`,
+        );
+      }
+
+      const newCategory = await this.categoryModel.create({
+        categoryName,
+        type: 'offer',
+      });
+
+      if (!newCategory) {
+        throw new InternalServerErrorException('Failed to create category');
+      }
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.CREATED,
+        message: 'Offer category created successfully.',
+        data: newCategory,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  async getCategory() {
+    try {
+      const category = await this.categoryModel
+        .find({ type: 'offer' })
+        .lean()
+        .exec();
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'Offer categories retrieved successfully.',
+        data: category,
         error: null,
       };
     } catch (error) {
