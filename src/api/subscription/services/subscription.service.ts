@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Inject,
@@ -439,10 +440,7 @@ export class SubscriptionService {
     }
   }
 
-  async updateSubscription(
-    userId: Types.ObjectId,
-    dto: UpdateSubscriptionDto,
-  ): Promise<Subscription> {
+  async updateSubscription(userId: Types.ObjectId, dto: UpdateSubscriptionDto) {
     const { newPlanId } = dto;
     const subscription = await this.subscriptionModel.findOne({
       userId,
@@ -465,6 +463,18 @@ export class SubscriptionService {
         throw new InternalServerErrorException(
           'Error in updating subscription',
         );
+      }
+
+      const invoice = updatedSubscription.latest_invoice as Stripe.Invoice;
+      const paymentIntent = invoice?.payment_intent as Stripe.PaymentIntent;
+
+      if (invoice?.amount_due > 0 && paymentIntent?.status !== 'succeeded') {
+        return {
+          status: 'pending_payment',
+          message: 'Additional payment required to complete the upgrade.',
+          invoiceUrl: String(invoice.hosted_invoice_url),
+          clientSecret: paymentIntent.client_secret,
+        };
       }
 
       subscription.plan = plan;
@@ -517,32 +527,108 @@ export class SubscriptionService {
   private async updateSubscriptionFromWebhook(
     stripeSubscription: Stripe.Subscription,
   ): Promise<void> {
-    const subscription = await this.subscriptionModel.findOne({
-      stripeSubscriptionId: stripeSubscription.id,
-    });
+    try {
+      const subscription = await this.subscriptionModel.findOne({
+        stripeSubscriptionId: stripeSubscription.id,
+      });
 
-    if (!subscription) {
-      // Log that webhook was received for non-existent subscription
-      console.log(
-        `Webhook received for non-existent subscription: ${stripeSubscription.id}`,
+      if (!subscription) {
+        console.warn(
+          `[Webhook] Subscription not found for ID: ${stripeSubscription.id}`,
+        );
+        return;
+      }
+
+      // Extract Stripe price ID
+      const priceId = stripeSubscription.items?.data[0]?.price?.id;
+
+      // Get your local subscription plan
+      const plan = await this.subscriptionPlanModel.findOne({ priceId });
+      if (!plan) {
+        console.warn(
+          `[Webhook] No matching plan found for priceId: ${priceId}`,
+        );
+      }
+
+      // Retrieve latest invoice with expanded payment method
+      let invoice: Stripe.Invoice | null = null;
+      let cardType = '';
+      let last4 = '';
+      let amountPaid = 0;
+      let invoiceUrl: string | null = null;
+      let receiptPdf: string | null = null;
+
+      try {
+        if (stripeSubscription.latest_invoice) {
+          invoice = await this.stripeService.retrieveInvoice(
+            stripeSubscription.latest_invoice as string,
+          );
+
+          console.log('invoice', invoice);
+
+          const paymentMethod =
+            invoice?.payment_intent instanceof Object
+              ? (invoice?.payment_intent
+                  ?.payment_method as Stripe.PaymentMethod)
+              : null;
+
+          cardType = paymentMethod?.card?.brand || 'Unknown';
+          last4 = paymentMethod?.card?.last4 || '----';
+          amountPaid = invoice?.amount_paid
+            ? Number(invoice.amount_paid) / 100
+            : plan?.price || 0;
+
+          invoiceUrl = invoice?.hosted_invoice_url || null;
+          receiptPdf = invoice?.invoice_pdf || null;
+        }
+      } catch (err) {
+        console.error(
+          `[Webhook] Failed to fetch invoice/payment method for subscription ${stripeSubscription.id}: ${err.message}`,
+        );
+      }
+
+      // Update subscription data in DB
+      await this.subscriptionModel.findOneAndUpdate(
+        { stripeSubscriptionId: stripeSubscription.id },
+        {
+          status: stripeSubscription.status as SubscriptionStatus,
+          currentPeriodStart: new Date(
+            stripeSubscription.current_period_start * 1000,
+          ),
+          currentPeriodEnd: new Date(
+            stripeSubscription.current_period_end * 1000,
+          ),
+          cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
+          canceledAt: stripeSubscription.canceled_at
+            ? new Date(stripeSubscription.canceled_at * 1000)
+            : null,
+          trialStart: stripeSubscription.trial_start
+            ? new Date(stripeSubscription.trial_start * 1000)
+            : null,
+          trialEnd: stripeSubscription.trial_end
+            ? new Date(stripeSubscription.trial_end * 1000)
+            : null,
+          metadata: {
+            priceId: priceId,
+          },
+          amountPaid,
+          cardLastFourDigit: last4,
+          cardType,
+          invoiceUrl,
+          receiptPdf,
+          plan: plan?._id ?? subscription.plan,
+        },
+        { new: true },
       );
-      return;
+
+      console.log(
+        `[Webhook] Subscription ${stripeSubscription.id} successfully updated.`,
+      );
+    } catch (error) {
+      console.error(
+        `[Webhook] Error updating subscription from webhook: ${error.message}`,
+      );
     }
-
-    subscription.status = stripeSubscription.status as SubscriptionStatus;
-    subscription.currentPeriodStart = new Date(
-      stripeSubscription.current_period_start * 1000,
-    );
-    subscription.currentPeriodEnd = new Date(
-      stripeSubscription.current_period_end * 1000,
-    );
-    subscription.cancelAtPeriodEnd = stripeSubscription.cancel_at_period_end;
-
-    if (stripeSubscription.canceled_at) {
-      subscription.canceledAt = new Date(stripeSubscription.canceled_at * 1000);
-    }
-
-    await subscription.save();
   }
 
   private async handleSubscriptionCanceled(

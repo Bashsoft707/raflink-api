@@ -274,19 +274,27 @@ export class StripeService {
     }
   }
 
-  async updateSubscription(subscriptionId: string, newPlanId: string) {
+  async updateSubscription(subscriptionId: string, newPlanPriceId: string) {
     try {
       const subscription =
         await this.stripe.subscriptions.retrieve(subscriptionId);
-      return this.stripe.subscriptions.update(subscriptionId, {
-        items: [
-          {
-            id: subscription.items.data[0].id,
-            price: newPlanId,
-          },
-        ],
-        proration_behavior: 'create_prorations',
-      });
+
+      const updatedSubscription = await this.stripe.subscriptions.update(
+        subscriptionId,
+        {
+          items: [
+            {
+              id: subscription.items.data[0].id,
+              price: newPlanPriceId,
+            },
+          ],
+          proration_behavior: 'create_prorations',
+          payment_behavior: 'default_incomplete',
+          expand: ['latest_invoice.payment_intent'],
+        },
+      );
+
+      return updatedSubscription;
     } catch (error) {
       if (error instanceof Stripe.errors.StripeError) {
         switch (error.type) {
@@ -309,5 +317,11 @@ export class StripeService {
         );
       }
     }
+  }
+
+  async retrieveInvoice(invoice: string) {
+    return await this.stripe.invoices.retrieve(invoice, {
+      expand: ['payment_intent.payment_method'],
+    });
   }
 }
