@@ -64,6 +64,12 @@ export class Subscription extends Document {
 
   @Prop({ type: Object })
   metadata: Record<string, any>;
+
+  @Prop({ type: String })
+  invoiceUrl: string;
+
+  @Prop({ type: String })
+  receiptPdf: string;
 }
 
 export type SubscriptionDocument = Subscription & Document;

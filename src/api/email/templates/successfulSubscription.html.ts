@@ -195,6 +195,14 @@ export const successfulSubscriptionTemplate = `
 
                 <p style="margin-top: 20px;">You now have full access to premium features and insights designed to grow your influence and revenue.</p>
 
+                <!-- Invoice download link -->
+                <p style="margin-top: 20px;">
+                  <strong>Download Invoice:</strong>
+                  <a href="{invoiceUrl}" target="_blank" style="color: #1b3b36; text-decoration: underline;">
+                    Click here to download your invoice (PDF)
+                  </a>
+                </p>
+
                 <!-- CTA Button with fallback -->
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="btn-container" style="margin-top: 20px;">
                   <tr>

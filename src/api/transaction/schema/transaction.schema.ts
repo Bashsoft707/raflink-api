@@ -44,6 +44,12 @@ export class Transaction {
 
   @Prop({ type: Number, required: true })
   amount: number;
+
+  @Prop({ type: String })
+  invoiceUrl: string;
+
+  @Prop({ type: String })
+  receiptPdf: string;
 }
 
 export type TransactionDocument = Transaction & Document<Types.ObjectId>;

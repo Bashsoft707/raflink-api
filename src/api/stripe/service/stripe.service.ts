@@ -275,16 +275,39 @@ export class StripeService {
   }
 
   async updateSubscription(subscriptionId: string, newPlanId: string) {
-    const subscription =
-      await this.stripe.subscriptions.retrieve(subscriptionId);
-    return this.stripe.subscriptions.update(subscriptionId, {
-      items: [
-        {
-          id: subscription.items.data[0].id,
-          price: newPlanId,
-        },
-      ],
-      proration_behavior: 'create_prorations',
-    });
+    try {
+      const subscription =
+        await this.stripe.subscriptions.retrieve(subscriptionId);
+      return this.stripe.subscriptions.update(subscriptionId, {
+        items: [
+          {
+            id: subscription.items.data[0].id,
+            price: newPlanId,
+          },
+        ],
+        proration_behavior: 'create_prorations',
+      });
+    } catch (error) {
+      if (error instanceof Stripe.errors.StripeError) {
+        switch (error.type) {
+          case 'StripeInvalidRequestError':
+            throw new BadRequestException(
+              `Invalid subscription update request: ${error.message}`,
+            );
+          case 'StripeAPIError':
+            throw new ServiceUnavailableException(
+              `Stripe service error: ${error.message}`,
+            );
+          default:
+            throw new InternalServerErrorException(
+              `Failed to update subscription: ${error.message}`,
+            );
+        }
+      } else {
+        throw new InternalServerErrorException(
+          `Failed to update subscription: ${error.message}`,
+        );
+      }
+    }
   }
 }

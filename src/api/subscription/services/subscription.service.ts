@@ -254,11 +254,11 @@ export class SubscriptionService {
 
       let validPaymentMethodId = paymentMethodId;
 
-      // if (process.env.NODE_ENV === 'development') {
-      //   validPaymentMethodId =
-      //     await this.stripeService.createTestPaymentMethod();
-      //   console.log(`Test payment method created: ${validPaymentMethodId}`);
-      // }
+      if (process.env.NODE_ENV === 'development') {
+        validPaymentMethodId =
+          await this.stripeService.createTestPaymentMethod();
+        console.log(`Test payment method created: ${validPaymentMethodId}`);
+      }
 
       await this.stripeService.attachPaymentMethod(
         validPaymentMethodId,
@@ -300,6 +300,11 @@ export class SubscriptionService {
         );
       }
 
+      const invoice = subscription.latest_invoice as Stripe.Invoice;
+
+      const invoiceUrl = invoice.hosted_invoice_url;
+      const receiptPdf = invoice.invoice_pdf;
+
       const newSubscription = await this.subscriptionModel.create({
         userId,
         stripeCustomerId,
@@ -330,6 +335,8 @@ export class SubscriptionService {
             : plan.price,
         cardLastFourDigit: last4,
         cardType,
+        invoiceUrl,
+        receiptPdf,
       });
 
       if (!newSubscription) {
@@ -349,6 +356,8 @@ export class SubscriptionService {
         cardLastFourDigit: last4,
         transactionDate: new Date(),
         status: TransactionStatus.SUCCESS,
+        invoiceUrl,
+        receiptPdf,
       };
 
       await this.transactionService.createTransaction(transactionPayload);
@@ -370,6 +379,7 @@ export class SubscriptionService {
           amount: newSubscription.amountPaid,
           cardType,
           last4,
+          invoiceUrl,
         },
       });
 
@@ -451,6 +461,12 @@ export class SubscriptionService {
         plan.priceId,
       );
 
+      if (!updatedSubscription) {
+        throw new InternalServerErrorException(
+          'Error in updating subscription',
+        );
+      }
+
       subscription.plan = plan;
       subscription.currentPeriodEnd = new Date(
         updatedSubscription.current_period_end * 1000,
@@ -459,7 +475,14 @@ export class SubscriptionService {
 
       return subscription.save();
     } catch (error) {
-      throw new Error(`Failed to update subscription: ${error.message}`);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      console.error('Subscription creation failed:', error);
+      throw new InternalServerErrorException(
+        `Failed to update subscription: ${error.message}`,
+      );
     }
   }
 

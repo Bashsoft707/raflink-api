@@ -70,6 +70,7 @@ export class EmailTemplateLoader {
       amount: data.amount,
       cardType: data.cardType,
       last4: data.last4,
+      invoiceUrl: data.invoiceUrl,
     };
     return this.insertParmasIntoTemplate(
       successfulSubscriptionTemplate,
