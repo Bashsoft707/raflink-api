@@ -532,6 +532,8 @@ export class SubscriptionService {
         stripeSubscriptionId: stripeSubscription.id,
       });
 
+      console.log("got here")
+
       if (!subscription) {
         console.warn(
           `[Webhook] Subscription not found for ID: ${stripeSubscription.id}`,
