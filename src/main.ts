@@ -8,12 +8,23 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import express from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
     cors: true,
   });
+
+  app.use(
+    express.json({
+      verify: (req: any, res: any, buf: Buffer, encoding: string) => {
+        if (buf && buf.length) {
+          (req as any).rawBody = buf;
+        }
+      },
+    }),
+  );
 
   app.useStaticAssets(join(__dirname, '..', 'public'));
 

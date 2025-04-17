@@ -528,15 +528,16 @@ export class SubscriptionService {
     stripeSubscription: Stripe.Subscription,
   ): Promise<void> {
     try {
+      console.log('stripe subscription', stripeSubscription);
       const subscription = await this.subscriptionModel.findOne({
-        stripeSubscriptionId: stripeSubscription.id,
+        stripeCustomerId: stripeSubscription.customer,
       });
 
-      console.log("got here")
+      console.log('got here', subscription);
 
       if (!subscription) {
         console.warn(
-          `[Webhook] Subscription not found for ID: ${stripeSubscription.id}`,
+          `[Webhook] Subscription not found for Customer: ${stripeSubscription.customer}`,
         );
         return;
       }

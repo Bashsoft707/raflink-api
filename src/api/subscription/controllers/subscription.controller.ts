@@ -12,6 +12,7 @@ import {
   Query,
   Param,
   Delete,
+  Res,
 } from '@nestjs/common';
 import { SubscriptionService } from '../services/subscription.service';
 import {
@@ -34,6 +35,7 @@ import { TokenData } from '../../authentication/dtos';
 import { Pagination } from '../../../common/dto/pagination.dto';
 import { RolesGuard } from '../../authentication/auth/role.guard';
 import { Roles } from '../../authentication/decorators/role.decorator';
+import { Response } from 'express';
 
 @ApiTags('subscriptions')
 @Controller('subscriptions')
@@ -178,10 +180,19 @@ export class SubscriptionController {
   @ApiExcludeEndpoint()
   @Post('webhook')
   @HttpCode(HttpStatus.OK)
-  async handleWebhook(@Req() req: RawBodyRequest<Request>) {
-    const signature = req.headers['stripe-signature'] as string | string[];
-    const endpointSecret =
-      this.configService.get<string>('STRIPE_WEBHOOK_SECRET') || '';
+  async handleWebhook(
+    @Req() req: RawBodyRequest<Request>,
+    @Res() res: Response,
+  ) {
+    const signature = req.headers['stripe-signature'] as string;
+    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    if (!signature || !endpointSecret) {
+      console.error('Missing signature or webhook secret');
+      return res
+        .status(401)
+        .json({ error: 'Missing signature or webhook secret' });
+    }
 
     try {
       const event = this.subscriptionService[
@@ -192,10 +203,12 @@ export class SubscriptionController {
         endpointSecret,
       );
 
+      console.log('Event verified successfully:', event.type);
       await this.subscriptionService.handleWebhookEvent(event);
-      return { received: true };
+      return res.status(200).json({ received: true });
     } catch (err) {
-      throw new Error(`Webhook Error: ${err.message}`);
+      console.error(`Webhook Error: ${err.message}`);
+      return res.status(400).json({ error: `Webhook Error: ${err.message}` });
     }
   }
 
