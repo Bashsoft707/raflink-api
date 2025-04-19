@@ -17,6 +17,7 @@ import { LinkModule } from './api/links/link.module';
 import { OfferModule } from './api/offer/offer.module';
 import { TransactionModule } from './api/transaction/transaction.module';
 import { AdminModule } from './api/admin/admin.module';
+import { NotificationModule } from './api/notification/notification.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { AdminModule } from './api/admin/admin.module';
     SubscriptionModule,
     TransactionModule,
     AdminModule,
+    NotificationModule
   ],
   controllers: [AppController],
   providers: [
