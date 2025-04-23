@@ -17,7 +17,7 @@ import { CreateUserDto } from '../dto';
 import { Roles } from '../../authentication/decorators/role.decorator';
 import { RolesGuard } from '../../authentication/auth/role.guard';
 
-@ApiTags('auth')
+@ApiTags('admin')
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
@@ -80,5 +80,23 @@ export class AdminController {
   @ApiOperation({ summary: 'Endpoint to create user account' })
   async createUser(@Body() body: CreateUserDto) {
     return await this.adminService.createUser(body);
+  }
+
+  @Get('/subscribers')
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles('admin', 'staff')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to get user with active subscriptions' })
+  async subscribers() {
+    return await this.adminService.getSubscribers();
+  }
+
+  @Get('/subscription-analytics')
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles('admin', 'staff')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to get subscription analytics' })
+  async getSubAnalytics() {
+    return await this.adminService.getSubscriptionAnalytics();
   }
 }

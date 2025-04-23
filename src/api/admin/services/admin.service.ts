@@ -35,7 +35,7 @@ import {
 import { SubscriptionService } from 'src/api/subscription/services/subscription.service';
 import Stripe from 'stripe';
 import { randomUUID } from 'crypto';
-import { TransactionStatus } from 'src/constants';
+import { SubscriptionStatus, TransactionStatus } from '../../../constants';
 import { TransactionService } from 'src/api/transaction/services/transaction.service';
 
 // const credentials = JSON.parse(fs.readFileSync('service-account.json', 'utf8'));
@@ -958,6 +958,52 @@ export class AdminService {
         message: 'User created and subscription activated successfully.',
         data: { user: newUser, subscription: newSubscription },
         error: null,
+      };
+    } catch (error) {
+      return errorHandler(error);
+    }
+  }
+
+  async getSubscribers() {
+    try {
+      const subscribers = await this.subscriptionModel
+        .find({
+          status: SubscriptionStatus.ACTIVE,
+        })
+        .populate('userId', 'displayName username')
+        .lean()
+        .exec();
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'Subscribers retrieved successfully.',
+        data: subscribers,
+      };
+    } catch (error) {
+      return errorHandler(error);
+    }
+  }
+
+  async getSubscriptionAnalytics() {
+    try {
+      const [plans, paidSub, freeSub] = await Promise.all([
+        this.subscriptionPlanModel.countDocuments({}),
+        this.subscriptionModel.countDocuments({
+          status: SubscriptionStatus.ACTIVE,
+          amountPaid: { $gt: 0 },
+        }),
+        this.subscriptionModel.countDocuments({
+          status: SubscriptionStatus.ACTIVE,
+          paymentMethodId: 'free',
+        }),
+      ]);
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'Subscription analytics retrieved successfully.',
+        data: { plans, paidSub, freeSub },
       };
     } catch (error) {
       return errorHandler(error);
