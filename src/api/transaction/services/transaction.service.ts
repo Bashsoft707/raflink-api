@@ -17,8 +17,8 @@ export class TransactionService {
     private readonly transactionModel: Model<TransactionDocument>,
   ) {}
 
-  createTransaction(payload) {
-    this.transactionModel.create(payload);
+  createTransaction(payload, session?: any) {
+    this.transactionModel.create([payload], { session });
   }
 
   async getUserTransactions(

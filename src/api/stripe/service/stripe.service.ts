@@ -111,6 +111,18 @@ export class StripeService {
     return customer;
   }
 
+  async updateCustomer(
+    stripeCustomerId: string,
+    amount: number,
+  ): Promise<Stripe.Customer> {
+    const amountInSmallestUnit = Math.round(amount * 100);
+
+    const customer = await this.stripe.customers.update(stripeCustomerId, {
+      balance: amountInSmallestUnit,
+    });
+    return customer;
+  }
+
   async getCustomers(): Promise<Stripe.Customer[]> {
     const customers = await this.stripe.customers.list();
     return customers.data;

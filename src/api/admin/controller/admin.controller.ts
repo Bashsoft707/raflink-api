@@ -1,9 +1,21 @@
-import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AdminService } from '../services/admin.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AccessTokenGuard } from '../../authentication/auth';
 import { GraphFilterDto } from '../../links/dtos';
 import { Types } from 'mongoose';
+import { CreateUserDto } from '../dto';
+import { Roles } from '../../authentication/decorators/role.decorator';
+import { RolesGuard } from '../../authentication/auth/role.guard';
 
 @ApiTags('auth')
 @Controller('admin')
@@ -59,5 +71,14 @@ export class AdminController {
     // const { user: tokenData } = req;
     // const { user } = tokenData as unknown as TokenData;
     return await this.adminService.deleteStaff(id);
+  }
+
+  @Post('/create-user')
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles('admin')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to create user account' })
+  async createUser(@Body() body: CreateUserDto) {
+    return await this.adminService.createUser(body);
   }
 }

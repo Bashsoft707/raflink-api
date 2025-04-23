@@ -17,6 +17,18 @@ import {
   Raflink,
   RaflinkSchema,
 } from '../authentication/schema/raflink.schema';
+import { AuthModule } from '../authentication/authentication.module';
+import { StripeService } from '../stripe/service/stripe.service';
+import { Subscription, SubscriptionSchema } from '../subscription/schema';
+import {
+  SubscriptionPlan,
+  SubscriptionPlanSchema,
+} from '../subscription/schema/subscriptionPlan.schema';
+import { SubscriptionService } from '../subscription/services/subscription.service';
+import { TransactionService } from '../transaction/services/transaction.service';
+import { EmailService } from '../email/email.service';
+import { EmailTemplateLoader } from '../email/email-template-loader';
+import { Transaction, TransactionSchema } from '../transaction/schema';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -44,9 +56,26 @@ import {
         name: Raflink.name,
         schema: RaflinkSchema,
       },
+      {
+        name: Subscription.name,
+        schema: SubscriptionSchema,
+      },
+      {
+        name: SubscriptionPlan.name,
+        schema: SubscriptionPlanSchema,
+      },
+      { name: Transaction.name, schema: TransactionSchema },
     ]),
+    AuthModule,
   ],
   controllers: [AdminController],
-  providers: [AdminService],
+  providers: [
+    AdminService,
+    StripeService,
+    SubscriptionService,
+    TransactionService,
+    EmailService,
+    EmailTemplateLoader,
+  ],
 })
 export class AdminModule {}

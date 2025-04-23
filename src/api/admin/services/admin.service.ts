@@ -1,8 +1,14 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import {
+  BadRequestException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 // import * as google from 'googleapis';
 import { User, UserDocument } from '../../authentication/schema';
-import { Model, Types } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import {
   Merchant,
   MerchantDocument,
@@ -19,6 +25,18 @@ import {
   Raflink,
   RaflinkDocument,
 } from '../../authentication/schema/raflink.schema';
+import { CreateUserDto } from '../dto';
+import { Subscription, SubscriptionDocument } from '../../subscription/schema';
+import { StripeService } from '../../stripe/service/stripe.service';
+import {
+  SubscriptionPlan,
+  SubscriptionPlanDocument,
+} from '../../subscription/schema/subscriptionPlan.schema';
+import { SubscriptionService } from 'src/api/subscription/services/subscription.service';
+import Stripe from 'stripe';
+import { randomUUID } from 'crypto';
+import { TransactionStatus } from 'src/constants';
+import { TransactionService } from 'src/api/transaction/services/transaction.service';
 
 // const credentials = JSON.parse(fs.readFileSync('service-account.json', 'utf8'));
 
@@ -30,6 +48,7 @@ import {
 @Injectable()
 export class AdminService {
   constructor(
+    @InjectConnection() private connection: Connection,
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(Merchant.name)
     private readonly merchantModel: Model<MerchantDocument>,
@@ -39,6 +58,16 @@ export class AdminService {
     private readonly profileViewModel: Model<ProfileViewDocument>,
     @InjectModel(Raflink.name)
     private readonly raflinkModel: Model<RaflinkDocument>,
+    @InjectModel(Subscription.name)
+    private readonly subscriptionModel: Model<SubscriptionDocument>,
+    @InjectModel(SubscriptionPlan.name)
+    private readonly subscriptionPlanModel: Model<SubscriptionPlanDocument>,
+    @Inject(StripeService)
+    private readonly stripeService: StripeService,
+    @Inject(SubscriptionService)
+    private readonly subscriptionService: SubscriptionService,
+    @Inject(TransactionService)
+    private readonly transactionService: TransactionService,
   ) {}
   // async getDashboardAnalytics() {
   //   // const analytics = google.analyticsreporting_v4({
@@ -789,6 +818,7 @@ export class AdminService {
       errorHandler(error);
     }
   }
+
   async getStaffs() {
     try {
       const staffs = await this.raflinkModel.find({ role: 'staff' });
@@ -815,6 +845,122 @@ export class AdminService {
       };
     } catch (error) {
       errorHandler(error);
+    }
+  }
+
+  async createUser(dto: CreateUserDto) {
+    try {
+      const { email } = dto;
+
+      const user = await this.userModel.findOne({ email }).lean().exec();
+
+      if (user) {
+        throw new BadRequestException(
+          `There's an existing user with this email: ${email}`,
+        );
+      }
+
+      const newUser = await this.userModel.create(dto);
+
+      if (!newUser) {
+        throw new InternalServerErrorException('Error in creating user');
+      }
+
+      const subscriptionPlan = await this.subscriptionPlanModel
+        .findOne({
+          duration: 'year',
+        })
+        .lean()
+        .exec();
+
+      if (!subscriptionPlan) {
+        throw new BadRequestException('Yearly subscription plan not found');
+      }
+
+      const stripeCustomerId =
+        await this.subscriptionService.getOrCreateCustomer(newUser._id);
+
+      const yearlyAmount = subscriptionPlan.price;
+
+      await this.stripeService.updateCustomer(stripeCustomerId, -yearlyAmount);
+
+      const subscriptionData: Stripe.SubscriptionCreateParams = {
+        customer: stripeCustomerId,
+        items: [{ price: subscriptionPlan.priceId }],
+        expand: ['latest_invoice.payment_intent'],
+      };
+
+      const subscription =
+        await this.stripeService.createSubscription(subscriptionData);
+
+      if (!subscription) {
+        throw new InternalServerErrorException(
+          'Error in creating subscription',
+        );
+      }
+
+      const invoice = subscription.latest_invoice as Stripe.Invoice;
+
+      const invoiceUrl = invoice.hosted_invoice_url;
+      const receiptPdf = invoice.invoice_pdf;
+
+      const newSubscription = await this.subscriptionModel.create({
+        userId: newUser._id,
+        stripeCustomerId,
+        stripeSubscriptionId: subscription.id,
+        plan: subscriptionPlan._id,
+        paymentMethodId: 'free',
+        status: subscription.status,
+        currentPeriodStart: new Date(subscription.current_period_start * 1000),
+        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+        cancelAtPeriodEnd: subscription.cancel_at_period_end,
+        canceledAt: subscription.canceled_at
+          ? new Date(subscription.canceled_at * 1000)
+          : null,
+        trialStart: subscription.trial_start
+          ? new Date(subscription.trial_start * 1000)
+          : null,
+        trialEnd: subscription.trial_end
+          ? new Date(subscription.trial_end * 1000)
+          : null,
+        metadata: {
+          priceId: subscriptionPlan.priceId,
+        },
+        amountPaid: 0,
+        invoiceUrl,
+        receiptPdf,
+      });
+
+      if (!newSubscription) {
+        throw new InternalServerErrorException(
+          'Error in creating subscription',
+        );
+      }
+
+      const transactionPayload = {
+        userId: newUser._id,
+        amount: 0,
+        description: 'Payment for user susbcription',
+        transactionType: 'subscription',
+        currency: subscriptionPlan.currency,
+        transactionRef: randomUUID(),
+        transactionDate: new Date(),
+        status: TransactionStatus.SUCCESS,
+        invoiceUrl,
+        receiptPdf,
+      };
+
+      await this.transactionService.createTransaction(transactionPayload);
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.CREATED,
+        message: 'User created and subscription activated successfully.',
+        data: { user: newUser, subscription: newSubscription },
+        error: null,
+      };
+    } catch (error) {
+      return errorHandler(error);
     }
   }
 }
