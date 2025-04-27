@@ -32,6 +32,7 @@ import { TransactionService } from '../../transaction/services/transaction.servi
 import { randomUUID } from 'crypto';
 import { EmailService } from '../../email/email.service';
 import { ConfigService } from '@nestjs/config';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class SubscriptionService {
@@ -754,6 +755,122 @@ export class SubscriptionService {
         statusCode: HttpStatus.OK,
         message: 'Coupons retrieved successfully',
         data: coupons,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async handleExpirationReminder() {
+    try {
+      const sevenDaysFromNow = new Date();
+      sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+
+      const subscriptionsExpiringSoon = await this.subscriptionModel
+        .find({
+          status: SubscriptionStatus.ACTIVE,
+          cancelAtPeriodEnd: false,
+          currentPeriodEnd: { $lte: sevenDaysFromNow },
+        })
+        .populate('plan', 'name price')
+        .lean()
+        .exec();
+
+      for (const subscription of subscriptionsExpiringSoon) {
+        const user = await this.userModel.findOne({ _id: subscription.userId });
+
+        if (!user) {
+          console.warn(
+            `User not found for subscription ID: ${subscription._id}`,
+          );
+          continue;
+        }
+
+        await this.emailService.sendEmail({
+          receiver: String(user.email),
+          subject: 'Subscription Expiration Reminder',
+          body: `Your subscription is set to expire on ${subscription.currentPeriodEnd}. Please renew it to continue enjoying our services.`,
+          templateKey: TEMPLATES.SUBSCRIPTION_EXPIRATION,
+          data: {
+            name: user.displayName || user.username,
+            companyEmail: this.configService.get(ENV.EMAIL_FROM),
+            expirationDate: subscription.currentPeriodEnd,
+            planName: subscription.plan.name,
+            planPrice: subscription.plan.price,
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Error sending expiration reminder:', error);
+    }
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async handleExpiredSubscriptionNotification() {
+    try {
+      const now = new Date();
+
+      const expiredSubscriptions = await this.subscriptionModel
+        .find({
+          status: SubscriptionStatus.ACTIVE,
+          cancelAtPeriodEnd: false,
+          currentPeriodEnd: { $lt: now },
+        })
+        .populate('plan', 'name price')
+        .lean()
+        .exec();
+
+      for (const subscription of expiredSubscriptions) {
+        const user = await this.userModel.findOne({ _id: subscription.userId });
+
+        if (!user) {
+          console.warn(
+            `User not found for subscription ID: ${subscription._id}`,
+          );
+          continue;
+        }
+
+        await this.emailService.sendEmail({
+          receiver: String(user.email),
+          subject: 'Subscription Expired',
+          body: `Your subscription has expired. Please renew it to continue enjoying our services.`,
+          templateKey: TEMPLATES.SUBSCRIPTION_EXPIRATION,
+          data: {
+            name: user.displayName || user.username,
+            companyEmail: this.configService.get(ENV.EMAIL_FROM),
+            expirationDate: subscription.currentPeriodEnd,
+            planName: subscription.plan.name,
+            planPrice: subscription.plan.price,
+          },
+        });
+
+        subscription.status = SubscriptionStatus.EXPIRED;
+        await subscription.save();
+      }
+    } catch (error) {
+      console.error('Error notifying expired subscriptions:', error);
+    }
+  }
+
+  async getSubscriptionById(id: string) {
+    try {
+      const subscription = await this.subscriptionModel
+        .findById(id)
+        .populate('plan', 'name price')
+        .lean()
+        .exec();
+
+      if (!subscription) {
+        throw new NotFoundException('Subscription not found');
+      }
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'Subscription retrieved successfully',
+        data: subscription,
         error: null,
       };
     } catch (error) {

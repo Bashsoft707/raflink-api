@@ -7,6 +7,7 @@ import { otpTemplate } from './templates/otp.html';
 import { waitingListTemplate } from './templates/waitinglist.html';
 import { accountSetupTemplate } from './templates/accountsetup.html';
 import { successfulSubscriptionTemplate } from './templates/successfulSubscription.html';
+import { subscriptionExpirationTemplate } from './templates/subscriptionExpiration.html';
 
 @Injectable()
 export class EmailTemplateLoader {
@@ -78,6 +79,19 @@ export class EmailTemplateLoader {
     );
   }
 
+  subscriptionExpirationTemplate(data: any) {
+    const params = {
+      name: data.name,
+      expirationDate: data.expirationDate,
+      planName: data.planName,
+      raflink_email: data.companyEmail,
+    };
+    return this.insertParmasIntoTemplate(
+      subscriptionExpirationTemplate,
+      params,
+    );
+  }
+
   unsupported() {
     return 'template not supported';
   }
@@ -105,6 +119,9 @@ export class EmailTemplateLoader {
         break;
       case TEMPLATES.SUCCESSFUL_SUBSCRIPTION:
         template = this.successfulSubscriptionTemplate(data);
+        break;
+      case TEMPLATES.SUBSCRIPTION_EXPIRATION:
+        template = this.subscriptionExpirationTemplate(data);
         break;
       default:
         return this.unsupported();

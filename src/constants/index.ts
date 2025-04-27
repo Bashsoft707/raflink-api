@@ -41,6 +41,7 @@ export enum TEMPLATES {
   WAITLIST = 'WAITLIST',
   ACCOUNTSETUP = 'ACCOUNTSETUP',
   SUCCESSFUL_SUBSCRIPTION = 'SUCCESSFUL_SUBSCRIPTION',
+  SUBSCRIPTION_EXPIRATION = 'SUBSCRIPTION_EXPIRATION',
 }
 
 export enum OTPRELAX {
@@ -79,6 +80,7 @@ export enum SubscriptionStatus {
   UNPAID = 'unpaid',
   INCOMPLETE = 'incomplete',
   INCOMPLETE_EXPIRED = 'incomplete_expired',
+  EXPIRED = 'expired',
 }
 
 export enum SubscriptionPlan {
