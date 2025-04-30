@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema, Types } from 'mongoose';
+import { AffiliateType } from '../../../constants';
 
 @Schema({
   timestamps: true,
@@ -75,6 +76,9 @@ export class Offer {
 
   @Prop({ type: Number, default: 0 })
   discount: number;
+
+  @Prop({ enum: AffiliateType, default: AffiliateType.PRODUCT })
+  affiliateType: string;
 }
 
 export type OfferDocument = Offer & Document<Types.ObjectId>;

@@ -96,3 +96,8 @@ export enum TransactionStatus {
   ABANDONED = 'ABANDONED',
   INCOMPLETE = 'INCOMPLETE',
 }
+
+export enum AffiliateType {
+  PRODUCT = 'product',
+  SERVICE = 'service',
+}

@@ -21,8 +21,11 @@ export class Merchant {
   @Prop({ lowercase: true })
   businessCategory: string;
 
-  @Prop({ lowercase: true })
+  @Prop({ type: String, lowercase: true })
   websiteUrl: string;
+
+  @Prop({ type: String, lowercase: true })
+  affiliateUrl: string;
 
   @Prop({ default: false })
   verified: boolean;

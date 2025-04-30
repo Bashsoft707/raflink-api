@@ -16,7 +16,9 @@ import {
   IsDateString,
   ValidateNested,
   IsMongoId,
+  IsEnum,
 } from 'class-validator';
+import { AffiliateType } from '../../../constants';
 
 export class DurationDto {
   @IsOptional()
@@ -100,6 +102,17 @@ export class CreateOfferDto {
     title: 'discountType',
   })
   discountType: string;
+
+  @IsString()
+  @IsOptional()
+  @IsEnum(AffiliateType)
+  @ApiProperty({
+    description: 'Affiliate Type',
+    example: AffiliateType.PRODUCT,
+    required: false,
+    title: 'affiliateType',
+  })
+  affiliateType: string;
 
   @IsNotEmpty()
   @IsString()
@@ -239,6 +252,17 @@ export class UpdateOfferDto {
     title: 'discountType',
   })
   discountType: string;
+
+  @IsString()
+  @IsOptional()
+  @IsEnum(AffiliateType)
+  @ApiProperty({
+    description: 'Affiliate Type',
+    example: AffiliateType.PRODUCT,
+    required: false,
+    title: 'affiliateType',
+  })
+  affiliateType: string;
 
   @IsOptional()
   @IsString()

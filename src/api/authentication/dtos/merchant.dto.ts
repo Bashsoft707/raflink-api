@@ -59,6 +59,16 @@ export class UpdateMerchantDto {
   @IsString()
   @IsOptional()
   @ApiProperty({
+    description: 'Affiliate url',
+    example: 'www.merchant.com',
+    required: false,
+    title: 'affiliateUrl',
+  })
+  affiliateUrl: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
     description: 'The pictureor logo of the business',
     example: 'https://logo.png',
     required: false,
