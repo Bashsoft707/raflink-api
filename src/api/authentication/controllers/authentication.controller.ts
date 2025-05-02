@@ -346,4 +346,19 @@ export class AuthController {
   ) {
     return await this.authService.updateShareCount(param.username, body);
   }
+
+  @Post('domain/verify/:domainName')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Endpoint to check if domain name is available or not',
+  })
+  @ApiParam({
+    name: 'domainName',
+    description: 'The domain name you want to check its availability',
+    required: true,
+    type: String,
+  })
+  async checkDomain(@Param() param: { domainName: string }) {
+    return await this.authService.domainAvailability(param.domainName);
+  }
 }

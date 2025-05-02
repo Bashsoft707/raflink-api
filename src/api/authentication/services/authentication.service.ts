@@ -42,6 +42,7 @@ import {
 } from '../dtos/raflnk.dto';
 import { ShareCount, ShareCountDocument } from '../schema/shareCount.schema';
 import { OtpAuthService } from './otp-auth.service';
+import axios from 'axios';
 // import { UpdateStaffDto } from '../dtos/raflnk.dto';
 
 @Injectable()
@@ -1384,5 +1385,35 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  async domainAvailability(domainName: string) {
+    try {
+      const response = await axios.get(
+        `${process.env.DOMAIN_API_URL}?apiKey=${process.env.DOMAIN_API_KEY}&domainName=${domainName}`,
+      );
+
+      const { data } = response;
+
+      if (data && data.DomainInfo?.domainAvailability === 'AVAILABLE') {
+        return {
+          status: 'success',
+          statusCode: HttpStatus.OK,
+          message: 'Domain is available',
+          data,
+          error: null,
+        };
+      } else {
+        return {
+          status: 'fail',
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Domain is not available',
+          data: null,
+          error: null,
+        };
+      }
+    } catch (error) {
+      errorHandler(error);
+    }
   }
 }
