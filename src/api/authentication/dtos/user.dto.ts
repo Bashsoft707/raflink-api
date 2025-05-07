@@ -320,3 +320,96 @@ export class VerifyTwoFactorDto {
   })
   token: string;
 }
+
+export class UserDetailsDto {
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({
+    description: 'First name of the user',
+    example: 'John',
+    required: true,
+    title: 'First Name',
+  })
+  @Transform(({ value }) => String(value).trim())
+  firstName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({
+    description: 'Last name of the user',
+    example: 'Doe',
+    required: true,
+    title: 'Last Name',
+  })
+  @Transform(({ value }) => String(value).trim())
+  lastName: string;
+
+  @IsEmail()
+  @ApiProperty({
+    description: 'Email address of the user',
+    example: 'raflink@example.com',
+    required: true,
+    title: 'Email',
+  })
+  @Transform(({ value }) => String(value).toLowerCase().trim())
+  email: string;
+
+  @IsString()
+  @ApiProperty({
+    description: 'Phone number of the user',
+    example: '+2349038275617',
+    required: true,
+    title: 'Phone Number',
+  })
+  phone: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'User address',
+    example: '123 Street Name, City, Country',
+    required: false,
+    title: 'Address',
+  })
+  address1: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'City of residence',
+    example: 'Lagos',
+    required: false,
+    title: 'City',
+  })
+  city: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'State or Province of residence',
+    example: 'Lagos State',
+    required: false,
+    title: 'State',
+  })
+  state: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Postal code or ZIP code of the user',
+    example: '23401',
+    required: false,
+    title: 'Zip Code',
+  })
+  zip: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Country of residence',
+    example: 'Nigeria',
+    required: false,
+    title: 'Country',
+  })
+  country: string;
+}
