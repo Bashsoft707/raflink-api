@@ -18,6 +18,7 @@ import { OfferModule } from './api/offer/offer.module';
 import { TransactionModule } from './api/transaction/transaction.module';
 import { AdminModule } from './api/admin/admin.module';
 import { NotificationModule } from './api/notification/notification.module';
+import { DomainModule } from './api/domain/domain.module';
 
 @Module({
   imports: [
@@ -41,7 +42,8 @@ import { NotificationModule } from './api/notification/notification.module';
     SubscriptionModule,
     TransactionModule,
     AdminModule,
-    NotificationModule
+    NotificationModule,
+    DomainModule,
   ],
   controllers: [AppController],
   providers: [

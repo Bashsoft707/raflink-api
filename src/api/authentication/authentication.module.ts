@@ -23,8 +23,6 @@ import { Raflink, RaflinkSchema } from './schema/raflink.schema';
 import { ShareCount, ShareCountSchema } from './schema/shareCount.schema';
 import { MerchantGoogleStrategy } from './auth/google.merchant.strategy';
 import { OtpAuthService } from './services/otp-auth.service';
-import { DomainService } from './services/domain.service';
-import { DomainController } from './controllers/domain.controller';
 
 @Module({
   imports: [
@@ -62,7 +60,6 @@ import { DomainController } from './controllers/domain.controller';
     AuthService,
     OtpService,
     OtpAuthService,
-    DomainService,
     EncryptService,
     EmailService,
     EmailTemplateLoader,
@@ -71,7 +68,7 @@ import { DomainController } from './controllers/domain.controller';
     GoogleStrategy,
     MerchantGoogleStrategy,
   ],
-  controllers: [AuthController, DomainController],
+  controllers: [AuthController],
   exports: [AuthService],
 })
 export class AuthModule {}

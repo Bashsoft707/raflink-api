@@ -413,3 +413,15 @@ export class UserDetailsDto {
   })
   country: string;
 }
+
+export class PurchaseDomainDto extends UserDetailsDto {
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({
+    description: 'Stripe payment ID',
+    example: 'pm_1J4C2z2eZvKYlo2C3LsZc8rF',
+    required: true,
+    title: 'paymentId',
+  })
+  paymentId: string;
+}

@@ -1,13 +1,28 @@
-import { Body, Controller, Post, Param, Get } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Param,
+  Get,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { UserDetailsDto } from '../dtos';
+import {
+  PurchaseDomainDto,
+  TokenData,
+  UserDetailsDto,
+} from '../../authentication/dtos';
 import { ConfigService } from '@nestjs/config';
 import { DomainService } from '../services/domain.service';
+import { AccessTokenGuard } from '../../authentication/auth';
+import { Request } from 'express';
+import { Types } from 'mongoose';
 
 @ApiTags('domain')
 @Controller('domain')
@@ -33,7 +48,8 @@ export class DomainController {
   }
 
   @Post('/:domainName/purchase/create-session')
-  // @UseGuards(AuthGuard)
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Create domain purchase session with payment intent',
   })
@@ -44,17 +60,22 @@ export class DomainController {
     type: String,
   })
   async createPurchaseSession(
+    @Req() req: Request,
     @Param() param: { domainName: string },
     @Body() purchaseData: UserDetailsDto,
   ) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
     return this.domainService.createDomainPurchaseSession(
       param.domainName,
       1,
       purchaseData,
+      user,
     );
   }
 
   @Post('/:domainName/purchase')
+  @UseGuards(AccessTokenGuard)
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Endpoint to purchase a domain name',
@@ -66,9 +87,16 @@ export class DomainController {
     type: String,
   })
   async purchaseDomain(
+    @Req() req: Request,
     @Param() param: { domainName: string },
-    @Body() body: UserDetailsDto,
+    @Body() body: PurchaseDomainDto,
   ) {
-    return await this.domainService.purchaseDomain(param.domainName, body);
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return await this.domainService.purchaseDomain(
+      param.domainName,
+      user,
+      body,
+    );
   }
 }

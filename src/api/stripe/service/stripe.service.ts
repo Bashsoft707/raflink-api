@@ -336,4 +336,42 @@ export class StripeService {
       expand: ['payment_intent.payment_method'],
     });
   }
+
+  async purchaseDomain(
+    domainName: string,
+    years: number,
+    totalAmount: number,
+    userId: string,
+  ) {
+    const paymentIntent = await this.stripe.paymentIntents.create({
+      amount: totalAmount,
+      currency: 'usd',
+      description: `Domain registration: ${domainName} (${years} year${years > 1 ? 's' : ''})`,
+      metadata: {
+        domain: domainName,
+        years,
+        userId: userId || 'guest',
+      },
+    });
+
+    return paymentIntent;
+  }
+
+  async verifyStripePayment(
+    paymentIntentId: string,
+    domainName: string,
+  ): Promise<boolean> {
+    try {
+      const paymentIntent =
+        await this.stripe.paymentIntents.retrieve(paymentIntentId);
+
+      return (
+        paymentIntent.status === 'succeeded' &&
+        paymentIntent.metadata?.domain === domainName
+      );
+    } catch (error) {
+      console.error('Error verifying Stripe payment:', error);
+      return false;
+    }
+  }
 }
