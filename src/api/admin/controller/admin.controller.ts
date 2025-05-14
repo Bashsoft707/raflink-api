@@ -7,6 +7,7 @@ import {
   Query,
   Req,
   UseGuards,
+  Patch,
 } from '@nestjs/common';
 import { AdminService } from '../services/admin.service';
 import {
@@ -14,6 +15,7 @@ import {
   ApiOperation,
   ApiParam,
   ApiTags,
+  ApiBody,
 } from '@nestjs/swagger';
 import { AccessTokenGuard } from '../../authentication/auth';
 import { GraphFilterDto } from '../../links/dtos';
@@ -153,5 +155,36 @@ export class AdminController {
   })
   async getUser(@Param() param: { id: string }) {
     return await this.adminService.getEntityDetails(param.id);
+  }
+
+  @Patch('/:id/status')
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles('admin', 'staff')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Activate or deactivate a user or merchant by ID' })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the user or merchant',
+    required: true,
+    type: String,
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        isActive: {
+          type: 'boolean',
+          description: 'Set to true to activate, false to deactivate',
+          example: true,
+        },
+      },
+      required: ['isActive'],
+    },
+  })
+  async toggleEntityStatus(
+    @Param('id') id: string,
+    @Body('isActive') isActive: boolean,
+  ) {
+    return this.adminService.toggleEntityStatus(id, isActive);
   }
 }

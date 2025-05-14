@@ -30,6 +30,9 @@ export class Merchant {
   @Prop({ default: false })
   verified: boolean;
 
+  @Prop({ default: true })
+  isActive: boolean;
+
   @Prop({ required: false })
   businessLogo: string;
 

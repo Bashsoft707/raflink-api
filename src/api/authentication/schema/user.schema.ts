@@ -81,6 +81,9 @@ export class User {
   @Prop({ type: Boolean, default: false })
   verified: boolean;
 
+  @Prop({ type: Boolean, default: true })
+  isActive: boolean;
+
   @Prop({ default: null })
   @Exclude()
   refreshToken: string;

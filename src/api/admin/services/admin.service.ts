@@ -1112,23 +1112,34 @@ export class AdminService {
     }
   }
 
-  // async toggleEntityStatus(id: string, isActive: boolean) {
-  //   try {
-  //     const model =
-  //       (await this.userModel.findById(id)) ||
-  //       (await this.merchantModel.findById(id));
-  //     if (!model) throw new NotFoundException('User not found');
+  async toggleEntityStatus(id: string, isActive: boolean) {
+    try {
+      const updatedUser =
+        (await this.userModel.findByIdAndUpdate(
+          id,
+          { isActive },
+          { new: true },
+        )) ||
+        (await this.merchantModel.findByIdAndUpdate(
+          id,
+          { isActive },
+          { new: true },
+        ));
 
-  //     model.isActive = isActive;
-  //     await model.save();
+      if (!updatedUser) {
+        throw new InternalServerErrorException(
+          'Error in activating or deactivating user',
+        );
+      }
 
-  //     return {
-  //       status: 'success',
-  //       statusCode: HttpStatus.OK,
-  //       message: `User ${isActive ? 'activated' : 'deactivated'} successfully.`,
-  //     };
-  //   } catch (error) {
-  //     return errorHandler(error);
-  //   }
-  // }
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: `User ${isActive ? 'activated' : 'deactivated'} successfully.`,
+        data: updatedUser,
+      };
+    } catch (error) {
+      return errorHandler(error);
+    }
+  }
 }
