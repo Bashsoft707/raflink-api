@@ -29,6 +29,7 @@ import { TransactionService } from '../transaction/services/transaction.service'
 import { EmailService } from '../email/email.service';
 import { EmailTemplateLoader } from '../email/email-template-loader';
 import { Transaction, TransactionSchema } from '../transaction/schema';
+import { Link, LinkSchema } from '../links/schema';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -65,6 +66,7 @@ import { Transaction, TransactionSchema } from '../transaction/schema';
         schema: SubscriptionPlanSchema,
       },
       { name: Transaction.name, schema: TransactionSchema },
+      { name: Link.name, schema: LinkSchema },
     ]),
     AuthModule,
   ],

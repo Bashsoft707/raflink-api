@@ -4,6 +4,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 // import * as google from 'googleapis';
@@ -25,7 +26,7 @@ import {
   Raflink,
   RaflinkDocument,
 } from '../../authentication/schema/raflink.schema';
-import { CreateUserDto } from '../dto';
+import { CreateUserDto, UserFilterDto } from '../dto';
 import { Subscription, SubscriptionDocument } from '../../subscription/schema';
 import { StripeService } from '../../stripe/service/stripe.service';
 import {
@@ -37,6 +38,7 @@ import Stripe from 'stripe';
 import { randomUUID } from 'crypto';
 import { SubscriptionStatus, TransactionStatus } from '../../../constants';
 import { TransactionService } from 'src/api/transaction/services/transaction.service';
+import { Link, LinkDocument } from 'src/api/links/schema';
 
 // const credentials = JSON.parse(fs.readFileSync('service-account.json', 'utf8'));
 
@@ -62,6 +64,7 @@ export class AdminService {
     private readonly subscriptionModel: Model<SubscriptionDocument>,
     @InjectModel(SubscriptionPlan.name)
     private readonly subscriptionPlanModel: Model<SubscriptionPlanDocument>,
+    @InjectModel(Link.name) private readonly linkModel: Model<LinkDocument>,
     @Inject(StripeService)
     private readonly stripeService: StripeService,
     @Inject(SubscriptionService)
@@ -1009,4 +1012,123 @@ export class AdminService {
       return errorHandler(error);
     }
   }
+
+  private getModel(type: string): Model<any> {
+    if (type === 'user') return this.userModel;
+    if (type === 'merchant') return this.merchantModel;
+    throw new BadRequestException('Invalid type provided');
+  }
+
+  async getEntities(type: 'user' | 'merchant', query: UserFilterDto) {
+    try {
+      const { name, page = 1, limit = 10 } = query;
+      const skip = (page - 1) * limit;
+
+      const searchQuery = {};
+      if (name) {
+        searchQuery['displayName'] = new RegExp(name, 'i');
+      }
+
+      const model = this.getModel(type);
+      const [total, data] = await Promise.all([
+        model.countDocuments(searchQuery),
+        model
+          .find(searchQuery, '-__v -refreshToken')
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+      ]);
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: `${type}s retrieved successfully.`,
+        data: { data, total, page, limit },
+      };
+    } catch (error) {
+      return errorHandler(error);
+    }
+  }
+
+  async getEntityAnalytics(type: 'user' | 'merchant') {
+    try {
+      const model = this.getModel(type);
+      const total = await model.countDocuments();
+
+      const users = await model.find({}, '_id').lean();
+      const userIds = users.map((u) => u._id);
+
+      const userQuery =
+        type === 'user'
+          ? { userId: { $in: userIds } }
+          : { merchantId: { $in: userIds } };
+
+      const [offers, closedDeals, earnings] = await Promise.all([
+        this.OfferModel.countDocuments(userQuery),
+        this.linkModel.countDocuments({
+          userId: { $in: userIds },
+          status: 'closed',
+        }),
+        this.linkModel.aggregate([
+          { $match: { userId: { $in: userIds } } },
+          { $group: { _id: null, total: { $sum: '$earning' } } },
+        ]),
+      ]);
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: `${type} analytics fetched successfully.`,
+        data: {
+          [`${type}s`]: total,
+          offers,
+          closedDeals,
+          earnings: earnings[0]?.total || 0,
+        },
+      };
+    } catch (error) {
+      return errorHandler(error);
+    }
+  }
+
+  async getEntityDetails(id: string) {
+    try {
+      const user =
+        (await this.userModel.findById(id, '-__v -refreshToken').lean()) ||
+        (await this.merchantModel.findById(id, '-__v -refreshToken').lean());
+
+      if (!user) throw new NotFoundException('User not found');
+
+      const links = await this.linkModel.find({ userId: id }, '-userId').lean();
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'User retrieved successfully.',
+        data: { user, links },
+      };
+    } catch (error) {
+      return errorHandler(error);
+    }
+  }
+
+  // async toggleEntityStatus(id: string, isActive: boolean) {
+  //   try {
+  //     const model =
+  //       (await this.userModel.findById(id)) ||
+  //       (await this.merchantModel.findById(id));
+  //     if (!model) throw new NotFoundException('User not found');
+
+  //     model.isActive = isActive;
+  //     await model.save();
+
+  //     return {
+  //       status: 'success',
+  //       statusCode: HttpStatus.OK,
+  //       message: `User ${isActive ? 'activated' : 'deactivated'} successfully.`,
+  //     };
+  //   } catch (error) {
+  //     return errorHandler(error);
+  //   }
+  // }
 }

@@ -1390,7 +1390,7 @@ export class AuthService {
   async domainAvailability(domainName: string) {
     try {
       const response = await axios.get(
-        `${process.env.DOMAIN_API_URL}?apiKey=${process.env.DOMAIN_API_KEY}&domainName=${domainName}`,
+        `${process.env.WHO_IS_API_URL}?apiKey=${process.env.WHO_IS_API_KEY}&domainName=${domainName}`,
       );
 
       const { data } = response;

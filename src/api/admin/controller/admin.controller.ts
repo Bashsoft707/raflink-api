@@ -9,11 +9,16 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AdminService } from '../services/admin.service';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AccessTokenGuard } from '../../authentication/auth';
 import { GraphFilterDto } from '../../links/dtos';
 import { Types } from 'mongoose';
-import { CreateUserDto } from '../dto';
+import { CreateUserDto, UserFilterDto } from '../dto';
 import { Roles } from '../../authentication/decorators/role.decorator';
 import { RolesGuard } from '../../authentication/auth/role.guard';
 
@@ -26,7 +31,7 @@ export class AdminController {
   @UseGuards(AccessTokenGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Endpoint to get user info' })
-  async getUser(@Req() req: Request) {
+  async getAdmin(@Req() req: Request) {
     // const { user: tokenData } = req;
     // const { user } = tokenData as unknown as TokenData;
     return await this.adminService.getDashboardAnalytics();
@@ -98,5 +103,55 @@ export class AdminController {
   @ApiOperation({ summary: 'Endpoint to get subscription analytics' })
   async getSubAnalytics() {
     return await this.adminService.getSubscriptionAnalytics();
+  }
+
+  @Get('/:type')
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles('admin', 'staff')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to get list of influnecers or merchants' })
+  @ApiParam({
+    name: 'type',
+    description: 'The type of user (user or merchants)',
+    required: true,
+    type: String,
+  })
+  async getUsers(
+    @Param() param: { type: 'user' | 'merchant' },
+    @Query() query: UserFilterDto,
+  ) {
+    return await this.adminService.getEntities(param.type, query);
+  }
+
+  @Get('/:type/analytics')
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles('admin', 'staff')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Endpoint to get analytics of influnecers or merchants',
+  })
+  @ApiParam({
+    name: 'type',
+    description: 'The type of user (user or merchants)',
+    required: true,
+    type: String,
+  })
+  async getUserAnalytics(@Param() param: { type: 'user' | 'merchant' }) {
+    return await this.adminService.getEntityAnalytics(param.type);
+  }
+
+  @Get('/details/:id')
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles('admin', 'staff')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to get influencer or merchant' })
+  @ApiParam({
+    name: 'id',
+    description: 'The id of user (user or merchants)',
+    required: true,
+    type: String,
+  })
+  async getUser(@Param() param: { id: string }) {
+    return await this.adminService.getEntityDetails(param.id);
   }
 }
