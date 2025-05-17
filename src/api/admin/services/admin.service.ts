@@ -1024,26 +1024,61 @@ export class AdminService {
       const { name, page = 1, limit = 10 } = query;
       const skip = (page - 1) * limit;
 
-      const searchQuery = {};
+      const filter: Record<string, any> = {};
       if (name) {
-        searchQuery['displayName'] = new RegExp(name, 'i');
+        filter.displayName = new RegExp(name, 'i');
       }
 
-      const model = this.getModel(type);
-      const [total, data] = await Promise.all([
-        model.countDocuments(searchQuery),
-        model
-          .find(searchQuery, '-__v -refreshToken')
-          .skip(skip)
-          .limit(limit)
-          .lean(),
+      const Model = this.getModel(type);
+
+      const [totalCount, entities] = await Promise.all([
+        Model.countDocuments(filter),
+        Model.find(filter, '-__v -refreshToken').skip(skip).limit(limit).lean(),
       ]);
+
+      let enrichedEntities = entities;
+
+      if (type === 'user') {
+        const userIds = entities.map((entity) => entity._id);
+
+        const linkCounts = await this.linkModel.aggregate([
+          { $match: { userId: { $in: userIds } } },
+          { $group: { _id: '$userId', count: { $sum: 1 } } },
+        ]);
+
+        const linkCountMap = new Map<string, number>();
+        linkCounts.forEach(({ _id, count }) => {
+          linkCountMap.set(_id.toString(), count);
+        });
+
+        const subscriptions = await this.subscriptionModel
+          .find({ userId: { $in: userIds } }, 'userId status plan')
+          .populate('plan', 'name')
+          .lean()
+          .exec();
+
+        const subscriptionMap = new Map<string, any>();
+        subscriptions.forEach((sub) => {
+          subscriptionMap.set(sub.userId.toString(), sub);
+        });
+
+        enrichedEntities = entities.map((entity: any) => ({
+          ...entity,
+          linkCount: linkCountMap.get(entity._id.toString()) || 0,
+          subscription: subscriptionMap.get(entity._id.toString()) || null,
+        }));
+      }
 
       return {
         status: 'success',
         statusCode: HttpStatus.OK,
-        message: `${type}s retrieved successfully.`,
-        data: { data, total, page, limit },
+        message: `${type.charAt(0).toUpperCase() + type.slice(1)}s retrieved successfully.`,
+        data: {
+          data: enrichedEntities,
+          total: totalCount,
+          page,
+          limit,
+        },
       };
     } catch (error) {
       return errorHandler(error);
@@ -1067,7 +1102,6 @@ export class AdminService {
         this.OfferModel.countDocuments(userQuery),
         this.linkModel.countDocuments({
           userId: { $in: userIds },
-          status: 'closed',
         }),
         this.linkModel.aggregate([
           { $match: { userId: { $in: userIds } } },
