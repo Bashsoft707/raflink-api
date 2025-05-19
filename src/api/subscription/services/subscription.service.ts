@@ -775,7 +775,6 @@ export class SubscriptionService {
           currentPeriodEnd: { $lte: sevenDaysFromNow },
         })
         .populate('plan', 'name price')
-        .lean()
         .exec();
 
       for (const subscription of subscriptionsExpiringSoon) {
@@ -819,7 +818,6 @@ export class SubscriptionService {
           currentPeriodEnd: { $lt: now },
         })
         .populate('plan', 'name price')
-        .lean()
         .exec();
 
       for (const subscription of expiredSubscriptions) {

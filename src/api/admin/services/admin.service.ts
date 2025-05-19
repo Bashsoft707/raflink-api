@@ -1134,12 +1134,17 @@ export class AdminService {
       if (!user) throw new NotFoundException('User not found');
 
       const links = await this.linkModel.find({ userId: id }, '-userId').lean();
+      const subscription = await this.subscriptionModel
+        .findOne({ userId: id }, 'status plan')
+        .populate('plan', 'name')
+        .lean()
+        .exec();
 
       return {
         status: 'success',
         statusCode: HttpStatus.OK,
         message: 'User retrieved successfully.',
-        data: { user, links },
+        data: { user, links, subscription },
       };
     } catch (error) {
       return errorHandler(error);
