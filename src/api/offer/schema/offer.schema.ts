@@ -68,6 +68,9 @@ export class Offer {
   @Prop({ type: [String] })
   targetAudience: string[];
 
+  @Prop({ type: Number, default: 0 })
+  clickCount: number;
+
   // @Prop({ type: Boolean, default: false })
   // verified: boolean;
 
