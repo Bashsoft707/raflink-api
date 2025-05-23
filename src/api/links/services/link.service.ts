@@ -30,6 +30,7 @@ import {
 import { Category, CategoryDocument } from '../schema/category.schema';
 import { Tracker, TrackerDocument } from '../schema/tracker.schema';
 import { UserTemplate } from 'src/api/tp/schema';
+import { Offer, OfferDocument } from 'src/api/offer/schema';
 
 @Injectable()
 export class LinkService {
@@ -50,6 +51,8 @@ export class LinkService {
     private readonly trackerModel: Model<TrackerDocument>,
     @InjectModel(UserTemplate.name)
     private readonly userTemplateModel: Model<UserTemplate>,
+    @InjectModel(Offer.name)
+    private readonly offerModel: Model<OfferDocument>,
   ) {}
 
   async createUserLink(
@@ -744,7 +747,7 @@ export class LinkService {
 
   async trackSales(res, query) {
     try {
-      const { affiliate_id, amount, order_id, vendor_id } = query;
+      const { affiliate_id, amount, order_id, vendor_id, offer_id } = query;
 
       if (!affiliate_id) {
         throw new BadRequestException('Affiliate id required');
@@ -771,6 +774,20 @@ export class LinkService {
         if (!tracker) {
           throw new InternalServerErrorException('Failed to track sale');
         }
+
+        await this.offerModel.findByIdAndUpdate(
+          offer_id,
+          {
+            $inc: { clickCount: 1 },
+          },
+          { new: true },
+        );
+
+        await this.LinkModel.findOneAndUpdate(
+          { userId: affiliate_id, offerId: offer_id },
+          { $inc: { affiliateEarnings: amount } },
+          { new: true },
+        );
       }
 
       // 1x1 transparent pixel

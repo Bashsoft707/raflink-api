@@ -82,6 +82,9 @@ export class Offer {
 
   @Prop({ enum: AffiliateType, default: AffiliateType.PRODUCT })
   affiliateType: string;
+
+  @Prop({ type: Boolean, default: false })
+  promoted: boolean;
 }
 
 export type OfferDocument = Offer & Document<Types.ObjectId>;

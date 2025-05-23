@@ -158,4 +158,18 @@ export class OfferController {
   async getCategories(@Req() req: Request) {
     return await this.OfferService.getCategory();
   }
+
+  @Get('/:id/promote')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to promote offer' })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the offer to be promoted',
+    required: true,
+    type: String,
+  })
+  async promoteOffer(@Param() param: { id: string }) {
+    return await this.OfferService.promoteOffer(param.id);
+  }
 }

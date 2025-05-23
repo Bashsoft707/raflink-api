@@ -393,4 +393,14 @@ export class TrackerDto {
     title: 'vendor_id',
   })
   vendor_id: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Offer id',
+    example: '68305ee40080eb004b296957',
+    required: false,
+    title: 'offer_id',
+  })
+  offer_id: string;
 }

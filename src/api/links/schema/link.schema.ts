@@ -9,6 +9,9 @@ export class Link {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
   userId: MongooseSchema.Types.ObjectId;
 
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Offer' })
+  offerId: string;
+
   @Prop({
     required: true,
     enum: TEMPLATE_LINK_LAYOUT,

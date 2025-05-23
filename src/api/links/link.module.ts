@@ -16,6 +16,7 @@ import {
 import { Category, CategorySchema } from './schema/category.schema';
 import { Tracker, TrackerSchema } from './schema/tracker.schema';
 import { UserTemplate, UserTemplateSchema } from '../tp/schema';
+import { Offer, OfferSchema } from '../offer/schema';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { UserTemplate, UserTemplateSchema } from '../tp/schema';
       { name: Category.name, schema: CategorySchema },
       { name: Tracker.name, schema: TrackerSchema },
       { name: UserTemplate.name, schema: UserTemplateSchema },
+      { name: Offer.name, schema: OfferSchema },
     ]),
     CachesModule,
   ],

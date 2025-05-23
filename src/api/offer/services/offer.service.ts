@@ -323,4 +323,36 @@ export class OfferService {
       errorHandler(error);
     }
   }
+
+  async promoteOffer(id: string) {
+    try {
+      const offer = await this.OfferModel.findById(id);
+
+      if (!offer) {
+        throw new NotFoundException('Offer not found');
+      }
+
+      const promotedOffer = await this.OfferModel.findByIdAndUpdate(
+        id,
+        { promoted: true },
+        {
+          new: true,
+        },
+      );
+
+      if (!promotedOffer) {
+        throw new InternalServerErrorException('Failed to promote offer');
+      }
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'Offer promoted successfully.',
+        data: promotedOffer,
+        error: null,
+      };
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
 }
