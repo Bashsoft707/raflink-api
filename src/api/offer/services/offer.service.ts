@@ -12,7 +12,7 @@ import { Model, Types } from 'mongoose';
 
 import { errorHandler } from '../../../utils';
 import { Offer, OfferDocument } from '../schema';
-import { CreateOfferDto, UpdateOfferDto } from '../dto';
+import { CreateOfferDto, FilterOfferDto, UpdateOfferDto } from '../dto';
 import { Category, CategoryDocument } from '../../links/schema/category.schema';
 import { CreateCategoryDto } from '../../links/dtos';
 
@@ -67,9 +67,17 @@ export class OfferService {
     }
   }
 
-  async getUserOffers(userId: Types.ObjectId) {
+  async getUserOffers(merchantId: Types.ObjectId, query: FilterOfferDto) {
     try {
-      const userOffers = await this.OfferModel.find({ merchantId: userId })
+      const { name, promoted } = query;
+      const baseQuery: any = { merchantId };
+
+      if (name) baseQuery.name = new RegExp(name, 'i');
+
+      if (typeof promoted === 'string')
+        baseQuery.promoted = promoted.toLowerCase() === 'true';
+
+      const userOffers = await this.OfferModel.find(baseQuery)
         .populate('userId')
         .exec();
 
@@ -171,12 +179,17 @@ export class OfferService {
     }
   }
 
-  async getOffers() {
+  async getOffers(query: FilterOfferDto) {
     try {
-      const offers = await this.OfferModel.find(
-        { status: 'active' },
-        '-userId',
-      ).exec();
+      const { name, promoted } = query;
+      const baseQuery: any = { status: 'active' };
+
+      if (name) baseQuery.name = new RegExp(name, 'i');
+
+      if (typeof promoted === 'string')
+        baseQuery.promoted = promoted.toLowerCase() === 'true';
+
+      const offers = await this.OfferModel.find(baseQuery, '-userId').exec();
 
       return {
         status: 'success',

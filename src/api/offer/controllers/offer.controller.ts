@@ -7,6 +7,7 @@ import {
   Req,
   UseGuards,
   Patch,
+  Query,
   // Delete,
   // Query,
 } from '@nestjs/common';
@@ -20,7 +21,7 @@ import {
 import { AccessTokenGuard } from '../../authentication/auth';
 import { Request } from 'express';
 import { TokenData } from '../../authentication/dtos';
-import { CreateOfferDto, UpdateOfferDto } from '../dto';
+import { CreateOfferDto, FilterOfferDto, UpdateOfferDto } from '../dto';
 import { OfferService } from '../services/offer.service';
 import { CreateCategoryDto } from 'src/api/links/dtos';
 import { RolesGuard } from '../../authentication/auth/role.guard';
@@ -45,10 +46,10 @@ export class OfferController {
   @UseGuards(AccessTokenGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Endpoint to get all user offers' })
-  async getUserOffers(@Req() req: Request) {
+  async getUserOffers(@Req() req: Request, @Query() query: FilterOfferDto) {
     const { user: tokenData } = req;
     const { user } = tokenData as unknown as TokenData;
-    return await this.OfferService.getUserOffers(user);
+    return await this.OfferService.getUserOffers(user, query);
   }
 
   @Get('/user/:id')
@@ -72,8 +73,8 @@ export class OfferController {
   @UseGuards(AccessTokenGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Endpoint to get all offers' })
-  async getOffers() {
-    return await this.OfferService.getOffers();
+  async getOffers(@Query() query: FilterOfferDto) {
+    return await this.OfferService.getOffers(query);
   }
 
   @Get('/:id')

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   // IsBoolean,
   // IsEnum,
@@ -17,6 +17,7 @@ import {
   ValidateNested,
   IsMongoId,
   IsEnum,
+  IsBoolean,
 } from 'class-validator';
 import { AffiliateType } from '../../../constants';
 
@@ -340,4 +341,36 @@ export class UpdateOfferDto {
     title: 'targetAudience',
   })
   targetAudience: string[];
+}
+
+export class FilterOfferDto {
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'The name of the offer',
+    example: 'Exclusive 70% off Mobbin Pro',
+    required: false,
+    title: 'name',
+  })
+  name: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'The status of the offer',
+    example: 'active',
+    required: false,
+    title: 'status',
+  })
+  status: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Promoted',
+    example: 'false',
+    required: false,
+    title: 'promoted',
+  })
+  promoted: string;
 }
