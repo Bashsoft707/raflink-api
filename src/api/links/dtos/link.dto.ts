@@ -370,9 +370,9 @@ export class TrackerDto {
     description: 'Affiliate id',
     example: '67b6c6f202cc89efe1d651tn',
     required: true,
-    title: 'affiliateId',
+    title: 'affiliate_id',
   })
-  affiliateId: string;
+  affiliate_id: string;
 
   @IsString()
   @IsNotEmpty()
@@ -380,9 +380,9 @@ export class TrackerDto {
     description: 'Order Id',
     example: 'ORD-123456',
     required: true,
-    title: 'orderId',
+    title: 'order_id',
   })
-  orderId: string;
+  order_id: string;
 
   @IsString()
   @IsNotEmpty()
@@ -390,7 +390,7 @@ export class TrackerDto {
     description: 'Vendor Id',
     example: '67b6c6f202cc89efe1d651gw',
     required: true,
-    title: 'vendorId',
+    title: 'vendor_id',
   })
-  vendorId: string;
+  vendor_id: string;
 }

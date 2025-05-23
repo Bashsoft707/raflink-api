@@ -744,15 +744,15 @@ export class LinkService {
 
   async trackSales(res, query) {
     try {
-      const { affiliateId, amount, orderId, vendorId } = query;
+      const { affiliate_id, amount, order_id, vendor_id } = query;
 
-      if (!affiliateId) {
+      if (!affiliate_id) {
         throw new BadRequestException('Affiliate id required');
       }
 
-      if (affiliateId && amount) {
+      if (affiliate_id && amount) {
         const affiliateLink = await this.userModel
-          .findOne({ _id: affiliateId })
+          .findOne({ _id: affiliate_id })
           .lean()
           .exec();
 
@@ -761,11 +761,11 @@ export class LinkService {
         }
 
         const tracker = await this.trackerModel.create({
-          affiliateId,
+          affiliateId: affiliate_id,
           // userId: affiliateLink.userId,
-          vendorId,
+          vendorId: vendor_id,
           amount,
-          orderId,
+          orderId: order_id,
         });
 
         if (!tracker) {
