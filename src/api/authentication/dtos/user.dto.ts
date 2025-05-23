@@ -412,6 +412,16 @@ export class UserDetailsDto {
     title: 'Country',
   })
   country: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Your company name',
+    example: 'Bluekanel',
+    required: false,
+    title: 'company',
+  })
+  company: string;
 }
 
 export class PurchaseDomainDto extends UserDetailsDto {
