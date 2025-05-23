@@ -232,9 +232,9 @@ export class LinkController {
   }
 
   @Get('/tracker')
-  @UseGuards(AccessTokenGuard)
+  // @UseGuards(AccessTokenGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Endpoint to track sales' })
+  @ApiOperation({ summary: 'Endpoint to track affiliate sales' })
   async trackSales(@Res() res: Response, @Query() query: TrackerDto) {
     return await this.LinkService.trackSales(res, query);
   }

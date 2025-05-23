@@ -5,19 +5,26 @@ import { Document, Schema as MongooseSchema, Types } from 'mongoose';
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
 })
 export class Tracker {
+  // @Prop({
+  //   type: MongooseSchema.Types.ObjectId,
+  //   ref: 'User',
+  //   required: true,
+  // })
+  // userId: MongooseSchema.Types.ObjectId;
+
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     ref: 'User',
     required: true,
   })
-  userId: MongooseSchema.Types.ObjectId;
+  affiliateId: MongooseSchema.Types.ObjectId;
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
-    ref: 'Link',
+    ref: 'Merchant',
     required: true,
   })
-  affiliateId: MongooseSchema.Types.ObjectId;
+  vendorId: MongooseSchema.Types.ObjectId;
 
   @Prop({ type: Number, required: true })
   amount: number;
