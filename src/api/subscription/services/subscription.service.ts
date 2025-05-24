@@ -844,8 +844,11 @@ export class SubscriptionService {
           },
         });
 
-        subscription.status = SubscriptionStatus.EXPIRED;
-        await subscription.save();
+        await this.subscriptionModel.findByIdAndUpdate(
+          subscription._id,
+          { status: SubscriptionStatus.EXPIRED },
+          { new: true },
+        );
       }
     } catch (error) {
       console.error('Error notifying expired subscriptions:', error);
