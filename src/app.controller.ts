@@ -13,6 +13,56 @@ export class AppController {
     return this.appService.getHello();
   }
 
+  // @Post('api/proxy/resellerclub')
+  // async proxyResellerClub(
+  //   @Body() body: ResellerClubProxyRequestDto,
+  //   @Res() res: Response,
+  // ) {
+  //   try {
+  //     const { endpoint, params, method = 'GET', headers: clientHeaders } = body;
+
+  //     if (!endpoint) {
+  //       return res.status(400).json({ error: 'Endpoint is required' });
+  //     }
+
+  //     console.log(`Proxying ${method} request to ${endpoint}`);
+  //     console.log('Params:', params);
+
+  //     const baseUrl = this.getBaseUrlForEndpoint(endpoint);
+  //     const targetUrl = `${baseUrl}/${endpoint}`;
+
+  //     console.log(`Proxying request to: ${targetUrl}`);
+
+  //     const response = await axios({
+  //       method,
+  //       url: targetUrl,
+  //       params,
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'User-Agent': 'YourApp/1.0',
+  //         ...clientHeaders,
+  //       },
+  //       timeout: 30000,
+  //     });
+
+  //     console.log(`Proxy success for ${endpoint}`);
+  //     res.json(response.data);
+  //   } catch (error) {
+  //     console.log("erorr", error.response)
+  //     console.error('Proxy error:', {
+  //       endpoint: body.endpoint,
+  //       error: error.message,
+  //       status: error.response?.status,
+  //       data: error.response?.data,
+  //     });
+  //     console.error('Proxy error:', error.message);
+  //     const status = error.response?.status || 500;
+  //     res.status(status).json({
+  //       error: error.message,
+  //       data: error.response?.data,
+  //     });
+  //   }
+  // }
   @Post('api/proxy/resellerclub')
   async proxyResellerClub(
     @Body() body: ResellerClubProxyRequestDto,
@@ -25,41 +75,49 @@ export class AppController {
         return res.status(400).json({ error: 'Endpoint is required' });
       }
 
-      console.log(`Proxying ${method} request to ${endpoint}`);
-      console.log('Params:', params);
-
+      const safeMethod = method.toUpperCase();
       const baseUrl = this.getBaseUrlForEndpoint(endpoint);
       const targetUrl = `${baseUrl}/${endpoint}`;
 
-      console.log(`Proxying request to: ${targetUrl}`);
+      console.log(`\n📡 Proxying ${safeMethod} request to ${targetUrl}`);
+      console.log('🧾 Params:', JSON.stringify(params, null, 2));
 
-      const response = await axios({
-        method,
-        url: targetUrl,
-        params,
-        headers: {
-          'Content-Type': 'application/json',
-          'User-Agent': 'YourApp/1.0',
-          ...clientHeaders,
-        },
-        timeout: 30000,
-      });
+      let axiosResponse;
 
-      console.log(`Proxy success for ${endpoint}`);
-      res.json(response.data);
+      if (safeMethod === 'GET') {
+        axiosResponse = await axios.get(targetUrl, {
+          params,
+          headers: {
+            'Content-Type': 'application/json',
+            'User-Agent': 'YourApp/1.0',
+            ...clientHeaders,
+          },
+          timeout: 30000,
+        });
+      } else {
+        axiosResponse = await axios({
+          method: safeMethod,
+          url: targetUrl,
+          data: params,
+          headers: {
+            'Content-Type': 'application/json',
+            'User-Agent': 'YourApp/1.0',
+            ...clientHeaders,
+          },
+          timeout: 30000,
+        });
+      }
+
+      console.log(`✅ Proxy success for ${endpoint}`);
+      return res.json(axiosResponse.data);
     } catch (error) {
-      console.log("erorr", error.response)
-      console.error('Proxy error:', {
-        endpoint: body.endpoint,
-        error: error.message,
-        status: error.response?.status,
-        data: error.response?.data,
-      });
-      console.error('Proxy error:', error.message);
       const status = error.response?.status || 500;
-      res.status(status).json({
+      console.error(`❌ Proxy error for ${body.endpoint} - ${error.message}`);
+      console.error('🔍 Error data:', error.response?.data);
+
+      return res.status(status).json({
         error: error.message,
-        data: error.response?.data,
+        data: error.response?.data || null,
       });
     }
   }

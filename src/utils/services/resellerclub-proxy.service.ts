@@ -63,7 +63,7 @@ export class ResellerClubProxyService {
 
     return axios.post(proxyUrl, {
       endpoint,
-      method,
+      method: 'GET',
       params,
     });
   }
