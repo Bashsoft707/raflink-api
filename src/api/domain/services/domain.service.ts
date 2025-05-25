@@ -12,6 +12,7 @@ import { TransactionService } from '../../transaction/services/transaction.servi
 import Stripe from 'stripe';
 import { randomUUID } from 'crypto';
 import { TransactionStatus } from 'src/constants';
+import { ResellerClubProxyService } from 'src/utils/services/resellerclub-proxy.service';
 
 @Injectable()
 export class DomainService {
@@ -28,6 +29,8 @@ export class DomainService {
     private readonly stripeService: StripeService,
     @Inject(TransactionService)
     private readonly transactionService: TransactionService,
+    @Inject(ResellerClubProxyService)
+    private readonly resellerClubProxy: ResellerClubProxyService,
   ) {}
 
   async domainAvailability(domainName: string) {
@@ -88,21 +91,15 @@ export class DomainService {
       const [sld, ...tldParts] = domainName.split('.');
       const tld = tldParts.join('.');
 
-      const apiUrl = this.USE_SANDBOX ? this.SANDBOX_URL : this.BASE_URL;
-
-      const response = await axios.get(`${apiUrl}/domains/available.json`, {
-        params: {
+      const response = await this.resellerClubProxy.makeRequest(
+        'domains/available.json',
+        {
           'auth-userid': this.AUTH_USERID,
           'api-key': this.API_KEY,
           'domain-name': sld,
           tlds: tld,
         },
-        headers: {
-          'Content-Type': 'application/json',
-          'User-Agent': 'YourApp/1.0',
-        },
-        timeout: 30000,
-      });
+      );
 
       console.log('response', response);
 
@@ -168,20 +165,12 @@ export class DomainService {
 
   private async fetchDomainPrice(tld: string): Promise<number> {
     try {
-      const apiUrl = this.USE_SANDBOX ? this.SANDBOX_URL : this.BASE_URL;
-
-      const response = await axios.get(
-        `${apiUrl}/domains/reseller-price.json`,
+      const response = await this.resellerClubProxy.makeRequest(
+        'domains/reseller-price.json',
         {
-          params: {
-            'auth-userid': this.AUTH_USERID,
-            'api-key': this.API_KEY,
-            tld: tld,
-          },
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          timeout: 15000,
+          'auth-userid': this.AUTH_USERID,
+          'api-key': this.API_KEY,
+          tld: tld,
         },
       );
 

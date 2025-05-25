@@ -7,6 +7,7 @@ import { DomainController } from './controllers/domain.controller';
 import { StripeService } from '../stripe/service/stripe.service';
 import { TransactionService } from '../transaction/services/transaction.service';
 import { Transaction, TransactionSchema } from '../transaction/schema';
+import { ResellerClubProxyService } from 'src/utils/services/resellerclub-proxy.service';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { Transaction, TransactionSchema } from '../transaction/schema';
     EmailTemplateLoader,
     StripeService,
     TransactionService,
+    ResellerClubProxyService,
   ],
   controllers: [DomainController],
   exports: [DomainService],
