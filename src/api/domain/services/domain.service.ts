@@ -101,10 +101,6 @@ export class DomainService {
         },
       );
 
-      console.log('response', response);
-
-      console.log('ResellerClub API Response:', response.data);
-
       const domainKey = `${sld}.${tld}`;
       const result = response.data[domainKey];
 
