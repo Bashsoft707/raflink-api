@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Req, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Res } from '@nestjs/common';
 import { AppService } from './app.service';
 import axios from 'axios';
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import { ResellerClubProxyRequestDto } from './utils/dtos/resellerclub.dto';
 
 @Controller()
 export class AppController {
@@ -13,18 +14,19 @@ export class AppController {
   }
 
   @Post('api/proxy/resellerclub')
-  async proxyResellerClub(@Req() req: Request, @Res() res: Response) {
+  async proxyResellerClub(
+    @Body() body: ResellerClubProxyRequestDto,
+    @Res() res: Response,
+  ) {
     try {
-      const {
-        endpoint,
-        params,
-        method = 'GET',
-        headers: clientHeaders,
-      } = req.body;
+      const { endpoint, params, method = 'GET', headers: clientHeaders } = body;
 
       if (!endpoint) {
         return res.status(400).json({ error: 'Endpoint is required' });
       }
+
+      console.log(`Proxying ${method} request to ${endpoint}`);
+      console.log('Params:', params);
 
       const baseUrl = this.getBaseUrlForEndpoint(endpoint);
       const targetUrl = `${baseUrl}/${endpoint}`;
@@ -43,8 +45,16 @@ export class AppController {
         timeout: 30000,
       });
 
+      console.log(`Proxy success for ${endpoint}`);
       res.json(response.data);
     } catch (error) {
+      console.log("erorr", error.response)
+      console.error('Proxy error:', {
+        endpoint: body.endpoint,
+        error: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+      });
       console.error('Proxy error:', error.message);
       const status = error.response?.status || 500;
       res.status(status).json({
