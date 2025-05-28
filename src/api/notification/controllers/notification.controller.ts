@@ -21,7 +21,7 @@ import { NotificationService } from '../services/notification.service';
 import { NotificationFilterDTO, UpdateNotificationDto } from '../dto';
 
 @ApiTags('Notification')
-@Controller('Notifications')
+@Controller('notifications')
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 

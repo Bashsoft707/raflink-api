@@ -29,22 +29,32 @@ export class MerchantController {
   @Get('/dashboard')
   @UseGuards(AccessTokenGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Endpoint to get user info' })
+  @ApiOperation({ summary: 'Endpoint to get marketers' })
   async getAdmin(@Req() req: Request) {
     const { user: tokenData } = req;
     const { user } = tokenData as unknown as TokenData;
     return await this.merchantService.getDashboardAnalytics(user);
   }
 
-  //   @Get('/dashboard/graph')
-  //   @UseGuards(AccessTokenGuard)
-  //   @ApiBearerAuth()
-  //   @ApiOperation({ summary: 'Endpoint to get user info' })
-  //   async getDashbordGraph(@Req() req: Request, @Query() query: GraphFilterDto) {
-  //     // const { user: tokenData } = req;
-  //     // const { user } = tokenData as unknown as TokenData;
-  //     return await this.merchantService.getDashboardAnalyticsGraph(query);
-  //   }
+  // @Get('/dashboard/graph')
+  // @UseGuards(AccessTokenGuard)
+  // @ApiBearerAuth()
+  // @ApiOperation({ summary: 'Endpoint to get marketers earnings graph' })
+  // async getDashbordGraph(@Req() req: Request, @Query() query: GraphFilterDto) {
+  //   const { user: tokenData } = req;
+  //   const { user } = tokenData as unknown as TokenData;
+  //   return await this.merchantService.getDashboardAnalyticsGraph(user, query);
+  // }
+
+  @Get('/dashboard/graph')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Endpoint to get marketers earnings graph' })
+  async getDashbordGraph(@Req() req: Request, @Query() query: GraphFilterDto) {
+    const { user: tokenData } = req;
+    const { user } = tokenData as unknown as TokenData;
+    return await this.merchantService.getEarningsGraph(user, query);
+  }
 
   //   @Get('/user/view-time')
   //   @UseGuards(AccessTokenGuard)

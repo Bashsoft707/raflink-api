@@ -1,8 +1,4 @@
-import {
-  HttpStatus,
-  Inject,
-  Injectable,
-} from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../../authentication/schema';
 import { Connection, Model, Types } from 'mongoose';
@@ -12,6 +8,13 @@ import {
 } from '../../authentication/schema/merchants.schema';
 import { Offer, OfferDocument } from '../../offer/schema';
 import { errorHandler, formatTime } from '../../../utils';
+import {
+  Link,
+  LinkDocument,
+  Tracker,
+  TrackerDocument,
+} from '../../links/schema';
+import { GraphFilterDto } from 'src/api/links/dtos';
 
 @Injectable()
 export class MerchantService {
@@ -21,7 +24,10 @@ export class MerchantService {
     @InjectModel(Merchant.name)
     private readonly merchantModel: Model<MerchantDocument>,
     @InjectModel(Offer.name)
-    private readonly OfferModel: Model<OfferDocument>
+    private readonly OfferModel: Model<OfferDocument>,
+    @InjectModel(Link.name) private readonly linkModel: Model<LinkDocument>,
+    @InjectModel(Tracker.name)
+    private readonly trackerModel: Model<TrackerDocument>,
   ) {}
 
   async getDashboardAnalytics(merchantId: Types.ObjectId) {
@@ -30,10 +36,28 @@ export class MerchantService {
       const todayStart = new Date();
       todayStart.setHours(0, 0, 0, 0);
 
-      const [clickCounts, totalOfferCount] = await Promise.all([
+      const [clickCounts, totalOfferCount, trackers] = await Promise.all([
         this.OfferModel.find({ merchantId }, 'clickCount'),
         this.OfferModel.countDocuments({ merchantId }),
+        this.trackerModel.aggregate([
+          { $match: { vendorId: new Types.ObjectId(merchantId) } },
+          {
+            $group: {
+              _id: null,
+              totalProducts: { $sum: 1 },
+              totalEarnings: { $sum: '$amount' },
+              totalAffiliates: {
+                $addToSet: '$affiliateId',
+              },
+            },
+          },
+        ]),
       ]);
+
+      const totalAffiliates =
+        trackers.length > 0 ? trackers[0].totalAffiliates.length : 0;
+      const totalProducts = trackers.length > 0 ? trackers[0].totalProducts : 0;
+      const totalEarnings = trackers.length > 0 ? trackers[0].totalEarnings : 0;
 
       const totalClickCount =
         clickCounts.reduce((acc, clicks) => acc + clicks.clickCount, 0) || 0;
@@ -42,7 +66,13 @@ export class MerchantService {
         status: 'success',
         statusCode: HttpStatus.OK,
         message: 'Merchant dashboard overview returned successfully',
-        data: { totalClickCount: totalClickCount, totalOfferCount },
+        data: {
+          totalClickCount: totalClickCount,
+          totalOfferCount,
+          totalEarnings,
+          totalProducts,
+          totalAffiliates,
+        },
         error: null,
       };
     } catch (error) {
@@ -50,7 +80,10 @@ export class MerchantService {
     }
   }
 
-  // async getDashboardAnalyticsGraph(query: GraphFilterDto) {
+  // async getDashboardAnalyticsGraph(
+  //   merchantId: Types.ObjectId,
+  //   query: GraphFilterDto,
+  // ) {
   //   try {
   //     const { startDate, endDate } = query;
   //     const start = new Date(startDate);
@@ -66,36 +99,34 @@ export class MerchantService {
   //     // Determine MongoDB group format
   //     const groupByFormat = isMonthly ? '%Y-%m' : '%Y-%m-%d';
 
-  //     // Function to fetch signups
-  //     const getSignUps = async (model: any) => {
-  //       return model.aggregate([
-  //         { $match: { createdAt: { $gte: start, $lte: end } } },
-  //         {
-  //           $group: {
-  //             _id: {
-  //               $dateToString: { format: groupByFormat, date: '$createdAt' },
-  //             },
-  //             count: { $sum: 1 },
-  //           },
+  //     const trackers = await this.trackerModel.aggregate([
+  //       {
+  //         $match: {
+  //           vendorId: new Types.ObjectId(merchantId),
+  //           createdAt: { $gte: start, $lte: end },
   //         },
-  //         { $sort: { _id: 1 } },
-  //       ]);
-  //     };
-
-  //     // Fetch signups
-  //     const [userSignUps, merchantSignUps] = await Promise.all([
-  //       getSignUps(this.userModel),
-  //       getSignUps(this.merchantModel),
+  //       },
+  //       {
+  //         $group: {
+  //           _id: {
+  //             $dateToString: { format: groupByFormat, date: '$createdAt' },
+  //           },
+  //           totalEarnings: { $sum: '$amount' },
+  //         },
+  //       },
+  //       { $sort: { _id: 1 } },
   //     ]);
 
-  //     // Merge signup counts
-  //     const signUpMap = new Map<string, number>();
-  //     for (const { _id, count } of [...userSignUps, ...merchantSignUps]) {
-  //       signUpMap.set(_id, (signUpMap.get(_id) || 0) + count);
+  //     console.log('trackers', trackers);
+
+  //     // Merge trackers counts
+  //     const trackersMap = new Map<string, number>();
+  //     for (const { _id, count } of trackers) {
+  //       trackersMap.set(_id, (trackersMap.get(_id) || 0) + count);
   //     }
 
   //     // Generate final data points
-  //     let finalData: { date: string; count: number }[] = [];
+  //     let finalData: { date: string; earnings: number }[] = [];
 
   //     if (isMonthly) {
   //       // Monthly: Iterate from January to December
@@ -105,7 +136,7 @@ export class MerchantService {
 
   //         finalData.push({
   //           date: dateKey,
-  //           count: signUpMap.get(dbKey) || 0,
+  //           earnings: trackersMap.get(dbKey) || 0,
   //         });
   //       }
   //     } else {
@@ -115,318 +146,16 @@ export class MerchantService {
   //         const dateKey = current.toISOString().split('T')[0]; // Format YYYY-MM-DD
   //         finalData.push({
   //           date: dateKey,
-  //           count: signUpMap.get(dateKey) || 0,
+  //           earnings: trackersMap.get(dateKey) || 0,
   //         });
   //         current.setDate(current.getDate() + 1);
   //       }
   //     }
 
-  //     return { filterType, data: finalData };
-  //   } catch (error) {
-  //     return errorHandler(error);
-  //   }
-  // }
-
-  // async getViewTime(dto: GraphFilterDto) {
-  //   try {
-  //     const { startDate, endDate } = dto;
-
-  //     const start = new Date(startDate);
-  //     const end = new Date(endDate);
-  //     end.setHours(23, 59, 59, 999);
-
-  //     const timeDiff = Number(end) - Number(start);
-  //     const dayCount = timeDiff / (1000 * 60 * 60 * 24);
-  //     let filterType;
-
-  //     if (dayCount <= 7) {
-  //       filterType = 'daily';
-  //     } else if (dayCount > 7 && dayCount < 30) {
-  //       filterType = 'weekly';
-  //     } else {
-  //       filterType = 'monthly';
-  //     }
-
-  //     const profileViews: any = await this.profileViewModel.find({
-  //       createdAt: { $gte: start, $lte: end },
-  //     });
-
-  //     const analyticsData: any = [];
-
-  //     if (filterType === 'daily') {
-  //       const days = Math.ceil(dayCount) + 1;
-
-  //       for (let i = 0; i < days; i++) {
-  //         const periodStart = new Date(start);
-  //         periodStart.setDate(start.getDate() + i);
-  //         periodStart.setHours(0, 0, 0, 0);
-
-  //         const periodEnd = new Date(periodStart);
-  //         periodEnd.setHours(23, 59, 59, 999);
-
-  //         const filteredViews = profileViews.filter(
-  //           (view) =>
-  //             view.createdAt >= periodStart && view.createdAt <= periodEnd,
-  //         );
-
-  //         const viewCount = filteredViews.reduce(
-  //           (acc, view) => acc + view.viewTime,
-  //           0,
-  //         );
-
-  //         analyticsData.push({
-  //           period: periodStart.toDateString(),
-  //           viewTime: formatTime(viewCount),
-  //         });
-  //       }
-  //     } else if (filterType === 'weekly') {
-  //       const startCopy = new Date(start);
-  //       const dayOfWeek = startCopy.getDay();
-
-  //       const firstSunday = new Date(startCopy);
-  //       firstSunday.setDate(startCopy.getDate() - dayOfWeek);
-
-  //       const weekCount = Math.ceil((dayCount + dayOfWeek) / 7);
-
-  //       for (let i = 0; i < weekCount; i++) {
-  //         const weekStart = new Date(firstSunday);
-  //         weekStart.setDate(firstSunday.getDate() + i * 7);
-  //         weekStart.setHours(0, 0, 0, 0);
-
-  //         const weekEnd = new Date(weekStart);
-  //         weekEnd.setDate(weekStart.getDate() + 6);
-  //         weekEnd.setHours(23, 59, 59, 999);
-
-  //         const filteredViews = profileViews.filter(
-  //           (view) => view.createdAt >= weekStart && view.createdAt <= weekEnd,
-  //         );
-
-  //         const viewCount = filteredViews.reduce(
-  //           (acc, view) => acc + view.viewTime,
-  //           0,
-  //         );
-
-  //         const weekEndFormatted = weekEnd
-  //           .toDateString()
-  //           .split(' ')
-  //           .slice(1)
-  //           .join(' ');
-  //         const weekStartFormatted = weekStart
-  //           .toDateString()
-  //           .split(' ')
-  //           .slice(1)
-  //           .join(' ');
-
-  //         analyticsData.push({
-  //           period: `Week ${i + 1} - ${weekStartFormatted} - ${weekEndFormatted}`,
-  //           viewTime: formatTime(viewCount),
-  //         });
-  //       }
-  //     } else {
-  //       const startMonth = start.getMonth();
-  //       const startYear = start.getFullYear();
-  //       const endMonth = end.getMonth();
-  //       const endYear = end.getFullYear();
-
-  //       const monthCount =
-  //         (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
-
-  //       const months = [
-  //         'Jan',
-  //         'Feb',
-  //         'Mar',
-  //         'Apr',
-  //         'May',
-  //         'Jun',
-  //         'Jul',
-  //         'Aug',
-  //         'Sep',
-  //         'Oct',
-  //         'Nov',
-  //         'Dec',
-  //       ];
-
-  //       for (let i = 0; i < monthCount; i++) {
-  //         const currentMonth = (startMonth + i) % 12;
-  //         const currentYear = startYear + Math.floor((startMonth + i) / 12);
-
-  //         const monthStart = new Date(currentYear, currentMonth, 1);
-  //         const monthEnd = new Date(
-  //           currentYear,
-  //           currentMonth + 1,
-  //           0,
-  //           23,
-  //           59,
-  //           59,
-  //           999,
-  //         );
-
-  //         const filteredViews = profileViews.filter(
-  //           (view) =>
-  //             view.createdAt >= monthStart && view.createdAt <= monthEnd,
-  //         );
-
-  //         const viewCount = filteredViews.reduce(
-  //           (acc, view) => acc + view.viewTime,
-  //           0,
-  //         );
-
-  //         analyticsData.push({
-  //           period: `${months[currentMonth]} ${currentYear}`,
-  //           viewTime: formatTime(viewCount),
-  //         });
-  //       }
-  //     }
-
   //     return {
   //       status: 'success',
   //       statusCode: HttpStatus.OK,
-  //       message: 'User profile views retrieved successfully.',
-  //       data: analyticsData,
-  //     };
-  //   } catch (error) {
-  //     errorHandler(error);
-  //   }
-  // }
-
-  // async getStaffs() {
-  //   try {
-  //     const staffs = await this.raflinkModel.find({ role: 'staff' });
-
-  //     return {
-  //       status: 'success',
-  //       statusCode: HttpStatus.OK,
-  //       message: 'Staffs retrieved successfully.',
-  //       data: staffs,
-  //     };
-  //   } catch (error) {
-  //     return errorHandler(error);
-  //   }
-  // }
-
-  // async deleteStaff(id: Types.ObjectId) {
-  //   try {
-  //     const deletedStaff = await this.raflinkModel.findByIdAndDelete(id);
-  //     return {
-  //       status: 'success',
-  //       statusCode: HttpStatus.OK,
-  //       message: 'User deleted successfully.',
-  //       data: null,
-  //     };
-  //   } catch (error) {
-  //     errorHandler(error);
-  //   }
-  // }
-
-  // async createUser(dto: CreateUserDto) {
-  //   try {
-  //     const { email } = dto;
-
-  //     const user = await this.userModel.findOne({ email }).lean().exec();
-
-  //     if (user) {
-  //       throw new BadRequestException(
-  //         `There's an existing user with this email: ${email}`,
-  //       );
-  //     }
-
-  //     const newUser = await this.userModel.create(dto);
-
-  //     if (!newUser) {
-  //       throw new InternalServerErrorException('Error in creating user');
-  //     }
-
-  //     const subscriptionPlan = await this.subscriptionPlanModel
-  //       .findOne({
-  //         duration: 'year',
-  //       })
-  //       .lean()
-  //       .exec();
-
-  //     if (!subscriptionPlan) {
-  //       throw new BadRequestException('Yearly subscription plan not found');
-  //     }
-
-  //     const stripeCustomerId =
-  //       await this.subscriptionService.getOrCreateCustomer(newUser._id);
-
-  //     const yearlyAmount = subscriptionPlan.price;
-
-  //     await this.stripeService.updateCustomer(stripeCustomerId, -yearlyAmount);
-
-  //     const subscriptionData: Stripe.SubscriptionCreateParams = {
-  //       customer: stripeCustomerId,
-  //       items: [{ price: subscriptionPlan.priceId }],
-  //       expand: ['latest_invoice.payment_intent'],
-  //     };
-
-  //     const subscription =
-  //       await this.stripeService.createSubscription(subscriptionData);
-
-  //     if (!subscription) {
-  //       throw new InternalServerErrorException(
-  //         'Error in creating subscription',
-  //       );
-  //     }
-
-  //     const invoice = subscription.latest_invoice as Stripe.Invoice;
-
-  //     const invoiceUrl = invoice.hosted_invoice_url;
-  //     const receiptPdf = invoice.invoice_pdf;
-
-  //     const newSubscription = await this.subscriptionModel.create({
-  //       userId: newUser._id,
-  //       stripeCustomerId,
-  //       stripeSubscriptionId: subscription.id,
-  //       plan: subscriptionPlan._id,
-  //       paymentMethodId: 'free',
-  //       status: subscription.status,
-  //       currentPeriodStart: new Date(subscription.current_period_start * 1000),
-  //       currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-  //       cancelAtPeriodEnd: subscription.cancel_at_period_end,
-  //       canceledAt: subscription.canceled_at
-  //         ? new Date(subscription.canceled_at * 1000)
-  //         : null,
-  //       trialStart: subscription.trial_start
-  //         ? new Date(subscription.trial_start * 1000)
-  //         : null,
-  //       trialEnd: subscription.trial_end
-  //         ? new Date(subscription.trial_end * 1000)
-  //         : null,
-  //       metadata: {
-  //         priceId: subscriptionPlan.priceId,
-  //       },
-  //       amountPaid: 0,
-  //       invoiceUrl,
-  //       receiptPdf,
-  //     });
-
-  //     if (!newSubscription) {
-  //       throw new InternalServerErrorException(
-  //         'Error in creating subscription',
-  //       );
-  //     }
-
-  //     const transactionPayload = {
-  //       userId: newUser._id,
-  //       amount: 0,
-  //       description: 'Payment for user susbcription',
-  //       transactionType: 'subscription',
-  //       currency: subscriptionPlan.currency,
-  //       transactionRef: randomUUID(),
-  //       transactionDate: new Date(),
-  //       status: TransactionStatus.SUCCESS,
-  //       invoiceUrl,
-  //       receiptPdf,
-  //     };
-
-  //     await this.transactionService.createTransaction(transactionPayload);
-
-  //     return {
-  //       status: 'success',
-  //       statusCode: HttpStatus.CREATED,
-  //       message: 'User created and subscription activated successfully.',
-  //       data: { user: newUser, subscription: newSubscription },
+  //       data: { filterType, data: finalData },
   //       error: null,
   //     };
   //   } catch (error) {
@@ -434,218 +163,259 @@ export class MerchantService {
   //   }
   // }
 
-  // async getSubscribers() {
-  //   try {
-  //     const subscribers = await this.subscriptionModel
-  //       .find({
-  //         status: SubscriptionStatus.ACTIVE,
-  //       })
-  //       .populate('userId', 'displayName username')
-  //       .lean()
-  //       .exec();
+  async getDashboardAnalyticsGraph(
+    merchantId: Types.ObjectId,
+    query: GraphFilterDto,
+  ) {
+    try {
+      const { startDate, endDate } = query;
 
-  //     return {
-  //       status: 'success',
-  //       statusCode: HttpStatus.OK,
-  //       message: 'Subscribers retrieved successfully.',
-  //       data: subscribers,
-  //     };
-  //   } catch (error) {
-  //     return errorHandler(error);
-  //   }
-  // }
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
 
-  // async getSubscriptionAnalytics() {
-  //   try {
-  //     const [plans, paidSub, freeSub] = await Promise.all([
-  //       this.subscriptionPlanModel.countDocuments({}),
-  //       this.subscriptionModel.countDocuments({
-  //         status: SubscriptionStatus.ACTIVE,
-  //         amountPaid: { $gt: 0 },
-  //       }),
-  //       this.subscriptionModel.countDocuments({
-  //         status: SubscriptionStatus.ACTIVE,
-  //         paymentMethodId: 'free',
-  //       }),
-  //     ]);
+      const dayCount =
+        (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
+      const isMonthly = dayCount >= 30;
+      const filterType = isMonthly ? 'monthly' : 'weekly';
+      const year = start.getFullYear();
 
-  //     return {
-  //       status: 'success',
-  //       statusCode: HttpStatus.OK,
-  //       message: 'Subscription analytics retrieved successfully.',
-  //       data: { plans, paidSub, freeSub },
-  //     };
-  //   } catch (error) {
-  //     return errorHandler(error);
-  //   }
-  // }
+      // MongoDB date format for grouping
+      const groupByFormat = isMonthly ? '%Y-%m' : '%Y-%m-%d';
 
-  // private getModel(type: string): Model<any> {
-  //   if (type === 'user') return this.userModel;
-  //   if (type === 'merchant') return this.merchantModel;
-  //   throw new BadRequestException('Invalid type provided');
-  // }
+      // Aggregation query
+      const trackers = await this.trackerModel.aggregate([
+        {
+          $match: {
+            vendorId: new Types.ObjectId(merchantId),
+            createdAt: { $gte: start, $lte: end },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: { format: groupByFormat, date: '$createdAt' },
+            },
+            totalEarnings: { $sum: '$amount' },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]);
 
-  // async getEntities(type: 'user' | 'merchant', query: UserFilterDto) {
-  //   try {
-  //     const { name, page = 1, limit = 10 } = query;
-  //     const skip = (page - 1) * limit;
+      // Map results by date string
+      const trackersMap = new Map<string, number>();
+      for (const { _id, totalEarnings } of trackers) {
+        trackersMap.set(_id, (trackersMap.get(_id) || 0) + totalEarnings);
+      }
 
-  //     const filter: Record<string, any> = {};
-  //     if (name) {
-  //       filter.displayName = new RegExp(name, 'i');
-  //     }
+      const finalData: { date: string; earnings: number }[] = [];
 
-  //     const Model = this.getModel(type);
+      if (isMonthly) {
+        // Generate all months for the year starting from startDate's year
+        for (let month = 0; month < 12; month++) {
+          const dateKey = `${new Date(year, month).toLocaleString('default', {
+            month: 'long',
+          })} ${year}`;
+          const dbKey = `${year}-${String(month + 1).padStart(2, '0')}`;
 
-  //     const [totalCount, entities] = await Promise.all([
-  //       Model.countDocuments(filter),
-  //       Model.find(filter, '-__v -refreshToken').skip(skip).limit(limit).lean(),
-  //     ]);
+          finalData.push({
+            date: dateKey,
+            earnings: trackersMap.get(dbKey) || 0,
+          });
+        }
+      } else {
+        // Daily iteration from start to end date
+        let current = new Date(start);
+        while (current <= end) {
+          const dateKey = current.toISOString().split('T')[0];
+          finalData.push({
+            date: dateKey,
+            earnings: trackersMap.get(dateKey) || 0,
+          });
+          current.setDate(current.getDate() + 1);
+        }
+      }
 
-  //     let enrichedEntities = entities;
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        data: { filterType, data: finalData },
+        error: null,
+      };
+    } catch (error) {
+      return errorHandler(error);
+    }
+  }
 
-  //     if (type === 'user') {
-  //       const userIds = entities.map((entity) => entity._id);
+  async getEarningsGraph(merchantId: Types.ObjectId, dto: GraphFilterDto) {
+    try {
+      const { startDate, endDate } = dto;
 
-  //       const linkCounts = await this.linkModel.aggregate([
-  //         { $match: { userId: { $in: userIds } } },
-  //         { $group: { _id: '$userId', count: { $sum: 1 } } },
-  //       ]);
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
 
-  //       const linkCountMap = new Map<string, number>();
-  //       linkCounts.forEach(({ _id, count }) => {
-  //         linkCountMap.set(_id.toString(), count);
-  //       });
+      const dayCount =
+        (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
+      let filterType: 'daily' | 'weekly' | 'monthly';
 
-  //       const subscriptions = await this.subscriptionModel
-  //         .find({ userId: { $in: userIds } }, 'userId status plan')
-  //         .populate('plan', 'name')
-  //         .lean()
-  //         .exec();
+      if (dayCount <= 7) {
+        filterType = 'daily';
+      } else if (dayCount < 30) {
+        filterType = 'weekly';
+      } else {
+        filterType = 'monthly';
+      }
 
-  //       const subscriptionMap = new Map<string, any>();
-  //       subscriptions.forEach((sub) => {
-  //         subscriptionMap.set(sub.userId.toString(), sub);
-  //       });
+      const trackers: any = await this.trackerModel
+        .find(
+          {
+            vendorId: merchantId,
+            createdAt: { $gte: start, $lte: end },
+          },
+          'createdAt amount vendorId',
+        )
+        .lean();
 
-  //       enrichedEntities = entities.map((entity: any) => ({
-  //         ...entity,
-  //         linkCount: linkCountMap.get(entity._id.toString()) || 0,
-  //         subscription: subscriptionMap.get(entity._id.toString()) || null,
-  //       }));
-  //     }
+      const performers = await this.trackerModel
+        .find({ vendorId: merchantId }, 'vendorId amount')
+        .lean();
 
-  //     return {
-  //       status: 'success',
-  //       statusCode: HttpStatus.OK,
-  //       message: `${type.charAt(0).toUpperCase() + type.slice(1)}s retrieved successfully.`,
-  //       data: {
-  //         data: enrichedEntities,
-  //         total: totalCount,
-  //         page,
-  //         limit,
-  //       },
-  //     };
-  //   } catch (error) {
-  //     return errorHandler(error);
-  //   }
-  // }
+      const topPerformersMap: Record<string, any> = {};
 
-  // async getEntityAnalytics(type: 'user' | 'merchant') {
-  //   try {
-  //     const model = this.getModel(type);
-  //     const total = await model.countDocuments();
+      for (const performer of performers) {
+        const vendorId = performer.vendorId?.toString();
+        const amount = performer.amount;
 
-  //     const users = await model.find({}, '_id').lean();
-  //     const userIds = users.map((u) => u._id);
+        if (!topPerformersMap[vendorId]) {
+          topPerformersMap[vendorId] = {
+            vendorId,
+            totalEarnings: 0,
+            offers: {},
+          };
+        }
 
-  //     const userQuery =
-  //       type === 'user'
-  //         ? { userId: { $in: userIds } }
-  //         : { merchantId: { $in: userIds } };
+        topPerformersMap[vendorId].totalEarnings += amount;
 
-  //     const [offers, closedDeals, earnings] = await Promise.all([
-  //       this.OfferModel.countDocuments(userQuery),
-  //       this.linkModel.countDocuments({
-  //         userId: { $in: userIds },
-  //       }),
-  //       this.linkModel.aggregate([
-  //         { $match: { userId: { $in: userIds } } },
-  //         { $group: { _id: null, total: { $sum: '$earning' } } },
-  //       ]),
-  //     ]);
+        const offer = await this.OfferModel.findOne(
+          { merchantId: vendorId },
+          'name clickCount _id',
+        ).lean();
 
-  //     return {
-  //       status: 'success',
-  //       statusCode: HttpStatus.OK,
-  //       message: `${type} analytics fetched successfully.`,
-  //       data: {
-  //         [`${type}s`]: total,
-  //         offers,
-  //         closedDeals,
-  //         earnings: earnings[0]?.total || 0,
-  //       },
-  //     };
-  //   } catch (error) {
-  //     return errorHandler(error);
-  //   }
-  // }
+        if (offer) {
+          const offerId = offer._id.toString();
 
-  // async getEntityDetails(id: string) {
-  //   try {
-  //     const user =
-  //       (await this.userModel.findById(id, '-__v -refreshToken').lean()) ||
-  //       (await this.merchantModel.findById(id, '-__v -refreshToken').lean());
+          if (!topPerformersMap[vendorId].offers[offerId]) {
+            topPerformersMap[vendorId].offers[offerId] = {
+              offerId,
+              name: offer.name,
+              clickCount: offer.clickCount,
+              earnings: 0,
+            };
+          }
 
-  //     if (!user) throw new NotFoundException('User not found');
+          topPerformersMap[vendorId].offers[offerId].earnings += amount;
+        }
+      }
 
-  //     const links = await this.linkModel.find({ userId: id }, '-userId').lean();
-  //     const subscription = await this.subscriptionModel
-  //       .findOne({ userId: id }, 'status plan')
-  //       .populate('plan', 'name')
-  //       .lean()
-  //       .exec();
+      const analyticsData: { period: string; earnings: number }[] = [];
 
-  //     return {
-  //       status: 'success',
-  //       statusCode: HttpStatus.OK,
-  //       message: 'User retrieved successfully.',
-  //       data: { user, links, subscription },
-  //     };
-  //   } catch (error) {
-  //     return errorHandler(error);
-  //   }
-  // }
+      if (filterType === 'daily') {
+        const current = new Date(start);
 
-  // async toggleEntityStatus(id: string, isActive: boolean) {
-  //   try {
-  //     const updatedUser =
-  //       (await this.userModel.findByIdAndUpdate(
-  //         id,
-  //         { isActive },
-  //         { new: true },
-  //       )) ||
-  //       (await this.merchantModel.findByIdAndUpdate(
-  //         id,
-  //         { isActive },
-  //         { new: true },
-  //       ));
+        while (current <= end) {
+          const next = new Date(current);
+          next.setHours(23, 59, 59, 999);
 
-  //     if (!updatedUser) {
-  //       throw new InternalServerErrorException(
-  //         'Error in activating or deactivating user',
-  //       );
-  //     }
+          const earnings = trackers
+            .filter((t) => t.createdAt >= current && t.createdAt <= next)
+            .reduce((sum, t) => sum + t.amount, 0);
 
-  //     return {
-  //       status: 'success',
-  //       statusCode: HttpStatus.OK,
-  //       message: `User ${isActive ? 'activated' : 'deactivated'} successfully.`,
-  //       data: updatedUser,
-  //     };
-  //   } catch (error) {
-  //     return errorHandler(error);
-  //   }
-  // }
+          analyticsData.push({
+            period: current.toISOString().split('T')[0],
+            earnings,
+          });
+
+          current.setDate(current.getDate() + 1);
+          current.setHours(0, 0, 0, 0);
+        }
+      } else if (filterType === 'weekly') {
+        let current = new Date(start);
+
+        while (current <= end) {
+          const weekStart = new Date(current);
+          const weekEnd = new Date(current);
+          weekEnd.setDate(weekStart.getDate() + 6);
+          weekEnd.setHours(23, 59, 59, 999);
+
+          const earnings = trackers
+            .filter((t) => t.createdAt >= weekStart && t.createdAt <= weekEnd)
+            .reduce((sum, t) => sum + t.amount, 0);
+
+          analyticsData.push({
+            period: `Week of ${weekStart.toDateString()} - ${weekEnd.toDateString()}`,
+            earnings,
+          });
+
+          current.setDate(current.getDate() + 7);
+        }
+      } else {
+        // Monthly
+        const months = [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
+        ];
+
+        const startMonth = start.getMonth();
+        const startYear = start.getFullYear();
+        const endMonth = end.getMonth();
+        const endYear = end.getFullYear();
+
+        const totalMonths =
+          (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
+
+        for (let i = 0; i < totalMonths; i++) {
+          const month = (startMonth + i) % 12;
+          const year = startYear + Math.floor((startMonth + i) / 12);
+
+          const monthStart = new Date(year, month, 1, 0, 0, 0, 0);
+          const monthEnd = new Date(year, month + 1, 0, 23, 59, 59, 999);
+
+          const earnings = trackers
+            .filter((t) => t.createdAt >= monthStart && t.createdAt <= monthEnd)
+            .reduce((sum, t) => sum + t.amount, 0);
+
+          analyticsData.push({
+            period: `${months[month]} ${year}`,
+            earnings,
+          });
+        }
+      }
+
+      return {
+        status: 'success',
+        statusCode: HttpStatus.OK,
+        message: 'Earnings graph data retrieved successfully.',
+        data: {
+          filterType,
+          data: analyticsData,
+          topPerformers: Object.values(topPerformersMap),
+        },
+      };
+    } catch (error) {
+      console.error('Error in getEarningsGraph:', error);
+      errorHandler(error);
+    }
+  }
 }

@@ -26,6 +26,7 @@ import { OtpAuthService } from './services/otp-auth.service';
 import { MerchantService } from './services/merchant.service';
 import { MerchantController } from './controllers/merchant.controller';
 import { Offer, OfferSchema } from '../offer/schema';
+import { Link, LinkSchema, Tracker, TrackerSchema } from '../links/schema';
 
 @Module({
   imports: [
@@ -60,6 +61,8 @@ import { Offer, OfferSchema } from '../offer/schema';
         name: Offer.name,
         schema: OfferSchema,
       },
+      { name: Link.name, schema: LinkSchema },
+      { name: Tracker.name, schema: TrackerSchema },
     ]),
     CachesModule,
   ],

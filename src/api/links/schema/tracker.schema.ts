@@ -2,16 +2,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 
 @Schema({
-  timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+  timestamps: true,
 })
 export class Tracker {
-  // @Prop({
-  //   type: MongooseSchema.Types.ObjectId,
-  //   ref: 'User',
-  //   required: true,
-  // })
-  // userId: MongooseSchema.Types.ObjectId;
-
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     ref: 'User',
