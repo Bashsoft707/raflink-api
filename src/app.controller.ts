@@ -3,14 +3,23 @@ import { AppService } from './app.service';
 import axios from 'axios';
 import { Response } from 'express';
 import { ResellerClubProxyRequestDto } from './utils/dtos/resellerclub.dto';
+import { HealthService } from './utils/services';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private readonly healthService: HealthService,
+  ) {}
 
   @Get()
   getHello(): string {
     return this.appService.getHello();
+  }
+
+  @Get('/health')
+  async healthCheck() {
+    return await this.healthService.simpleHealthCheck();
   }
 
   // @Post('api/proxy/resellerclub')

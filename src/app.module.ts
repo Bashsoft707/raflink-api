@@ -19,6 +19,8 @@ import { TransactionModule } from './api/transaction/transaction.module';
 import { AdminModule } from './api/admin/admin.module';
 import { NotificationModule } from './api/notification/notification.module';
 import { DomainModule } from './api/domain/domain.module';
+import { HealthService } from './utils/services';
+import { TerminusModule } from '@nestjs/terminus';
 
 @Module({
   imports: [
@@ -44,10 +46,12 @@ import { DomainModule } from './api/domain/domain.module';
     AdminModule,
     NotificationModule,
     DomainModule,
+    TerminusModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
+    HealthService,
     // {
     //   provide: APP_INTERCEPTOR,
     //   useClass: LoggerInterceptor,
