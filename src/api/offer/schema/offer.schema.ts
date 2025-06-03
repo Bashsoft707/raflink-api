@@ -22,12 +22,15 @@ export class Offer {
   @Prop({ type: String, required: true, lowercase: true })
   description: string;
 
-  @Prop({
-    type: MongooseSchema.Types.ObjectId,
-    ref: 'Category',
-    index: true,
-  })
-  category: MongooseSchema.Types.ObjectId;
+  // @Prop({
+  //   type: MongooseSchema.Types.ObjectId,
+  //   ref: 'Category',
+  //   index: true,
+  // })
+  // category: MongooseSchema.Types.ObjectId;
+
+  @Prop({ type: String, lowercase: true })
+  category: string;
 
   @Prop({ type: String, lowercase: true })
   image: string;

@@ -64,11 +64,12 @@ export class CreateOfferDto {
   })
   description: string;
 
-  @IsMongoId()
+  // @IsMongoId()
+  @IsString()
   @IsOptional()
   @ApiProperty({
     description: 'Link category',
-    example: '67b6c6f202cc89efe1d651tn',
+    example: 'Exclusive',
     required: false,
     title: 'category',
   })
@@ -150,12 +151,12 @@ export class CreateOfferDto {
   })
   duration: DurationDto;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @ApiProperty({
     description: 'The amount the user gets to each click of the link',
     example: '0.2',
-    required: true,
+    required: false,
     title: 'payoutPerClick',
   })
   payoutPerClick: string;
@@ -214,11 +215,12 @@ export class UpdateOfferDto {
   })
   description: string;
 
-  @IsMongoId()
+  // @IsMongoId()
+  @IsString()
   @IsOptional()
   @ApiProperty({
     description: 'Link category',
-    example: '67b6c6f202cc89efe1d651tn',
+    example: 'Exclusive',
     required: false,
     title: 'category',
   })
