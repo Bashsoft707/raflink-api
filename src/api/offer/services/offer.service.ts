@@ -28,15 +28,15 @@ export class OfferService {
   async createOffer(userId: Types.ObjectId, createOfferDto: CreateOfferDto) {
     const { duration, ...rest } = createOfferDto;
 
-    if (createOfferDto.category) {
-      const category = await this.categoryModel
-        .findOne({ userId, _id: createOfferDto.category })
-        .exec();
+    // if (createOfferDto.category) {
+    //   const category = await this.categoryModel
+    //     .findOne({ userId, _id: createOfferDto.category })
+    //     .exec();
 
-      if (!category) {
-        throw new BadRequestException('Category not found');
-      }
-    }
+    //   if (!category) {
+    //     throw new BadRequestException('Category not found');
+    //   }
+    // }
 
     const data = {
       ...rest,
@@ -130,16 +130,6 @@ export class OfferService {
 
     if (!userOffer) {
       throw new NotFoundException('Offer not found');
-    }
-
-    if (updateOfferDto.category) {
-      const category = await this.categoryModel
-        .findOne({ userId, _id: updateOfferDto.category })
-        .exec();
-
-      if (!category) {
-        throw new BadRequestException('Category not found');
-      }
     }
 
     const data = {
