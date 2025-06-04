@@ -129,6 +129,16 @@ export class CreateUserLinkDto {
     title: 'earningType',
   })
   earningType: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Offer id',
+    example: '68305ee40080eb004b296957',
+    required: false,
+    title: 'offerId',
+  })
+  offerId: string;
 }
 
 export class UpdateUserLinkDto {
@@ -257,6 +267,16 @@ export class UpdateUserLinkDto {
     title: 'earningType',
   })
   earningType: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Offer id',
+    example: '68305ee40080eb004b296957',
+    required: false,
+    title: 'offerId',
+  })
+  offerId: string;
 }
 
 export class UpdateLinkViewTimeDto {

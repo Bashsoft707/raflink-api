@@ -60,6 +60,17 @@ export class LinkService {
     createLinkDto: CreateUserLinkDto,
   ) {
     try {
+      if (createLinkDto.offerId) {
+        const linkedOffer = await this.LinkModel.findOne({
+          userId,
+          offerId: createLinkDto.offerId,
+        }).exec();
+
+        if (linkedOffer) {
+          throw new BadRequestException('Offer already exists for this user');
+        }
+      }
+      
       const lastLink = await this.LinkModel.findOne({ userId })
         .sort({ linkIndex: -1 })
         .select('linkIndex')
